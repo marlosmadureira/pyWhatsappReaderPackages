@@ -11,7 +11,7 @@ def message_logReader(message_log, DebugMode):
                         'Type', 'Message Style', 'Message Size']
 
     # Lista para armazenar todos os registros
-    todos_os_registros = []
+    allRegistros = []
 
     # Encontrar todos os blocos de mensagem
     message_blocks = message_log.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
@@ -39,16 +39,18 @@ def message_logReader(message_log, DebugMode):
 
         if len(data) > 0:
             # Adicionar o registro à lista
-            if data not in todos_os_registros:
-                todos_os_registros.append(data)
+            if data not in allRegistros:
+                allRegistros.append(data)
 
     if DebugMode:
         # Print dos registros
-        for registro in todos_os_registros:
+        for registro in allRegistros:
             print(registro)
 
-    if todos_os_registros is not None:
-        return todos_os_registros
+    print(f"OUT {allRegistros}")
+
+    if allRegistros is not None:
+        return allRegistros
     else:
         return None
 
@@ -63,7 +65,7 @@ def call_logsReader(call_logs, DebugMode):
                         'From Port', 'Media Type', 'Events']
 
     # Lista para armazenar todos os registros
-    todos_os_registros = []
+    allRegistros = []
 
     # Encontrar todos os blocos de mensagem
     message_blocks = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
@@ -90,16 +92,16 @@ def call_logsReader(call_logs, DebugMode):
                     data[field_name] = field_value
 
         if len(data) > 0:
-            todos_os_registros.append(data)
+            allRegistros.append(data)
 
     if not DebugMode:
         # Print dos registros
-        for registro in todos_os_registros:
+        for registro in allRegistros:
             print(registro)
 
-    print(data)
+    print(f"OUT {allRegistros}")
 
-    if data is not None:
-        return data
+    if allRegistros is not None:
+        return allRegistros
     else:
         return None

@@ -34,7 +34,8 @@ def message_logReader(message_log, DebugMode):
 
         if len(data) > 0:
             # Adicionar o registro à lista
-            todos_os_registros.append(data)
+            if data not in todos_os_registros:
+                todos_os_registros.append(data)
 
     # Print dos registros
     for registro in todos_os_registros:

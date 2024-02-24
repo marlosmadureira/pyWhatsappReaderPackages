@@ -73,9 +73,9 @@ class MyHandler(PatternMatchingEventHandler):
                 bsHtml = parseHTMLFile(folderZip)
 
                 if bsHtml is not None and bsHtml != "":
-                    print('Inicio Leitura HTML ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
+                    print_color(f"Inicio Leitura HTML {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
-                    print_color(f"OUT {fileName}", 34)
+                    print_color(f"\nOUT {fileName}", 34)
 
                     request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
                     parameter = requestReaderParameter(request_parameters, DebugMode)
@@ -134,7 +134,7 @@ class MyHandler(PatternMatchingEventHandler):
                         print(f"{connectioninfo}")
                         print(f"{webinfo}")
 
-                    print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
+                    print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
                     removeFolderFiles(folderZip)
 

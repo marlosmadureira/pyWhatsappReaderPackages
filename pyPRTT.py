@@ -1,4 +1,6 @@
 from pyBiblioteca import print_color
+
+
 def message_logReader(message_log, DebugMode):
     print_color(f"\n=========================== PROCESSANDO MESSAGES LOGS ===========================", 32)
 
@@ -45,10 +47,8 @@ def message_logReader(message_log, DebugMode):
         for registro in todos_os_registros:
             print(registro)
 
-    print(data)
-
-    if data is not None:
-        return data
+    if todos_os_registros is not None:
+        return todos_os_registros
     else:
         return None
 
@@ -90,7 +90,7 @@ def call_logsReader(call_logs, DebugMode):
                     data[field_name] = field_value
 
         if len(data) > 0:
-                todos_os_registros.append(data)
+            todos_os_registros.append(data)
 
     if not DebugMode:
         # Print dos registros

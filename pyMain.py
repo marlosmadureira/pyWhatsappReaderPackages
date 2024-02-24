@@ -26,19 +26,6 @@ DIREXTRACAO = os.getenv("DIREXTRACAO")
 DebugMode = False
 
 
-class CallEventsDict:
-    def __init__(self, type=None, timestamp=None, solicitante=None, atendente=None, solIP=None, solPort=None,
-                 mediaType=None, Participants=None):
-        self.type = type
-        self.timestamp = timestamp
-        self.solicitante = solicitante
-        self.atendente = atendente
-        self.solIP = solIP
-        self.solPort = solPort
-        self.mediaType = mediaType
-        self.Participants = Participants
-
-
 def getUnidadeFileName(nome_original):
     FileName, Unidade = None, None
 

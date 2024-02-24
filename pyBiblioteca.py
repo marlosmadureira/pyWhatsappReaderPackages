@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import psycopg2
@@ -18,8 +19,10 @@ APITOKEN = os.getenv("APITOKEN")
 
 DebugMode = False
 
+
 def somentenumero(parametro):
     return re.sub('[^0-9]', '', parametro)
+
 
 def countdown(num_of_secs):
     while num_of_secs:
@@ -43,6 +46,13 @@ def conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS):
 
 def print_color(text, color_code):
     print(f"\033[{color_code}m{text}\033[0m")
+
+
+def openJsonEstruturado(dados_json):
+    # Exibindo de forma estruturada
+    json_formatado = json.dumps(dados_json, indent=2, ensure_ascii=False)
+
+    print(f"{json_formatado}")
 
 
 def checkFolder(FolderPath):

@@ -24,6 +24,8 @@ def requestReaderParameter(parameters, DebugMode):
             field_name = field_name_text.replace(field_value, '').strip()
             data[field_name] = field_value
 
+    print(data)
+
     if data is not None:
         return data
     else:

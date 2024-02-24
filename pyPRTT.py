@@ -45,6 +45,8 @@ def message_logReader(message_log, DebugMode):
         for registro in todos_os_registros:
             print(registro)
 
+    print(data)
+
     if data is not None:
         return data
     else:
@@ -94,6 +96,8 @@ def call_logsReader(call_logs, DebugMode):
         # Print dos registros
         for registro in todos_os_registros:
             print(registro)
+
+    print(data)
 
     if data is not None:
         return data

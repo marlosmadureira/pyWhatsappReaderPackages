@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, removeFolderFiles
+from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, removeFolderFiles, print_color
 from pyFindPostgresql import setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
@@ -81,7 +81,6 @@ class MyHandler(PatternMatchingEventHandler):
                 print("Evento: " + event.src_path, event.event_type)  # print now only for degug
                 printDebug(" Iniciando arquivo: " + str(source) + " - em: " + str(datamovimento) + "\n")
 
-
             try:
                 fileName = source.replace(DIRNOVOS, "")
                 folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
@@ -95,41 +94,38 @@ class MyHandler(PatternMatchingEventHandler):
                     request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
                     parameter = requestReaderParameter(request_parameters, DebugMode)
 
-                    if 'property-message_log' in bsHtml or 'property-call_logs' in bsHtml:
-                        dataType = "PRTT"
+                    if DebugMode:
+                        print(f"{bsHtml}")
 
-                        message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
-                        call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
+                    message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
+                    call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
 
-                        if message_log is not None and message_log != "":
-                            messages = message_logReader(message_log, DebugMode)
+                    if message_log is not None and message_log != "":
+                        messages = message_logReader(message_log, DebugMode)
 
-                        if call_logs is not None and call_logs != "":
-                            calls = call_logsReader(call_logs, DebugMode)
+                    if call_logs is not None and call_logs != "":
+                        calls = call_logsReader(call_logs, DebugMode)
 
-                    else:
-                        dataType = "Dados"
+                    address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
+                    groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
+                    ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
+                    connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
+                    web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
 
-                        address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
-                        groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
-                        ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
-                        connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
-                        web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
+                    if address_book_info is not None:
+                        book_info = book_infoReader(address_book_info, DebugMode)
 
-                        if address_book_info is not None:
-                            book_info = book_infoReader(address_book_info, DebugMode)
+                    if groups_info is not None:
+                        groups_info = groups_infoReader(groups_info, DebugMode)
 
-                        if groups_info is not None:
-                            groups_info = groups_infoReader(groups_info, DebugMode)
+                    if ncmec_reports is not None:
+                        ncmec_reports = ncmec_reportsReader(ncmec_reports, DebugMode)
 
-                        if ncmec_reports is not None:
-                            ncmec_reports = ncmec_reportsReader(ncmec_reports, DebugMode)
+                    if connection_info is not None:
+                        connection_info = connection_infoReader(connection_info, DebugMode)
 
-                        if connection_info is not None:
-                            connection_info = connection_infoReader(connection_info, DebugMode)
-
-                        if web_info is not None:
-                            web_info = web_infoReader(web_info, DebugMode)
+                    if web_info is not None:
+                        web_info = web_infoReader(web_info, DebugMode)
 
                     print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 

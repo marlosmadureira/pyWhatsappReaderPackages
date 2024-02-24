@@ -41,6 +41,10 @@ def conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS):
     return con
 
 
+def print_color(text, color_code):
+    print(f"\033[{color_code}m{text}\033[0m")
+
+
 def checkFolder(FolderPath):
     if not os.path.exists(FolderPath):
         os.makedirs(FolderPath)

@@ -1,4 +1,6 @@
+from pyBiblioteca import print_color
 def message_logReader(message_log, DebugMode):
+    print_color(f"\n=========================== PROCESSANDO MESSAGES LOGS ===========================", 32)
 
     if DebugMode:
         print(message_log)
@@ -50,6 +52,8 @@ def message_logReader(message_log, DebugMode):
 
 
 def call_logsReader(call_logs, DebugMode):
+    print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)
+
     if DebugMode:
         print(call_logs)
 

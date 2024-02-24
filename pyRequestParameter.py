@@ -1,4 +1,6 @@
+from pyBiblioteca import print_color
 def requestReaderParameter(parameters, DebugMode):
+    print_color(f"\n=========================== PROCESSANDO REQUEST PARAMENTER ===========================", 32)
 
     if DebugMode:
         print(f"{parameters}")

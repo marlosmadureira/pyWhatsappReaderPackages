@@ -1,4 +1,7 @@
-def requestParameter(parameters):
+def requestReaderParameter(parameters, DebugMode):
+
+    if DebugMode:
+        print(f"{parameters}")
 
     data = {}
 

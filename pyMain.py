@@ -11,8 +11,8 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, removeFolderFiles
 from pyFindPostgresql import setDateObjetoProrrogue
-from pyRequestParameter import requestParameter
-from pyPRTT import processPrttFile
+from pyRequestParameter import requestReaderParameter
+from pyPRTT import message_logReader, call_logsReader
 from pyDados import processDadosFile
 
 # Configs
@@ -23,7 +23,7 @@ DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
-DebugMode = True
+DebugMode = False
 
 
 class CallEventsDict:
@@ -81,8 +81,6 @@ class MyHandler(PatternMatchingEventHandler):
                 print("Evento: " + event.src_path, event.event_type)  # print now only for degug
                 printDebug(" Iniciando arquivo: " + str(source) + " - em: " + str(datamovimento) + "\n")
 
-            fileProcess = {}
-            data = {}
 
             try:
                 fileName = source.replace(DIRNOVOS, "")
@@ -99,13 +97,13 @@ class MyHandler(PatternMatchingEventHandler):
                     call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
 
                     if request_parameters is not None and request_parameters != "" and len(request_parameters) == 6:
-                        parameter = requestParameter(request_parameters)
+                        parameter = requestReaderParameter(request_parameters, DebugMode)
 
                     if message_log is not None and message_log != "":
-                        print(f"{message_log}")
+                        messages = message_logReader(message_log, DebugMode)
 
-                    if call_logs is not None and call_logs != "":
-                        print(f"{call_logs}")
+                    # if call_logs is not None and call_logs != "":
+                    #     calls = call_logsReader(call_logs, DebugMode)
 
                     print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 

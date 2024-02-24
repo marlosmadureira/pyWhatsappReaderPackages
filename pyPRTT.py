@@ -94,7 +94,7 @@ def call_logsReader(call_logs, DebugMode):
         if len(data) > 0:
             allRegistros.append(data)
 
-    if not DebugMode:
+    if DebugMode:
         # Print dos registros
         for registro in allRegistros:
             print(registro)

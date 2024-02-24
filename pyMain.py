@@ -50,8 +50,6 @@ class MyHandler(PatternMatchingEventHandler):
 
     def process(self, event):
 
-        LocalDumpBD = False
-
         if DebugMode:
             print("\nLog Evento:" + str(event))
 
@@ -66,6 +64,7 @@ class MyHandler(PatternMatchingEventHandler):
 
             if DebugMode:
                 print("Evento: " + event.src_path, event.event_type)  # print now only for degug
+
                 printDebug(" Iniciando arquivo: " + str(source) + " - em: " + str(datamovimento) + "\n")
 
             try:
@@ -76,7 +75,7 @@ class MyHandler(PatternMatchingEventHandler):
                 if bsHtml is not None and bsHtml != "":
                     print('Inicio Leitura HTML ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 
-                    dataType = None
+                    print_color(f"OUT {fileName}", 34)
 
                     request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
                     parameter = requestReaderParameter(request_parameters, DebugMode)

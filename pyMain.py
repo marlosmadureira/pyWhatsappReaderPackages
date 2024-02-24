@@ -81,9 +81,6 @@ class MyHandler(PatternMatchingEventHandler):
                     request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
                     parameter = requestReaderParameter(request_parameters, DebugMode)
 
-                    if DebugMode:
-                        print(f"{bsHtml}")
-
                     message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
                     call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
 
@@ -100,19 +97,43 @@ class MyHandler(PatternMatchingEventHandler):
                     web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
 
                     if address_book_info is not None:
-                        book_info = book_infoReader(address_book_info, DebugMode)
+                        bookinfo = book_infoReader(address_book_info, DebugMode)
 
                     if groups_info is not None:
-                        groups_info = groups_infoReader(groups_info, DebugMode)
+                        groupsinfo = groups_infoReader(groups_info, DebugMode)
 
                     if ncmec_reports is not None:
-                        ncmec_reports = ncmec_reportsReader(ncmec_reports, DebugMode)
+                        ncmecreports = ncmec_reportsReader(ncmec_reports, DebugMode)
 
                     if connection_info is not None:
-                        connection_info = connection_infoReader(connection_info, DebugMode)
+                        connectioninfo = connection_infoReader(connection_info, DebugMode)
 
                     if web_info is not None:
-                        web_info = web_infoReader(web_info, DebugMode)
+                        webinfo = web_infoReader(web_info, DebugMode)
+
+                    if DebugMode:
+                        print_color(f"\nHTML", 34)
+                        print(f"{bsHtml}")
+
+                        print_color(f"\nTAG", 34)
+                        print(f"{request_parameters}")
+                        print(f"{message_log}")
+                        print(f"{call_logs}")
+                        print(f"{address_book_info}")
+                        print(f"{groups_info}")
+                        print(f"{ncmec_reports}")
+                        print(f"{connection_info}")
+                        print(f"{web_info}")
+
+                        print_color(f"\nRETORNO", 34)
+                        print(f"{parameter}")
+                        print(f"{messages}")
+                        print(f"{calls}")
+                        print(f"{bookinfo}")
+                        print(f"{groupsinfo}")
+                        print(f"{ncmecreports}")
+                        print(f"{connectioninfo}")
+                        print(f"{webinfo}")
 
                     print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 

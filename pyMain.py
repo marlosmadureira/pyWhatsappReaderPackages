@@ -102,8 +102,8 @@ class MyHandler(PatternMatchingEventHandler):
                     if message_log is not None and message_log != "":
                         messages = message_logReader(message_log, DebugMode)
 
-                    # if call_logs is not None and call_logs != "":
-                    #     calls = call_logsReader(call_logs, DebugMode)
+                    if call_logs is not None and call_logs != "":
+                        calls = call_logsReader(call_logs, DebugMode)
 
                     print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 

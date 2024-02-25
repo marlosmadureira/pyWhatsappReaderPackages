@@ -119,7 +119,7 @@ class MyHandler(PatternMatchingEventHandler):
                     if web_info is not None:
                         webinfo = web_infoReader(web_info, DebugMode)
 
-                    print_color(f"\n{dataType}", 30)
+                    print_color(f"\n{dataType}", 31)
 
                     if DebugMode:
                         print_color(f"\nHTML", 34)

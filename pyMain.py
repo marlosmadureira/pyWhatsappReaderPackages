@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, removeFolderFiles, print_color
+from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, removeFolderFiles, print_color, grava_log
 from pyFindPostgresql import setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
@@ -72,7 +72,10 @@ class MyHandler(PatternMatchingEventHandler):
                 folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
                 bsHtml = parseHTMLFile(folderZip)
 
+                dataType = None
+
                 if bsHtml is not None and bsHtml != "":
+
                     print_color(f"Inicio Leitura HTML {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
                     print_color(f"\nOUT {fileName}", 34)
@@ -82,6 +85,9 @@ class MyHandler(PatternMatchingEventHandler):
 
                     message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
                     call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
+
+                    if message_log is not None or call_logs is not None:
+                        dataType = "PRTT"
 
                     if message_log is not None and message_log != "":
                         messages = message_logReader(message_log, DebugMode)
@@ -94,6 +100,9 @@ class MyHandler(PatternMatchingEventHandler):
                     ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
                     connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
                     web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
+
+                    if address_book_info is not None or groups_info is not None or ncmec_reports is not None or ncmec_reports is not None or connection_info is not None or web_info is not None:
+                        dataType = "DADOS"
 
                     if address_book_info is not None:
                         bookinfo = book_infoReader(address_book_info, DebugMode)

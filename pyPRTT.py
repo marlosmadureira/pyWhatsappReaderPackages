@@ -1,4 +1,4 @@
-from pyBiblioteca import print_color
+from pyBiblioteca import print_color, grava_log
 
 
 def message_logReader(message_log, DebugMode):
@@ -15,6 +15,8 @@ def message_logReader(message_log, DebugMode):
 
     # Encontrar todos os blocos de mensagem
     message_blocks = message_log.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
+
+    grava_log(message_blocks, 'logCall.txt')
 
     # Iterar sobre cada bloco de mensagem
     for block in message_blocks:
@@ -62,16 +64,18 @@ def call_logsReader(call_logs, DebugMode):
         print(call_logs)
 
     campos_desejados = ['Call Id', 'Call Creator', 'Type', 'Timestamp', 'From', 'To', 'From Ip',
-                        'From Port', 'Media Type', 'Events']
+                        'From Port', 'Media Type']
 
     # Lista para armazenar todos os registros
     allRegistros = []
 
     # Encontrar todos os blocos de mensagem
-    message_blocks = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
+    call_blocks = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
+
+    grava_log(call_blocks, 'logCall.txt')
 
     # Iterar sobre cada bloco de mensagem
-    for block in message_blocks:
+    for block in call_blocks:
         # Dicionário para armazenar os dados de um registro
         data = {}
 

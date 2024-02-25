@@ -53,7 +53,7 @@ class MyHandler(PatternMatchingEventHandler):
         if DebugMode:
             print("\nLog Evento:" + str(event))
 
-        countdown(3)
+        countdown(2)
         print('\n')
 
         if event.event_type == "created":
@@ -118,6 +118,8 @@ class MyHandler(PatternMatchingEventHandler):
 
                     if web_info is not None:
                         webinfo = web_infoReader(web_info, DebugMode)
+
+                    print_color(f"\n{dataType}", 30)
 
                     if DebugMode:
                         print_color(f"\nHTML", 34)

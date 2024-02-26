@@ -1,7 +1,5 @@
 from pyBiblioteca import print_color, grava_log, remover_espacos_regex
 
-LogGrava = False
-
 
 def message_logReader(message_log, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO MESSAGES LOGS ===========================", 32)
@@ -18,9 +16,6 @@ def message_logReader(message_log, fileName, DebugMode):
 
     # Encontrar todos os blocos de mensagem
     message_blocks = message_log.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
-
-    if LogGrava:
-        grava_log(message_blocks, f'logMessage_{fileName}.txt')
 
     # Iterar sobre cada bloco de mensagem
     for block in message_blocks:
@@ -42,6 +37,8 @@ def message_logReader(message_log, fileName, DebugMode):
                 field_name = field_name_text.replace(field_value, '').strip()
                 if field_name in campos_desejados:
                     data[remover_espacos_regex(field_name)] = field_value
+
+                    # grava_log(remover_espacos_regex(field_name), 'LogKeyMessage.txt')
 
         if len(data) > 0:
             # Adicionar o registro à lista
@@ -77,9 +74,6 @@ def call_logsReader(call_logs, fileName, DebugMode):
     # Encontrar todos os blocos de mensagem
     call_blocks = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
 
-    if LogGrava:
-        grava_log(call_blocks, f'logCall_{fileName}.txt')
-
     # Iterar sobre cada bloco de mensagem
     for block in call_blocks:
         # Dicionário para armazenar os dados de um registro
@@ -100,6 +94,8 @@ def call_logsReader(call_logs, fileName, DebugMode):
                 field_name = field_name_text.replace(field_value, '').strip()
                 if field_name in campos_desejados:
                     data[remover_espacos_regex(field_name)] = field_value
+
+                    # grava_log(remover_espacos_regex(field_name), 'LogKeyCall.txt')
 
         if len(data) > 0:
             allRegistros.append(data)

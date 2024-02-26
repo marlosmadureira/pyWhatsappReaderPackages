@@ -120,15 +120,16 @@ class MyHandler(PatternMatchingEventHandler):
                     if message_log is not None or call_logs is not None:
                         dataType = "PRTT"
 
-                        if message_log is not None and message_log != "":
-                            messages = message_logReader(message_log, fileName, DebugMode)
+                        messages = message_logReader(message_log, fileName, DebugMode)
+                        calls = call_logsReader(call_logs, fileName, DebugMode)
 
-                        if call_logs is not None and call_logs != "":
-                            calls = call_logsReader(call_logs, fileName, DebugMode)
+                        if messages is not None:
+                            fileDados['msgLogs'] = messages
+
+                        if calls is not None:
+                            fileDados['callLogs'] = calls
 
                         if 'PRTT' in dataType:
-                            fileDados['msgLogs'] = messages
-                            fileDados['callLogs'] = calls
                             fileProcess['Prtt'] = fileDados
 
                     address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
@@ -160,10 +161,10 @@ class MyHandler(PatternMatchingEventHandler):
                         if web_info is not None:
                             fileDados['webInfo'] = webinfo
 
-                        print_color(f"\n{dataType}", 31)
-
                         if 'DADOS' in dataType:
                             fileProcess['Dados'] = fileDados
+
+                    print_color(f"\n{dataType}", 31)
 
                     print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
@@ -171,6 +172,8 @@ class MyHandler(PatternMatchingEventHandler):
 
                     if Executar:
                         sendDataJsonServer(fileProcess, dataType)
+                    else:
+                        print(f"{fileProcess}")
 
                     print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 

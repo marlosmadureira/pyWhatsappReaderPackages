@@ -173,6 +173,8 @@ class MyHandler(PatternMatchingEventHandler):
                     if Executar:
                         sendDataJsonServer(fileProcess, dataType)
                     else:
+                        print_color(f"\n=========================== PROCESSANDO sendDataJsonServer ===========================",
+                                    32)
                         print(f"{fileProcess}")
 
                     print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))

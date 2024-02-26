@@ -10,7 +10,7 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
-    removeFolderFiles, print_color, somentenumero, grava_log
+    removeFolderFiles, print_color, somentenumero, grava_log, delete_log
 from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
@@ -188,7 +188,7 @@ class MyHandler(PatternMatchingEventHandler):
                     if not os.path.exists(filePath):
                         shutil.move(source, DIRLIDOS)
                     else:
-                        os.remove(source)
+                        delete_log(source)
 
             except Exception as inst:
                 print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)

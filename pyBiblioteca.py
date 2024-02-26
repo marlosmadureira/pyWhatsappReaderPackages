@@ -37,8 +37,17 @@ def countdown(num_of_secs):
         num_of_secs -= 1
 
 
+def delete_log(nome_arquivo):
+    if os.path.exists(nome_arquivo):
+        os.remove(nome_arquivo)
+        print_color(f"\nExcluido {nome_arquivo}", 31)
+
+
 def grava_log(content, arquivo):
     arquivo = f"log/{arquivo}"
+
+    delete_log(arquivo)
+
     with open(arquivo, "a") as text_file:
         text_file.write('{}\n'.format(content) + '\n')
     text_file.close()

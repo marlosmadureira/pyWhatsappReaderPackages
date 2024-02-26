@@ -710,50 +710,50 @@
 							    //PRTT LOG DE CHAMADAS
 							    if(isset($json->Prtt->callLogs)){
 							        foreach($json->Prtt->callLogs as $registro){
-							            if(isset($registro->callID)){
-							            	$prttcallID = trim(pg_escape_string($registro->callID));
+							            if(isset($registro->CallId)){
+							            	$prttcallID = trim(pg_escape_string($registro->CallId));
 							            }else{
 							            	$prttcallID = null;
 							            }
-							            if(isset($registro->callCreator)){
-							            	$prttcallCreator = trim(pg_escape_string($registro->callCreator));
+							            if(isset($registro->CallCreator)){
+							            	$prttcallCreator = trim(pg_escape_string($registro->CallCreator));
 							            }else{
 							            	$prttcallCreator = null;
 							            }				            
 							            if(isset($registro->callEvents)){
 							                foreach($registro->callEvents as $subregistro){
-							                	if(isset($subregistro->type)){
-							                		$prttEtype = trim(pg_escape_string($subregistro->type));
+							                	if(isset($subregistro->Type)){
+							                		$prttEtype = trim(pg_escape_string($subregistro->Type));
 							                	}else{
 							                		$prttEtype = null;
 							                	}
-							                	if(isset($subregistro->timestamp)){
-							                		$prttEtimestamp = trim(pg_escape_string(str_replace("UTC","",$subregistro->timestamp)));
+							                	if(isset($subregistro->Timestamp)){
+							                		$prttEtimestamp = trim(pg_escape_string(str_replace("UTC","",$subregistro->Timestamp)));
 							                	}else{
 							                		$prttEtimestamp = null;
 							                	}
-							                	if(isset($subregistro->solicitante)){
-							                		$prttEsolicitante = trim(pg_escape_string($subregistro->solicitante));
+							                	if(isset($subregistro->From)){
+							                		$prttEsolicitante = trim(pg_escape_string($subregistro->From));
 							                	}else{
 							                		$prttEsolicitante = null;
 							                	}
-							                	if(isset($subregistro->atendente)){
-							                		$prttEatendente = trim(pg_escape_string($subregistro->atendente));
+							                	if(isset($subregistro->To)){
+							                		$prttEatendente = trim(pg_escape_string($subregistro->To));
 							                	}else{
 							                		$prttEatendente = null;
 							                	}
-							                	if(isset($subregistro->solIP)){
-							                		$prttEsolIP = trim(pg_escape_string($subregistro->solIP));
+							                	if(isset($subregistro->FromIp)){
+							                		$prttEsolIP = trim(pg_escape_string($subregistro->FromIp));
 							                	}else{
 							                		$prttEsolIP = null;
 							                	}
-							                	if(isset($subregistro->solPort)){
-							                		$prttEsolPort = trim(pg_escape_string($subregistro->solPort));
+							                	if(isset($subregistro->FromPort)){
+							                		$prttEsolPort = trim(pg_escape_string($subregistro->FromPort));
 							                	}else{
 							                		$prttEsolPort = null;
 							                	}
-							                	if(isset($subregistro->mediaType)){
-							                		$prttEmediaType = trim(pg_escape_string($subregistro->mediaType));
+							                	if(isset($subregistro->MediaType)){
+							                		$prttEmediaType = trim(pg_escape_string($subregistro->MediaType));
 							                	}else{
 							                		$prttEmediaType = null;
 							                	}

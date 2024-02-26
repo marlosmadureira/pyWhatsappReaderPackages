@@ -1,4 +1,4 @@
-from pyBiblioteca import print_color
+from pyBiblioteca import print_color, remover_espacos_regex
 
 
 def requestReaderParameter(parameters, DebugMode):
@@ -22,7 +22,7 @@ def requestReaderParameter(parameters, DebugMode):
             field_value = field_value_div.text.strip()
             # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
             field_name = field_name_text.replace(field_value, '').strip()
-            data[field_name] = field_value
+            data[remover_espacos_regex(field_name)] = field_value
 
     print(f"OUT {data}")
 

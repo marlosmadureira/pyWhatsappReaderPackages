@@ -10,8 +10,8 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
-    removeFolderFiles, print_color, grava_log
-from pyFindApi import sendDataJsonServer
+    removeFolderFiles, print_color, somentenumero, openJsonEstruturado
+from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
 from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader
@@ -48,6 +48,7 @@ def getUnidadeFileName(nome_original):
 
 
 class MyHandler(PatternMatchingEventHandler):
+
     patterns = ["*.zip"]
 
     def process(self, event):
@@ -61,6 +62,7 @@ class MyHandler(PatternMatchingEventHandler):
         if event.event_type == "created":
 
             fileProcess = {}
+            fileDados = {}
 
             datamovimento = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
             source = event.src_path
@@ -72,46 +74,51 @@ class MyHandler(PatternMatchingEventHandler):
 
                 printDebug(" Iniciando arquivo: " + str(source) + " - em: " + str(datamovimento) + "\n")
 
-            try:
-                fileName = source.replace(DIRNOVOS, "")
-                folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
-                bsHtml = parseHTMLFile(folderZip)
+            # try:
+            fileName = source.replace(DIRNOVOS, "")
+            folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
+            bsHtml = parseHTMLFile(folderZip)
 
-                dataType = None
+            dataType = None
 
-                fileProcess['FileName'] = fileName
-                fileProcess['Unidade'] = Unidade
+            fileProcess['FileName'] = fileName
+            fileProcess['Unidade'] = Unidade
 
-                if bsHtml is not None and bsHtml != "":
+            if bsHtml is not None and bsHtml != "":
 
-                    print_color(f"Inicio Leitura HTML {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
+                print_color(f"Inicio Leitura HTML {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
-                    print_color(f"\nOUT {fileName}", 34)
+                print_color(f"\nOUT {fileName}", 34)
 
-                    # Cabeçalho de Todos os Arquivos HTML
-                    request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
-                    parameter = requestReaderParameter(request_parameters, DebugMode)
+                # Cabeçalho de Todos os Arquivos HTML
+                request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
+                parameter = requestReaderParameter(request_parameters, DebugMode)
 
-                    if parameter['Service']:
-                        fileProcess['Service'] = parameter['Service']
-                    if parameter['Internal Ticket Number']:
-                        fileProcess['InternalTicketNumber'] = parameter['Internal Ticket Number']
-                    if parameter['Account Identifier']:
-                        fileProcess['AccountIdentifier'] = parameter['Account Identifier']
-                    if parameter['Account Type']:
-                        fileProcess['AccountType'] = parameter['Account Type']
-                    if parameter['Generated']:
-                        fileProcess['Generated'] = parameter['Generated']
-                    if parameter['Date Range']:
-                        fileProcess['DateRange'] = parameter['Date Range']
-                    if parameter['Registered Email Addresses']:
-                        fileProcess['EmailAddresses'] = parameter['Registered Email Addresses']
+                contaZap = None
+                if 'Service' in parameter:
+                    fileProcess['Service'] = parameter['Service']
+                if 'InternalTicketNumber' in parameter:
+                    fileProcess['InternalTicketNumber'] = parameter['InternalTicketNumber']
+                if 'AccountType' in parameter:
+                    contaZap = somentenumero(parameter['AccountIdentifier'])
+                    fileProcess['AccountIdentifier'] = contaZap
+                if 'AccountType' in parameter:
+                    fileProcess['AccountType'] = parameter['AccountType']
+                if 'Generated' in parameter:
+                    fileProcess['Generated'] = parameter['Generated']
+                if 'DateRange' in parameter:
+                    fileProcess['DateRange'] = parameter['DateRange']
+                if 'RegisteredEmailAddresses' in parameter:
+                    fileProcess['EmailAddresses'] = parameter['RegisteredEmailAddresses']
 
-                    message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
-                    call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
+                if contaZap is not None:
+                    setDateObjetoProrrogue(contaZap, Unidade, fileName)
 
-                    if message_log is not None or call_logs is not None:
-                        dataType = "PRTT"
+                message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
+                call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
+
+                if message_log is not None or call_logs is not None:
+                    dataType = "PRTT"
 
                     if message_log is not None and message_log != "":
                         messages = message_logReader(message_log, fileName, DebugMode)
@@ -120,95 +127,74 @@ class MyHandler(PatternMatchingEventHandler):
                         calls = call_logsReader(call_logs, fileName, DebugMode)
 
                     if 'PRTT' in dataType:
-                        fileProcess['Prtt']['msgLogs'] = messages
-                        fileProcess['Prtt']['callLogs'] = calls
+                        fileDados['msgLogs'] = messages
+                        fileDados['callLogs'] = calls
+                        fileProcess['Prtt'] = fileDados
 
-                    address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
-                    groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
-                    ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
-                    connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
-                    web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
+                address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
+                groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
+                ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
+                connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
+                web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
 
-                    if address_book_info is not None or groups_info is not None or ncmec_reports is not None or ncmec_reports is not None or connection_info is not None or web_info is not None:
-                        dataType = "DADOS"
+                if address_book_info is not None or groups_info is not None or ncmec_reports is not None or ncmec_reports is not None or connection_info is not None or web_info is not None:
+                    dataType = "DADOS"
 
+                    bookinfo = book_infoReader(address_book_info, fileName, DebugMode)
                     if address_book_info is not None:
-                        bookinfo = book_infoReader(address_book_info, fileName, DebugMode)
+                        fileDados['addressBookInfo'] = bookinfo
 
+                    groupsinfo = groups_infoReader(groups_info, fileName, DebugMode)
                     if groups_info is not None:
-                        groupsinfo = groups_infoReader(groups_info, fileName, DebugMode)
+                        fileDados['groupsInfo'] = groupsinfo
 
-                    if ncmec_reports is not None:
-                        ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode)
+                    ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode)
+                    if ncmecreports is not None:
+                        fileDados['ncmecReportsInfo'] = ncmecreports
 
+                    connectioninfo = connection_infoReader(connection_info, fileName, DebugMode)
                     if connection_info is not None:
-                        connectioninfo = connection_infoReader(connection_info, fileName, DebugMode)
+                        fileDados['connectionInfo'] = connectioninfo
 
+                    webinfo = web_infoReader(web_info, fileName, DebugMode)
                     if web_info is not None:
-                        webinfo = web_infoReader(web_info, fileName, DebugMode)
+                        fileDados['webInfo'] = webinfo
 
                     print_color(f"\n{dataType}", 31)
 
                     if 'DADOS' in dataType:
-                        fileProcess['Dados']['ipAddresses'] = None
-                        fileProcess['Dados']['connectionInfo'] = connectioninfo
-                        fileProcess['Dados']['webInfo'] = webinfo
-                        fileProcess['Dados']['groupsInfo'] = groupsinfo
-                        fileProcess['Dados']['addressBookInfo'] = bookinfo
-                        fileProcess['Dados']['ncmecReportsInfo'] = ncmec_reports
+                        fileProcess['Dados'] = fileDados
 
-                    if DebugMode:
-                        print_color(f"\nHTML", 34)
-                        print(f"{bsHtml}")
+                print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
-                        print_color(f"\nTAG", 34)
-                        print(f"{request_parameters}")
-                        print(f"{message_log}")
-                        print(f"{call_logs}")
-                        print(f"{address_book_info}")
-                        print(f"{groups_info}")
-                        print(f"{ncmec_reports}")
-                        print(f"{connection_info}")
-                        print(f"{web_info}")
+                print('\nEnvio PHP ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'), '\n')
 
-                        print_color(f"\nRETORNO", 34)
-                        print(f"{parameter}")
-                        print(f"{messages}")
-                        print(f"{calls}")
-                        print(f"{bookinfo}")
-                        print(f"{groupsinfo}")
-                        print(f"{ncmecreports}")
-                        print(f"{connectioninfo}")
-                        print(f"{webinfo}")
+                if Executar:
+                    sendDataJsonServer(fileProcess, dataType)
+                else:
+                    print(fileProcess)
 
-                    print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
+                print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 
-                    print('\nEnvio PHP ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'), '\n')
+                removeFolderFiles(folderZip)
 
-                    if Executar:
-                        sendDataJsonServer(fileProcess, dataType)
-
-                    print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
-
-                    removeFolderFiles(folderZip)
-
-                    filePath = DIRLIDOS + fileName
-
-                    if not os.path.exists(filePath):
-                        shutil.move(source, DIRLIDOS)
-                    else:
-                        os.remove(source)
-
-            except Exception as inst:
-                errorData = "{Location: process - Files Open, error: " + str(inst) + ", File: " + str(source) + "}"
-                # sendSlackMSG(errorData)
-
-                filePath = DIRERROS + fileName
+                filePath = DIRLIDOS + fileName
 
                 if not os.path.exists(filePath):
-                    shutil.move(source, DIRERROS)
+                    shutil.move(source, DIRLIDOS)
                 else:
                     os.remove(source)
+
+            # except Exception as inst:
+            #     print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
+            #     pass
+            #
+            #     filePath = DIRERROS + fileName
+            #
+            #     if not os.path.exists(filePath):
+            #         shutil.move(source, DIRERROS)
+            #     else:
+            #         os.remove(source)
 
             if DebugMode:
                 print("\nMovendo de: ", source)
@@ -219,6 +205,7 @@ class MyHandler(PatternMatchingEventHandler):
                 print("\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
     def on_created(self, event):
+
         self.process(event)
 
 

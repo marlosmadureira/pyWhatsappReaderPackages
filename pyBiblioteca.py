@@ -20,6 +20,10 @@ APITOKEN = os.getenv("APITOKEN")
 DebugMode = False
 
 
+def remover_espacos_regex(texto):
+    return re.sub(r"\s", "", texto)
+
+
 def somentenumero(parametro):
     return re.sub('[^0-9]', '', parametro)
 

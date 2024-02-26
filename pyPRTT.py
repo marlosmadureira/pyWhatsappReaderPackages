@@ -1,4 +1,4 @@
-from pyBiblioteca import print_color, grava_log
+from pyBiblioteca import print_color, grava_log, remover_espacos_regex
 
 LogGrava = False
 
@@ -41,7 +41,7 @@ def message_logReader(message_log, fileName, DebugMode):
                 field_value = field_value_div.text.strip()
                 field_name = field_name_text.replace(field_value, '').strip()
                 if field_name in campos_desejados:
-                    data[field_name] = field_value
+                    data[remover_espacos_regex(field_name)] = field_value
 
         if len(data) > 0:
             # Adicionar o registro à lista
@@ -99,7 +99,7 @@ def call_logsReader(call_logs, fileName, DebugMode):
                 field_value = field_value_div.text.strip()
                 field_name = field_name_text.replace(field_value, '').strip()
                 if field_name in campos_desejados:
-                    data[field_name] = field_value
+                    data[remover_espacos_regex(field_name)] = field_value
 
         if len(data) > 0:
             allRegistros.append(data)

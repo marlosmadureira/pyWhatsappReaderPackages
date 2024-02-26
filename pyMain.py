@@ -9,8 +9,9 @@ from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, removeFolderFiles, print_color, grava_log
-from pyFindPostgresql import setDateObjetoProrrogue
+from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
+    removeFolderFiles, print_color, grava_log
+from pyFindApi import sendDataJsonServer
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
 from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader
@@ -24,6 +25,7 @@ DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
 DebugMode = False
+Executar = False
 
 
 def getUnidadeFileName(nome_original):
@@ -57,6 +59,9 @@ class MyHandler(PatternMatchingEventHandler):
         print('\n')
 
         if event.event_type == "created":
+
+            fileProcess = {}
+
             datamovimento = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
             source = event.src_path
 
@@ -74,14 +79,33 @@ class MyHandler(PatternMatchingEventHandler):
 
                 dataType = None
 
+                fileProcess['FileName'] = fileName
+                fileProcess['Unidade'] = Unidade
+
                 if bsHtml is not None and bsHtml != "":
 
                     print_color(f"Inicio Leitura HTML {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
                     print_color(f"\nOUT {fileName}", 34)
 
+                    # Cabeçalho de Todos os Arquivos HTML
                     request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
                     parameter = requestReaderParameter(request_parameters, DebugMode)
+
+                    if parameter['Service']:
+                        fileProcess['Service'] = parameter['Service']
+                    if parameter['Internal Ticket Number']:
+                        fileProcess['InternalTicketNumber'] = parameter['Internal Ticket Number']
+                    if parameter['Account Identifier']:
+                        fileProcess['AccountIdentifier'] = parameter['Account Identifier']
+                    if parameter['Account Type']:
+                        fileProcess['AccountType'] = parameter['Account Type']
+                    if parameter['Generated']:
+                        fileProcess['Generated'] = parameter['Generated']
+                    if parameter['Date Range']:
+                        fileProcess['DateRange'] = parameter['Date Range']
+                    if parameter['Registered Email Addresses']:
+                        fileProcess['EmailAddresses'] = parameter['Registered Email Addresses']
 
                     message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
                     call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
@@ -94,6 +118,10 @@ class MyHandler(PatternMatchingEventHandler):
 
                     if call_logs is not None and call_logs != "":
                         calls = call_logsReader(call_logs, fileName, DebugMode)
+
+                    if 'PRTT' in dataType:
+                        fileProcess['Prtt']['msgLogs'] = messages
+                        fileProcess['Prtt']['callLogs'] = calls
 
                     address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
                     groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
@@ -121,6 +149,14 @@ class MyHandler(PatternMatchingEventHandler):
 
                     print_color(f"\n{dataType}", 31)
 
+                    if 'DADOS' in dataType:
+                        fileProcess['Dados']['ipAddresses'] = None
+                        fileProcess['Dados']['connectionInfo'] = connectioninfo
+                        fileProcess['Dados']['webInfo'] = webinfo
+                        fileProcess['Dados']['groupsInfo'] = groupsinfo
+                        fileProcess['Dados']['addressBookInfo'] = bookinfo
+                        fileProcess['Dados']['ncmecReportsInfo'] = ncmec_reports
+
                     if DebugMode:
                         print_color(f"\nHTML", 34)
                         print(f"{bsHtml}")
@@ -146,6 +182,13 @@ class MyHandler(PatternMatchingEventHandler):
                         print(f"{webinfo}")
 
                     print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
+
+                    print('\nEnvio PHP ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'), '\n')
+
+                    if Executar:
+                        sendDataJsonServer(fileProcess, dataType)
+
+                    print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 
                     removeFolderFiles(folderZip)
 

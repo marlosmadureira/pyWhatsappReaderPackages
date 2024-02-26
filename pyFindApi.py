@@ -1,4 +1,6 @@
+import json
 import os
+import requests
 
 from pyBiblioteca import conectBD, somentenumero, grava_log
 from dotenv import load_dotenv
@@ -9,6 +11,9 @@ DB_HOST = os.getenv("DB_HOST")
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
+
+APILINK = os.getenv("APILINK")
+APITOKEN = os.getenv("APITOKEN")
 
 DebugMode = False
 
@@ -62,3 +67,19 @@ def setDateObjetoProrrogue(AccountIdentifier, Unidade, fileName):
 
     db.close()
     con.close()
+
+
+def sendDataJsonServer(Dados, type):
+    payload = {'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados)}
+    try:
+        r = requests.post(APILINK, data=payload)
+
+        if r.status_code == 200 and r.text != "" and r.text is not None:
+            Jsondata = json.loads(r.text)
+            print(Jsondata)
+
+    except requests.exceptions.ConnectionError:
+        print('build http connection failed')
+    except Exception as inst:
+        errorData = "{Location: sendDataJsonServer, error: " + str(inst) + ", type: " + type + "}"
+        # sendSlackMSG(errorData)

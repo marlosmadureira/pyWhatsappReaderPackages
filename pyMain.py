@@ -190,7 +190,6 @@ class MyHandler(PatternMatchingEventHandler):
 
             except Exception as inst:
                 print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
-                pass
 
                 filePath = DIRERROS + fileName
 

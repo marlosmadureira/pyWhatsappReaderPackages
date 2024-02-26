@@ -32,11 +32,18 @@ def book_infoReader(address_book_info, fileName, DebugMode):
 
             field_value_div = field.find("div",
                                          style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+
+            # Obter o texto dentro da tag <div>
+            phone_text = field_value_div.get_text(separator='\n')
+            # Dividir o texto em uma lista usando quebras de linha
+            phone_list = phone_text.split('\n')
+
             if field_value_div:
                 field_value = field_value_div.text.strip()
                 field_name = field_name_text.replace(field_value, '').strip()
+
                 if field_name in campos_desejados:
-                    data[field_name] = field_value
+                    data[field_name] = phone_list[1:]
 
         if len(data) > 0:
             # Adicionar o registro à lista

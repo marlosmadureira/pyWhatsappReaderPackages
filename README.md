@@ -1,3 +1,4 @@
+# DATA QUANDO COMEÇOU EXECUTAR O NOVO ROBOZINHO ::/::/2024
 # APT INSTALL
 # sudo apt install python3-psycopg2 python3-dotenv
 

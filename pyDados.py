@@ -1,6 +1,6 @@
 from pyBiblioteca import print_color, grava_log
 
-LogGrava = True
+LogGrava = False
 
 
 def book_infoReader(address_book_info, fileName, DebugMode):
@@ -71,6 +71,9 @@ def groups_infoReader(groups_info, fileName, DebugMode):
     # Lista para armazenar todos os registros
     allRegistros = []
 
+    ownedRegistros = []
+    participatingRegistros = []
+
     # Encontrar todos os blocos de mensagem
     group_blocks = groups_info.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
 
@@ -87,11 +90,21 @@ def groups_infoReader(groups_info, fileName, DebugMode):
             field_name_div = field.find("div", style="font-weight: bold; display:table;")
             field_name_text = field_name_div.text.strip() if field_name_div else ""
 
+            if 'Owned' in field_name_text:
+                GroupOwned = True
+                GroupParticipating = False
+
+            if 'Participating' in field_name_text:
+                GroupOwned = False
+                GroupParticipating = True
+
             field_value_div = field.find("div",
                                          style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+
             if field_value_div:
                 field_value = field_value_div.text.strip()
                 field_name = field_name_text.replace(field_value, '').strip()
+
                 if field_name in campos_desejados:
                     if 'Picture' in field_name:
                         data[field_name] = field_value.replace('Linked Media File:', '')
@@ -101,6 +114,13 @@ def groups_infoReader(groups_info, fileName, DebugMode):
                     if 'Subject' in field_name:
                         if data not in allRegistros:
                             allRegistros.append(data)
+
+                            if GroupOwned:
+                                ownedRegistros.append(data)
+
+                            if GroupParticipating:
+                                participatingRegistros.append(data)
+
                             data = {}
 
     if DebugMode:
@@ -108,12 +128,19 @@ def groups_infoReader(groups_info, fileName, DebugMode):
         for registro in allRegistros:
             print(registro)
 
-    print(f"OUT {allRegistros}")
+        for registro in ownedRegistros:
+            print(registro)
 
-    if allRegistros is not None:
-        return allRegistros
-    else:
-        return None
+        for registro in participatingRegistros:
+            print(registro)
+
+    print(f"OUT All {allRegistros}")
+
+    print(f"OUT Owned {ownedRegistros}")
+
+    print(f"OUT Participating {participatingRegistros}")
+
+    return ownedRegistros, participatingRegistros
 
 
 def ncmec_reportsReader(ncmec_reports, fileName, DebugMode): # SEM AMOSTRA PARA TESTAR

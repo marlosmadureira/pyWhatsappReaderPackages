@@ -10,7 +10,7 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
-    removeFolderFiles, print_color, somentenumero, openJsonEstruturado
+    removeFolderFiles, print_color, somentenumero, grava_log
 from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
@@ -176,6 +176,8 @@ class MyHandler(PatternMatchingEventHandler):
                         print_color(f"\n=========================== PROCESSANDO sendDataJsonServer ===========================",
                                     32)
                         print(f"{fileProcess}")
+
+                        grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
 
                     print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 

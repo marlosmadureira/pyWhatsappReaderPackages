@@ -38,6 +38,7 @@ def countdown(num_of_secs):
 
 
 def grava_log(content, arquivo):
+    arquivo = f"log/{arquivo}"
     with open(arquivo, "a") as text_file:
         text_file.write('{}\n'.format(content) + '\n')
     text_file.close()

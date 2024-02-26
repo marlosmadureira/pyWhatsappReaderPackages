@@ -66,37 +66,32 @@ def book_infoReader(address_book_info, fileName, DebugMode):
 def groups_infoReader(groups_info, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO GROUPS INFO ===========================", 32)
 
-    campos_desejados = ['Picture', 'Linked Media File', 'Thumbnail', 'ID', 'Creation', 'Size', 'Description', 'Subject']
+    campos_desejados = ['Linked Media File', 'Thumbnail', 'ID', 'Creation', 'Size', 'Description', 'Subject']
 
     # Lista para armazenar todos os registros
     allRegistros = []
 
-    # Encontrar todos os blocos de mensagem
-    group_blocks = groups_info.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
+    # Encontrar todos os campos dentro de um bloco
+    fields = groups_info.find_all("div", class_="div_table", style="font-weight: bold;")
 
     if LogGrava:
-        grava_log(group_blocks, f'logGroup_{fileName}.txt')
+        grava_log(fields, f'logGroup_{fileName}.txt')
 
-    # Iterar sobre cada bloco de mensagem
-    for block in group_blocks:
-        # Dicionário para armazenar os dados de um registro
-        data = {}
+    data = {}
 
-        # Encontrar todos os campos dentro de um bloco
-        fields = block.find_all("div", class_="div_table", style="font-weight: bold;")
+    # Iterar sobre cada campo e extrair informações
+    for field in fields:
 
-        # Iterar sobre cada campo e extrair informações
-        for field in fields:
-            field_name_div = field.find("div", style="font-weight: bold; display:table;")
-            field_name_text = field_name_div.text.strip() if field_name_div else ""
+        field_name_div = field.find("div", style="font-weight: bold; display:table;")
+        field_name_text = field_name_div.text.strip() if field_name_div else ""
 
-            field_value_div = field.find("div",
-                                         style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
-            if field_value_div:
-                field_value = field_value_div.text.strip()
-                field_name = field_name_text.replace(field_value, '').strip()
-                if field_name in campos_desejados:
-                    data[field_name] = field_value
+        field_value_div = field.find("div",
+                                     style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+        if field_value_div:
+            field_value = field_value_div.text.strip()
+            field_name = field_name_text.replace(field_value, '').strip()
+            if field_name in campos_desejados:
+                data[field_name] = field_value
 
         if len(data) > 0:
             # Adicionar o registro à lista
@@ -116,7 +111,7 @@ def groups_infoReader(groups_info, fileName, DebugMode):
         return None
 
 
-def ncmec_reportsReader(ncmec_reports, fileName, DebugMode):
+def ncmec_reportsReader(ncmec_reports, fileName, DebugMode): # SEM AMOSTRA PARA TESTAR
     print_color(f"\n=========================== PROCESSANDO NCMEC REPORTS ===========================", 32)
 
     campos_desejados = ['Ncmec Reports Definition', 'NCMEC CyberTip Numbers']
@@ -169,19 +164,111 @@ def ncmec_reportsReader(ncmec_reports, fileName, DebugMode):
         return None
 
 
-def connection_infoReader(connection_info, fileName, DebugMode):
+def connection_infoReader(connection_info, fileName, DebugMode):    # SEM AMOSTRA PARA TESTAR
     print_color(f"\n=========================== PROCESSANDO CONNECTION INFO ===========================", 32)
 
+    campos_desejados = ['Device Id', 'Service Start', 'Device Type', 'App Version', 'Device OS Build Number', 'Connection State', 'Last Seen', 'Last IP']
+
+    # Lista para armazenar todos os registros
+    allRegistros = []
+
+    # Encontrar todos os blocos de mensagem
+    connection_blocks = connection_info.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
+
+    if LogGrava:
+        grava_log(connection_blocks, f'logNcmec_{fileName}.txt')
+
+    # Iterar sobre cada bloco de mensagem
+    for block in connection_blocks:
+        # Dicionário para armazenar os dados de um registro
+        data = {}
+
+        # Encontrar todos os campos dentro de um bloco
+        fields = block.find_all("div", class_="div_table", style="font-weight: bold;")
+
+        # Iterar sobre cada campo e extrair informações
+        for field in fields:
+            field_name_div = field.find("div", style="font-weight: bold; display:table;")
+            field_name_text = field_name_div.text.strip() if field_name_div else ""
+
+            field_value_div = field.find("div",
+                                         style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+            if field_value_div:
+                field_value = field_value_div.text.strip()
+                field_name = field_name_text.replace(field_value, '').strip()
+                if field_name in campos_desejados:
+                    data[field_name] = field_value
+
+        if len(data) > 0:
+            # Adicionar o registro à lista
+            if data not in allRegistros:
+                allRegistros.append(data)
+
     if DebugMode:
-        print(f"{connection_info}")
+        # Print dos registros
+        for registro in allRegistros:
+            print(registro)
 
-    print(f"OUT {connection_info}")
+    print(f"OUT {allRegistros}")
+
+    if allRegistros is not None:
+        return allRegistros
+    else:
+        return None
 
 
-def web_infoReader(web_info, fileName, DebugMode):
+def web_infoReader(web_info, fileName, DebugMode): # SEM AMOSTRA PARA TESTAR
     print_color(f"\n=========================== PROCESSANDO WEB INFO ===========================", 32)
 
-    if DebugMode:
-        print(f"{web_info}")
+    campos_desejados = ['Version', 'Platform', 'Online Since', 'Inactive Since']
 
-    print(f"OUT {web_info}")
+    # Lista para armazenar todos os registros
+    allRegistros = []
+
+    # Encontrar todos os blocos de mensagem
+    webinfo_blocks_blocks = web_info.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
+
+    if LogGrava:
+        grava_log(webinfo_blocks_blocks, f'logNcmec_{fileName}.txt')
+
+    # Iterar sobre cada bloco de mensagem
+    for block in webinfo_blocks_blocks:
+        # Dicionário para armazenar os dados de um registro
+        data = {}
+
+        # Encontrar todos os campos dentro de um bloco
+        fields = block.find_all("div", class_="div_table", style="font-weight: bold;")
+
+        # Iterar sobre cada campo e extrair informações
+        for field in fields:
+            field_name_div = field.find("div", style="font-weight: bold; display:table;")
+            field_name_text = field_name_div.text.strip() if field_name_div else ""
+
+            field_value_div = field.find("div",
+                                         style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+            if field_value_div:
+                field_value = field_value_div.text.strip()
+                field_name = field_name_text.replace(field_value, '').strip()
+                if field_name in campos_desejados:
+                    data[field_name] = field_value
+
+        if len(data) > 0:
+            # Adicionar o registro à lista
+            if data not in allRegistros:
+                allRegistros.append(data)
+
+    if DebugMode:
+        # Print dos registros
+        for registro in allRegistros:
+            print(registro)
+
+    print(f"OUT {allRegistros}")
+
+    if allRegistros is not None:
+        return allRegistros
+    else:
+        return None
+
+
+def ip_infoReader(ip_info, fileName, DebugMode): # SEM AMOSTRA PARA TESTAR
+    print_color(f"\n=========================== PROCESSANDO IP INFO ===========================", 32)

@@ -93,7 +93,10 @@ def groups_infoReader(groups_info, fileName, DebugMode):
                 field_value = field_value_div.text.strip()
                 field_name = field_name_text.replace(field_value, '').strip()
                 if field_name in campos_desejados:
-                    data[field_name] = field_value
+                    if 'Picture' in field_name:
+                        data[field_name] = field_value.replace('Linked Media File:', '')
+                    else:
+                        data[field_name] = field_value
 
                     if 'Subject' in field_name:
                         if data not in allRegistros:

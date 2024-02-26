@@ -2,7 +2,8 @@ from pyBiblioteca import print_color, grava_log
 
 LogGrava = False
 
-def message_logReader(message_log, DebugMode):
+
+def message_logReader(message_log, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO MESSAGES LOGS ===========================", 32)
 
     if DebugMode:
@@ -18,7 +19,7 @@ def message_logReader(message_log, DebugMode):
     message_blocks = message_log.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
 
     if LogGrava:
-        grava_log(message_blocks, 'logCall.txt')
+        grava_log(message_blocks, f'logMessage_{fileName}.txt')
 
     # Iterar sobre cada bloco de mensagem
     for block in message_blocks:
@@ -59,7 +60,7 @@ def message_logReader(message_log, DebugMode):
         return None
 
 
-def call_logsReader(call_logs, DebugMode):
+def call_logsReader(call_logs, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)
 
     if DebugMode:
@@ -75,7 +76,7 @@ def call_logsReader(call_logs, DebugMode):
     call_blocks = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
 
     if LogGrava:
-        grava_log(call_blocks, 'logCall.txt')
+        grava_log(call_blocks, f'logCall_{fileName}.txt')
 
     # Iterar sobre cada bloco de mensagem
     for block in call_blocks:

@@ -90,10 +90,10 @@ class MyHandler(PatternMatchingEventHandler):
                         dataType = "PRTT"
 
                     if message_log is not None and message_log != "":
-                        messages = message_logReader(message_log, DebugMode)
+                        messages = message_logReader(message_log, fileName, DebugMode)
 
                     if call_logs is not None and call_logs != "":
-                        calls = call_logsReader(call_logs, DebugMode)
+                        calls = call_logsReader(call_logs, fileName, DebugMode)
 
                     address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
                     groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
@@ -105,19 +105,19 @@ class MyHandler(PatternMatchingEventHandler):
                         dataType = "DADOS"
 
                     if address_book_info is not None:
-                        bookinfo = book_infoReader(address_book_info, DebugMode)
+                        bookinfo = book_infoReader(address_book_info, fileName, DebugMode)
 
                     if groups_info is not None:
-                        groupsinfo = groups_infoReader(groups_info, DebugMode)
+                        groupsinfo = groups_infoReader(groups_info, fileName, DebugMode)
 
                     if ncmec_reports is not None:
-                        ncmecreports = ncmec_reportsReader(ncmec_reports, DebugMode)
+                        ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode)
 
                     if connection_info is not None:
-                        connectioninfo = connection_infoReader(connection_info, DebugMode)
+                        connectioninfo = connection_infoReader(connection_info, fileName, DebugMode)
 
                     if web_info is not None:
-                        webinfo = web_infoReader(web_info, DebugMode)
+                        webinfo = web_infoReader(web_info, fileName, DebugMode)
 
                     print_color(f"\n{dataType}", 31)
 

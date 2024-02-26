@@ -9,6 +9,7 @@ def message_logReader(message_log, fileName, DebugMode):
     if DebugMode:
         print(message_log)
 
+    # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Timestamp', 'Message Id', 'Sender', 'Recipients', 'Sender Ip', 'Sender Port', 'Sender Device',
                         'Type', 'Message Style', 'Message Size']
 
@@ -66,6 +67,7 @@ def call_logsReader(call_logs, fileName, DebugMode):
     if DebugMode:
         print(call_logs)
 
+    # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Call Id', 'Call Creator', 'Type', 'Timestamp', 'From', 'To', 'From Ip',
                         'From Port', 'Media Type']
 

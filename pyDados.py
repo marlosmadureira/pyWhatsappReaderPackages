@@ -6,6 +6,7 @@ LogGrava = False
 def book_infoReader(address_book_info, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO BOOK INFO ===========================", 32)
 
+    # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Symmetric contacts', 'Asymmetric contacts']
 
     # Lista para armazenar todos os registros
@@ -66,6 +67,7 @@ def book_infoReader(address_book_info, fileName, DebugMode):
 def groups_infoReader(groups_info, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO GROUPS INFO ===========================", 32)
 
+    # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Picture', 'Thumbnail', 'ID', 'Creation', 'Size', 'Description', 'Subject']
 
     # Lista para armazenar todos os registros
@@ -146,6 +148,7 @@ def groups_infoReader(groups_info, fileName, DebugMode):
 def ncmec_reportsReader(ncmec_reports, fileName, DebugMode): # SEM AMOSTRA PARA TESTAR
     print_color(f"\n=========================== PROCESSANDO NCMEC REPORTS ===========================", 32)
 
+    # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Ncmec Reports Definition', 'NCMEC CyberTip Numbers']
 
     # Lista para armazenar todos os registros
@@ -199,6 +202,7 @@ def ncmec_reportsReader(ncmec_reports, fileName, DebugMode): # SEM AMOSTRA PARA 
 def connection_infoReader(connection_info, fileName, DebugMode):    # SEM AMOSTRA PARA TESTAR
     print_color(f"\n=========================== PROCESSANDO CONNECTION INFO ===========================", 32)
 
+    # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Device Id', 'Service Start', 'Device Type', 'App Version', 'Device OS Build Number', 'Connection State', 'Last Seen', 'Last IP']
 
     # Lista para armazenar todos os registros
@@ -252,6 +256,7 @@ def connection_infoReader(connection_info, fileName, DebugMode):    # SEM AMOSTR
 def web_infoReader(web_info, fileName, DebugMode): # SEM AMOSTRA PARA TESTAR
     print_color(f"\n=========================== PROCESSANDO WEB INFO ===========================", 32)
 
+    # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Version', 'Platform', 'Online Since', 'Inactive Since']
 
     # Lista para armazenar todos os registros

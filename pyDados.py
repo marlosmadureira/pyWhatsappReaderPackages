@@ -1,7 +1,5 @@
 from pyBiblioteca import print_color, grava_log, remover_espacos_regex
 
-LogGrava = False
-
 
 def book_infoReader(address_book_info, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO BOOK INFO ===========================", 32)
@@ -14,9 +12,6 @@ def book_infoReader(address_book_info, fileName, DebugMode):
 
     # Encontrar todos os blocos de mensagem
     contact_blocks = address_book_info.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
-
-    if LogGrava:
-        grava_log(contact_blocks, f'logBook_{fileName}.txt')
 
     # Iterar sobre cada bloco de mensagem
     for block in contact_blocks:
@@ -45,6 +40,8 @@ def book_infoReader(address_book_info, fileName, DebugMode):
 
                 if field_name in campos_desejados:
                     data[remover_espacos_regex(field_name)] = phone_list[1:]
+
+                    # grava_log(remover_espacos_regex(field_name), 'LogKeyContatct.txt')
 
         if len(data) > 0:
             # Adicionar o registro à lista
@@ -112,6 +109,8 @@ def groups_infoReader(groups_info, fileName, DebugMode):
                         data[remover_espacos_regex(field_name)] = field_value.replace('Linked Media File:', '')
                     else:
                         data[remover_espacos_regex(field_name)] = field_value
+
+                    # grava_log(remover_espacos_regex(field_name), 'LogKeyGroup.txt')
 
                     if 'Subject' in field_name:
 

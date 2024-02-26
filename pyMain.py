@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
-
+import json
 import os
 import time
 import shutil
@@ -171,8 +171,6 @@ class MyHandler(PatternMatchingEventHandler):
 
                     if Executar:
                         sendDataJsonServer(fileProcess, dataType)
-                    else:
-                        print(fileProcess)
 
                     print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 

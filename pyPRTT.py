@@ -58,6 +58,53 @@ def message_logReader(message_log, fileName, DebugMode):
         return None
 
 
+def process_div_table(div_table):
+    # Inicializando o dicionário para armazenar as informações da chamada
+    call_info = {
+        'Call_id': None,
+        'Call_Creator': None,
+        'Type': None,
+        'Timestamp': None,
+        'To': None,
+        'From': None,
+        'From_Ip': None,
+        'From_Port': None,
+        'Media_Type': None
+    }
+
+    # Extração e armazenamento das informações no dicionário
+    for content in div_table.contents:
+        text = content.text.strip()  # Obtendo o texto do conteúdo atual
+
+        if 'Call Id' in text:
+            call_info['Call_id'] = text.replace("Call Id", "").strip()
+
+        elif 'Call Creator' in text:
+            call_info['Call_Creator'] = text.replace("Call Creator", "").strip()
+
+        elif 'Type' in text:
+            call_info['Type'] = text.replace("Type", "").strip()
+
+        elif 'Timestamp' in text:
+            call_info['Timestamp'] = text.replace("Timestamp", "").strip()
+
+        elif 'To' in text:
+            call_info['To'] = text.replace("To", "").strip()
+
+        elif 'From' in text:
+            call_info['From'] = text.replace("From", "").strip()
+
+        elif 'From Ip' in text:
+            call_info['From_Ip'] = text.replace("From Ip", "").strip()
+
+        elif 'From Port' in text:
+            call_info['From_Port'] = text.replace("From Port", "").strip()
+
+        elif 'Media Type' in text:
+            call_info['Media_Type'] = text.replace("Media Type", "").strip()
+
+    return call_info
+
 def call_logsReader(call_logs, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)
 
@@ -65,72 +112,9 @@ def call_logsReader(call_logs, fileName, DebugMode):
         print(call_logs)
 
     alldivtables = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
+    all_calls_info = [process_div_table(div_table) for div_table in alldivtables]
 
-    for div_table in alldivtables:
-
-        Call_id = None
-        Call_Creator = None
-        Type = None
-        Timestamp = None
-        To = None
-        From = None
-        From_Ip = None
-        From_Port = None
-        Media_Type = None
-
-        if 'Call Id' in div_table:
-            Call_id = div_table.text
-            Call_id = Call_id.replace("Call Id", "")
-
-            print(f"{Call_id}")
-
-        if 'Call Creator' in div_table:
-            Call_Creator = div_table.text
-            Call_Creator = Call_Creator.replace("Call Creator", "")
-
-            print(f"{Call_Creator}")
-
-        if 'Type' in div_table:
-            Type = div_table.text
-            Type = Type.replace("Type", "")
-
-            print(f"{Type}")
-
-        if 'Timestamp' in div_table:
-            Timestamp = div_table.text
-            Timestamp = Timestamp.replace("Timestamp", "")
-
-            print(f"{Timestamp}")
-
-        if 'To' in div_table:
-            To = div_table.text
-            To = To.replace("To", "")
-
-            print(f"{To}")
-
-        if 'From' in div_table:
-            From = div_table.text
-            From = From.replace("From", "")
-
-            print(f"{From}")
-
-        if 'From Ip' in div_table:
-            From_Ip = div_table.text
-            From_Ip = From_Ip.replace("From Ip", "")
-
-            print(f"{From_Ip}")
-
-        if 'From Port' in div_table:
-            From_Port = div_table.text
-            From_Port = From_Port.replace("From Port", "")
-
-            print(f"{From_Port}")
-
-        if 'Media Type' in div_table:
-            Media_Type = div_table.text
-            Media_Type = Media_Type.replace("Media Type", "")
-
-            print(f"{Media_Type}")
+    print(all_calls_info)
 
 # def call_logsReader(call_logs, fileName, DebugMode):
 #     print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)

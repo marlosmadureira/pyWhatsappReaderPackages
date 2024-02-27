@@ -168,7 +168,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                     print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
-                    print('\nEnvio PHP ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'), '\n')
+                    print('\nEnvio PHP ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 
                     if Executar:
                         sendDataJsonServer(fileProcess, dataType)

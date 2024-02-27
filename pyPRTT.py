@@ -50,12 +50,13 @@ def message_logReader(message_log, fileName, DebugMode):
         for registro in allRegistros:
             print(registro)
 
-    #print(f"OUT {allRegistros}")
+    # print(f"OUT {allRegistros}")
 
     if allRegistros is not None:
         return allRegistros
     else:
         return None
+
 
 def newCallInfo():
     return {
@@ -69,6 +70,8 @@ def newCallInfo():
         'From_Port': None,
         'Media_Type': None
     }
+
+
 def process_div_table(alldivs):
     all_calls_info = []
     newCall = newCallInfo()
@@ -117,6 +120,8 @@ def call_logsReader(call_logs, fileName, DebugMode):
     alldivtables = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
 
     all_calls_info = process_div_table(alldivtables)
+
+    grava_log(all_calls_info, 'LogCall.txt')
 
     print(all_calls_info)
 

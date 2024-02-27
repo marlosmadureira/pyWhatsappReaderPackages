@@ -58,48 +58,6 @@ def message_logReader(message_log, fileName, DebugMode):
         return None
 
 
-def getCallEvent(fieldsEvents, fileName, DebugMode):
-    print_color(f"\n=========================== PROCESSANDO CALL EVENTOS ===========================", 32)
-
-    if DebugMode:
-        print(fieldsEvents)
-
-    # Qualquer Novo Div Criada Pasta Inserir o Valor
-    campos_desejados = ['Type', 'Timestamp', 'From', 'To', 'From Ip',
-                        'From Port', 'Media Type']
-
-    # Lista para armazenar todos os registros
-    allRegistros = []
-
-
-    # Iterar sobre cada bloco de mensagem
-    for block in fieldsEvents:
-        # Dicionário para armazenar os dados de um registro
-        data = {}
-
-        # Encontrar todos os campos dentro de um bloco
-        fields = block.find_all("div", class_="div_table", style="font-weight: bold;")
-
-        # Iterar sobre cada campo e extrair informações
-        for field in fields:
-            field_name_div = field.find("div", style="font-weight: bold; display:table;")
-            field_name_text = field_name_div.text.strip() if field_name_div else ""
-
-            field_value_div = field.find("div",
-                                         style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
-            if field_value_div:
-                field_value = field_value_div.text.strip()
-                field_name = field_name_text.replace(field_value, '').strip()
-
-                if field_name in campos_desejados:
-                    data[remover_espacos_regex(field_name)] = field_value
-
-        if len(data) > 0:
-            allRegistros.append(data)
-
-    print(allRegistros)
-
-
 def call_logsReader(call_logs, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)
 
@@ -107,16 +65,14 @@ def call_logsReader(call_logs, fileName, DebugMode):
         print(call_logs)
 
     # Qualquer Novo Div Criada Pasta Inserir o Valor
-    campos_desejados = ['Call Id', 'Call Creator']
+    campos_desejados = ['Call Id', 'Call Creator', 'Type', 'Timestamp', 'From', 'To', 'From Ip',
+                        'From Port', 'Media Type']  # 'Events'
 
     # Lista para armazenar todos os registros
     allRegistros = []
 
     # Encontrar todos os blocos de mensagem
     call_blocks = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
-
-    Call_Id = False
-    Call_Creator = False
 
     # Iterar sobre cada bloco de mensagem
     for block in call_blocks:
@@ -141,31 +97,27 @@ def call_logsReader(call_logs, fileName, DebugMode):
                     data[remover_espacos_regex(field_name)] = field_value
 
                     if 'Call Id' in field_name:
-                        Call_Id = True
+                        Call_Id = field_value
 
-                    if 'Call Creator' in field_name:
-                        Call_Creator = True
+                    if 'Call_Creator' in field_name:
+                        Call_Creator = field_value
 
-                    if Call_Id and Call_Creator:
-                        Call_Id = False
-                        Call_Creator = False
+                    # grava_log(remover_espacos_regex(field_name), 'LogKeyCall.txt')
 
-                        eventoscall = getCallEvent(fields, fileName, DebugMode)
+        if len(data) > 0:
+            allRegistros.append(data)
 
-    #     if len(data) > 0:
-    #         allRegistros.append(data)
-    #
-    # if DebugMode:
-    #     # Print dos registros
-    #     for registro in allRegistros:
-    #         print(registro)
-    #
-    # print(f"OUT {allRegistros}")
-    #
-    # if allRegistros is not None:
-    #     return allRegistros
-    # else:
-    #     return None
+    if DebugMode:
+        # Print dos registros
+        for registro in allRegistros:
+            print(registro)
+
+    print(f"OUT {allRegistros}")
+
+    if allRegistros is not None:
+        return allRegistros
+    else:
+        return None
 
 # def call_logsReader(call_logs, fileName, DebugMode):
 #     print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)

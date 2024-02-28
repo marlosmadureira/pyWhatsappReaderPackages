@@ -2,6 +2,22 @@ from bs4 import BeautifulSoup
 import re
 
 
+def participants_events(frase):
+    padrao = r'Phone Number(\d+)State(\w+)Platform(\w+)'
+    matches = re.findall(padrao, frase)
+
+    informacoes_separadas = []
+    for match in matches:
+        informacao = {
+            'Phone Number': match[0],
+            'State': match[1],
+            'Platform': match[2]
+        }
+        informacoes_separadas.append(informacao)
+
+    return informacoes_separadas
+
+
 def parse_html(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         soup = BeautifulSoup(file, 'html.parser')
@@ -65,7 +81,8 @@ def parse_message_log(soup):
                         value_div = key_div.find_next('div', style=lambda
                             value: 'display:table-cell;' in value if value else False)
                         if value_div:
-                            key_text = clean_html(key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
+                            key_text = clean_html(
+                                key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
                             value_text = clean_html(value_div.get_text(strip=True))
 
                             # Evita a sobreposição de chaves, adicionando valores com o mesmo nome de chave
@@ -93,16 +110,22 @@ def parse_call_logs(soup):
                 key_div = detail_block.find('div', style='font-weight: bold; display:table;')
                 if key_div:
                     # Procura pelo próximo div que corresponde ao valor, considerando qualquer estilo após "display:table-cell;"
-                    value_div = key_div.find_next('div', style=lambda value: 'display:table-cell;' in value if value else False)
+                    value_div = key_div.find_next('div', style=lambda
+                        value: 'display:table-cell;' in value if value else False)
                     if value_div:
-                        key_text = clean_html(key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
+                        key_text = clean_html(
+                            key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
                         value_text = clean_html(value_div.get_text(strip=True))
-                        #key_text = key_div.get_text(strip=True)
-                        #value_text = " ".join(value_div.stripped_strings).replace('\n', ' ').replace('<br/>', '\n')
+                        # key_text = key_div.get_text(strip=True)
+                        # value_text = " ".join(value_div.stripped_strings).replace('\n', ' ').replace('<br/>', '\n')
 
                         # Trata a possibilidade de múltiplos eventos dentro de uma única chamada
                         if key_text != "Call" and key_text != "Events":
-                            call_info[key_text] = value_text
+                            # Verifica quando ligação em grupo de participantes
+                            if 'Participants' in key_text:
+                                call_info[key_text] = participants_events(value_text)
+                            else:
+                                call_info[key_text] = value_text
 
             if call_info and call_info not in call_logs:
                 call_logs.append(call_info)
@@ -111,7 +134,8 @@ def parse_call_logs(soup):
 
 
 # Caminho do arquivo HTML (ajustar conforme necessário)
-file_path = 'arquivos/zipuploads/853013806245227/records.html'
+file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/1388347178711117/records.html"
+# file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/853013806245227/records.html"
 
 # Processar o arquivo e exibir os resultados
 parsed_data = parse_html(file_path)

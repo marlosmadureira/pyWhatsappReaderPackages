@@ -14,7 +14,7 @@ from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, 
 from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
-from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, emails_infoReader, ip_addresses_infoReader
+from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, emails_infoReader, ip_addresses_infoReader, small_medium_business_infoReader, device_infoReader
 
 # Configs
 load_dotenv()
@@ -130,13 +130,15 @@ class MyHandler(PatternMatchingEventHandler):
                         if 'PRTT' in dataType:
                             fileProcess['Prtt'] = fileDados
 
+                    ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
                     emails_info = bsHtml.find('div', attrs={'id': "property-emails"})
                     ip_addresses_info = bsHtml.find('div', attrs={"id": "property-ip_addresses"})
-                    address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
-                    groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
-                    ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
                     connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
                     web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
+                    groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
+                    address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
+                    small_medium_business_info = bsHtml.find('div', attrs={"id": "property-small_medium_business"})
+                    device_info = bsHtml.find('div', attrs={"id": "property-device_info"})
 
                     if address_book_info is not None:
                         dataType = "DADOS"
@@ -168,6 +170,14 @@ class MyHandler(PatternMatchingEventHandler):
                         webinfo = web_infoReader(web_info, fileName, DebugMode)
                         if web_info is not None:
                             fileDados['webInfo'] = webinfo
+
+                        smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info, fileName, DebugMode)
+                        if smallmediumbusinessinfo is not None:
+                            fileDados['smallmediumbusinessinfo'] = webinfo
+
+                        deviceinfo = device_infoReader(device_info, fileName, DebugMode)
+                        if deviceinfo is not None:
+                            fileDados['deviceinfo'] = deviceinfo
 
                         if 'DADOS' in dataType:
                             fileProcess['Dados'] = fileDados

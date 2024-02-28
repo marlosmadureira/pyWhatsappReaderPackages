@@ -271,7 +271,7 @@ def web_infoReader(web_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
             # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
             field_name = field_name_text.replace(field_value, '').strip()
 
-            if 'Web Info' in field_name or 'Availability' in field_name or 'Online Since' in field_name or 'Platform' in field_name or 'Version':
+            if 'Web Info' in field_name or 'Availability' in field_name or 'Online Since' in field_name or 'Platform' in field_name or 'Version' in field_name:
                 data[remover_espacos_regex(field_name)] = field_value
 
     print(f"OUT {data}")
@@ -282,7 +282,67 @@ def web_infoReader(web_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
         return None
 
 
-def ip_infoReader(ip_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
-    print_color(f"\n=========================== PROCESSANDO IP INFO ===========================", 32)
+def small_medium_business_infoReader(small_medium_business_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
+    print_color(f"\n=========================== PROCESSANDO SMALL MEDIUM BUSINESS ===========================", 32)
 
-    return None
+    if DebugMode:
+        print(f"{small_medium_business_info}")
+
+    data = {}
+
+    fields = small_medium_business_info.find_all("div", class_="div_table", style="font-weight: bold;")
+
+    for field in fields:
+        # Tenta encontrar o nome do campo de uma maneira que exclua o valor
+        field_name_div = field.find("div", style="font-weight: bold; display:table;")
+        field_name_text = field_name_div.text.strip() if field_name_div else ""
+        # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
+        field_value_div = field.find("div",
+                                     style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+        if field_value_div:
+            field_value = field_value_div.text.strip()
+            # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
+            field_name = field_name_text.replace(field_value, '').strip()
+
+            if 'Small Medium Business' in field_name or 'Address' in field_name or 'Email' in field_name or 'Name' in field_name:
+                data[remover_espacos_regex(field_name)] = field_value
+
+    print(f"OUT {data}")
+
+    if data is not None:
+        return data
+    else:
+        return None
+
+
+def device_infoReader(device_info, fileName, DebugMode):
+    print_color(f"\n=========================== PROCESSANDO DEVICE INFO ===========================", 32)
+
+    if DebugMode:
+        print(f"{device_info}")
+
+    data = {}
+
+    fields = device_info.find_all("div", class_="div_table", style="font-weight: bold;")
+
+    for field in fields:
+        # Tenta encontrar o nome do campo de uma maneira que exclua o valor
+        field_name_div = field.find("div", style="font-weight: bold; display:table;")
+        field_name_text = field_name_div.text.strip() if field_name_div else ""
+        # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
+        field_value_div = field.find("div",
+                                     style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+        if field_value_div:
+            field_value = field_value_div.text.strip()
+            # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
+            field_name = field_name_text.replace(field_value, '').strip()
+
+            if 'Device Id' in field_name or 'App Version' in field_name or 'OS Version' in field_name or 'OS Build Number' in field_name or 'Device Manufacturer' in field_name or 'Device Mode' in field_name:
+                data[remover_espacos_regex(field_name)] = field_value
+
+    print(f"OUT {data}")
+
+    if data is not None:
+        return data
+    else:
+        return None

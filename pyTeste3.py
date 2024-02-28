@@ -2,22 +2,6 @@ from bs4 import BeautifulSoup
 import re
 
 
-def participants_events(frase):
-    padrao = r'Phone Number(\d+)State(\w+)Platform(\w+)'
-    matches = re.findall(padrao, frase)
-
-    informacoes_separadas = []
-    for match in matches:
-        informacao = {
-            'Phone Number': match[0],
-            'State': match[1],
-            'Platform': match[2]
-        }
-        informacoes_separadas.append(informacao)
-
-    return informacoes_separadas
-
-
 def parse_html(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         soup = BeautifulSoup(file, 'html.parser')
@@ -121,11 +105,7 @@ def parse_call_logs(soup):
 
                         # Trata a possibilidade de múltiplos eventos dentro de uma única chamada
                         if key_text != "Call" and key_text != "Events":
-                            # Verifica quando ligação em grupo de participantes
-                            if 'Participants' in key_text:
-                                call_info[key_text] = participants_events(value_text)
-                            else:
-                                call_info[key_text] = value_text
+                            call_info[key_text] = value_text
 
             if call_info and call_info not in call_logs:
                 call_logs.append(call_info)

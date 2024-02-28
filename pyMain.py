@@ -14,7 +14,7 @@ from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, 
 from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
-from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, emails_infoReader
+from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, emails_infoReader, ip_addresses_infoReader
 
 # Configs
 load_dotenv()
@@ -130,7 +130,8 @@ class MyHandler(PatternMatchingEventHandler):
                         if 'PRTT' in dataType:
                             fileProcess['Prtt'] = fileDados
 
-                    emails_info = bsHtml.find('div', attrs={"id": "property-emails"})
+                    emails_info = bsHtml.find('div', attrs={'id': "property-emails"})
+                    ip_addresses_info = bsHtml.find('div', attrs={"id": "property-ip_addresses"})
                     address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
                     groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
                     ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
@@ -143,6 +144,10 @@ class MyHandler(PatternMatchingEventHandler):
                         emailsinfo = emails_infoReader(emails_info, fileName, DebugMode)
                         if emailsinfo is not None:
                             fileDados['EmailAddresses'] = emailsinfo
+
+                        # ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode)
+                        # if ipaddresses is not None:
+                        #     fileDados['ipAddresses'] = ipaddresses
 
                         bookinfo = book_infoReader(address_book_info, fileName, DebugMode)
                         if address_book_info is not None:

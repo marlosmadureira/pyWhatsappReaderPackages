@@ -20,6 +20,13 @@ APITOKEN = os.getenv("APITOKEN")
 DebugMode = False
 
 
+def clean_html(html_text):
+    """Remove tags HTML e espaços extras de uma string HTML."""
+    text = re.sub('<[^>]+>', '', html_text)  # Remove tags HTML
+    text = re.sub('\s+', ' ', text)  # Substitui múltiplos espaços por um único espaço
+    return text.strip()
+
+
 def remover_espacos_regex(texto):
     return re.sub(r"\s", "", texto)
 

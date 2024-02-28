@@ -1,4 +1,4 @@
-from pyBiblioteca import print_color, grava_log, remover_espacos_regex
+from pyBiblioteca import print_color, grava_log, remover_espacos_regex, clean_html
 
 
 def emails_infoReader(emails_info, fileName, DebugMode):
@@ -30,6 +30,12 @@ def emails_infoReader(emails_info, fileName, DebugMode):
         return data
     else:
         return None
+
+
+def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode):
+    print_color(f"\n=========================== PROCESSANDO IP ADDRESS ===========================", 32)
+
+    print("FAZER")
 
 
 def book_infoReader(address_book_info, fileName, DebugMode):
@@ -213,7 +219,34 @@ def ncmec_reportsReader(ncmec_reports, fileName, DebugMode):  # SEM AMOSTRA PARA
 def connection_infoReader(connection_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
     print_color(f"\n=========================== PROCESSANDO CONNECTION INFO ===========================", 32)
 
-    return None
+    if DebugMode:
+        print(f"{connection_info}")
+
+    data = {}
+
+    fields = connection_info.find_all("div", class_="div_table", style="font-weight: bold;")
+
+    for field in fields:
+        # Tenta encontrar o nome do campo de uma maneira que exclua o valor
+        field_name_div = field.find("div", style="font-weight: bold; display:table;")
+        field_name_text = field_name_div.text.strip() if field_name_div else ""
+        # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
+        field_value_div = field.find("div",
+                                     style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+        if field_value_div:
+            field_value = field_value_div.text.strip()
+            # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
+            field_name = field_name_text.replace(field_value, '').strip()
+
+            if 'Device Id' in field_name or 'Service start' in field_name or 'Device Type' in field_name or 'App Version' in field_name or 'Device OS Build Number' in field_name or 'Connection State' in field_name or 'Last seen' in field_name or 'Last IP' in field_name:
+                data[remover_espacos_regex(field_name)] = field_value
+
+    print(f"OUT {data}")
+
+    if data is not None:
+        return data
+    else:
+        return None
 
 
 def web_infoReader(web_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR

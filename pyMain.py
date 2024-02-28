@@ -171,7 +171,7 @@ class MyHandler(PatternMatchingEventHandler):
                         if web_info is not None:
                             fileDados['webInfo'] = webinfo
 
-                        smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info, fileName, DebugMode)
+                        smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info, fileName,DebugMode)
                         if smallmediumbusinessinfo is not None:
                             fileDados['smallmediumbusinessinfo'] = webinfo
 

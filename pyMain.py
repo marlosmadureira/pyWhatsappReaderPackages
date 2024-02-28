@@ -14,7 +14,7 @@ from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, 
 from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
-from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader
+from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, emails_infoReader
 
 # Configs
 load_dotenv()
@@ -108,8 +108,6 @@ class MyHandler(PatternMatchingEventHandler):
                         fileProcess['Generated'] = parameter['Generated']
                     if 'DateRange' in parameter:
                         fileProcess['DateRange'] = parameter['DateRange']
-                    if 'RegisteredEmailAddresses' in parameter:
-                        fileProcess['EmailAddresses'] = parameter['RegisteredEmailAddresses']
 
                     if contaZap is not None:
                         setDateObjetoProrrogue(contaZap, Unidade, fileName)
@@ -132,14 +130,19 @@ class MyHandler(PatternMatchingEventHandler):
                         if 'PRTT' in dataType:
                             fileProcess['Prtt'] = fileDados
 
+                    emails_info = bsHtml.find('div', attrs={"id": "property-emails"})
                     address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
                     groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
                     ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
                     connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
                     web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
 
-                    if address_book_info is not None or groups_info is not None or ncmec_reports is not None or ncmec_reports is not None or connection_info is not None or web_info is not None:
+                    if address_book_info is not None:
                         dataType = "DADOS"
+
+                        emailsinfo = emails_infoReader(emails_info, fileName, DebugMode)
+                        if emailsinfo is not None:
+                            fileDados['EmailAddresses'] = emailsinfo
 
                         bookinfo = book_infoReader(address_book_info, fileName, DebugMode)
                         if address_book_info is not None:

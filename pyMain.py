@@ -145,9 +145,9 @@ class MyHandler(PatternMatchingEventHandler):
                         if emailsinfo is not None:
                             fileDados['EmailAddresses'] = emailsinfo
 
-                        # ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode)
-                        # if ipaddresses is not None:
-                        #     fileDados['ipAddresses'] = ipaddresses
+                        ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode)
+                        if ipaddresses is not None:
+                            fileDados['ipAddresses'] = ipaddresses
 
                         bookinfo = book_infoReader(address_book_info, fileName, DebugMode)
                         if address_book_info is not None:

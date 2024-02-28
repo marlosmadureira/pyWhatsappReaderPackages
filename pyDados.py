@@ -252,7 +252,34 @@ def connection_infoReader(connection_info, fileName, DebugMode):  # SEM AMOSTRA 
 def web_infoReader(web_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
     print_color(f"\n=========================== PROCESSANDO WEB INFO ===========================", 32)
 
-    return None
+    if DebugMode:
+        print(f"{web_info}")
+
+    data = {}
+
+    fields = web_info.find_all("div", class_="div_table", style="font-weight: bold;")
+
+    for field in fields:
+        # Tenta encontrar o nome do campo de uma maneira que exclua o valor
+        field_name_div = field.find("div", style="font-weight: bold; display:table;")
+        field_name_text = field_name_div.text.strip() if field_name_div else ""
+        # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
+        field_value_div = field.find("div",
+                                     style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
+        if field_value_div:
+            field_value = field_value_div.text.strip()
+            # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
+            field_name = field_name_text.replace(field_value, '').strip()
+
+            if 'Web Info' in field_name or 'Availability' in field_name or 'Online Since' in field_name or 'Platform' in field_name or 'Version':
+                data[remover_espacos_regex(field_name)] = field_value
+
+    print(f"OUT {data}")
+
+    if data is not None:
+        return data
+    else:
+        return None
 
 
 def ip_infoReader(ip_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR

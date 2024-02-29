@@ -69,7 +69,7 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode):
 
     print(f"OUT {data}")
 
-    if data is not None:
+    if len(data) > 0:
         return data
     else:
         return None
@@ -130,7 +130,7 @@ def book_infoReader(address_book_info, fileName, DebugMode):
 
     print(f"OUT {allRegistros}")
 
-    if allRegistros is not None:
+    if len(allRegistros) > 0:
         return allRegistros
     else:
         return None
@@ -218,7 +218,7 @@ def groups_infoReader(groups_info, fileName, DebugMode):
 
     print(f"OUT All {allRegistros}")
 
-    if allRegistros is not None:
+    if len(allRegistros) > 0:
         return allRegistros
     else:
         return None

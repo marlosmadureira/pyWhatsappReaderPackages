@@ -1,4 +1,4 @@
-from pyBiblioteca import print_color, grava_log, remover_espacos_regex, clean_html
+from pyBiblioteca import print_color, remover_espacos_regex, clean_html
 
 
 def emails_infoReader(emails_info, fileName, DebugMode):
@@ -118,8 +118,6 @@ def book_infoReader(address_book_info, fileName, DebugMode):
                 if field_name in campos_desejados:
                     data[remover_espacos_regex(field_name)] = phone_list[1:]
 
-                    # grava_log(remover_espacos_regex(field_name), 'LogKeyContatct.txt')
-
         if len(data) > 0:
             # Adicionar o registro à lista
             if data not in allRegistros:
@@ -189,8 +187,6 @@ def groups_infoReader(groups_info, fileName, DebugMode):
                         data[remover_espacos_regex(field_name)] = field_value.replace('Linked Media File:', '')
                     else:
                         data[remover_espacos_regex(field_name)] = field_value
-
-                    # grava_log(remover_espacos_regex(field_name), 'LogKeyGroup.txt')
 
                     if 'Subject' in field_name:
 

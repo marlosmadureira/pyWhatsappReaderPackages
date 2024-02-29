@@ -38,8 +38,6 @@ def message_logReader(message_log, fileName, DebugMode):
                 if field_name in campos_desejados:
                     data[remover_espacos_regex(field_name)] = field_value
 
-                    # grava_log(remover_espacos_regex(field_name), 'LogKeyMessage.txt')
-
         if len(data) > 0:
             # Adicionar o registro à lista
             if data not in allRegistros:
@@ -164,8 +162,6 @@ def call_logsReader(call_logs, fileName, DebugMode):
 #
 #                     if 'Events' in field_name:
 #                         print(f"\n{field_value_div}")
-#
-#                     # grava_log(remover_espacos_regex(field_name), 'LogKeyCall.txt')
 #
 #         if len(data) > 0:
 #             allRegistros.append(data)

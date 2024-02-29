@@ -64,7 +64,7 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode):
                             key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
                         value_text = clean_html(value_div.get_text(strip=True))
 
-                        ipinfo[key_text] = value_text
+                        ipinfo[remover_espacos_regex(key_text)] = value_text
 
                         if 'IP Address' in key_text:
                             if ipinfo not in data:

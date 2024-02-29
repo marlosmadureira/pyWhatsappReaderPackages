@@ -1,6 +1,6 @@
 import re
 
-from pyBiblioteca import print_color, clean_html
+from pyBiblioteca import print_color, clean_html, remover_espacos_regex
 
 
 def getEvents(value_text):
@@ -96,7 +96,7 @@ def message_logReader(message_log, fileName, DebugMode):
 
                         # Evita a sobreposição de chaves, adicionando valores com o mesmo nome de chave
                         if key_text != "Message":
-                            message_info[key_text] = value_text
+                            message_info[remover_espacos_regex(key_text)] = value_text
 
             if message_info and message_info not in messages:
                 messages.append(message_info)
@@ -142,9 +142,9 @@ def call_logsReader(call_log_div, fileName, DebugMode):
                         # Trata a possibilidade de múltiplos eventos dentro de uma única chamada
                         if key_text != "Call":
                             if 'Call Id' in key_text or 'Call Creator' in key_text:
-                                call_info[key_text] = value_text
+                                call_info[remover_espacos_regex(key_text)] = value_text
                             elif 'Events' in key_text:
-                                call_info[key_text] = getEvents(value_text)
+                                call_info[remover_espacos_regex(key_text)] = getEvents(value_text)
 
             if call_info and call_info not in call_logs:
                 call_logs.append(call_info)

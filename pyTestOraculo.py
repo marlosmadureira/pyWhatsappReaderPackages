@@ -3,31 +3,39 @@ import re
 
 
 def getEvents(value_text):
-    padrao = r'Type(\w+)Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)From(\d+)To(\d+)From Ip(\S+)From Port(\d+)'
-    matches = re.findall(padrao, value_text)
+    # Padrao regex para extrair informações
+    padrao = r"Type(\w+)Timestamp(.*?)From(\d+)To(\d+)From Ip(.*?)From Port(\d+)"
 
+    # Procurar todas as correspondências na string
+    correspondencias = re.findall(padrao, value_text)
 
-    informacoes_separadas = []
-    for match in matches:
-        informacao = {
-            'Type': match[0],
+    # Processar cada correspondência
+    informacoes = []
+
+    for match in correspondencias:
+
+        if 'Type' in match[0]:
+            resultado = match[0].split("Type")
+            Type = resultado[1]
+            MediaType = resultado[0]
+        else:
+            Type = match[0]
+            MediaType = None
+
+        # Criar dicionário com informações
+        info = {
+            'Type': Type,
             'Timestamp': match[1],
             'From': match[2],
             'To': match[3],
             'From Ip': match[4],
             'From Port': match[5],
-            'Media Type': None
+            'Media Type': MediaType
         }
 
-        if 'Media Type' in match:
-            padrao_media_type = r'Media Type(\w+)'
-            media_type_match = re.search(padrao_media_type, match)
-            if media_type_match:
-                informacao['Media Type'] = media_type_match
+        informacoes.append(info)
 
-        informacoes_separadas.append(informacao)
-
-    return informacoes_separadas
+    return informacoes
 
 
 def getParticipants(value_text):

@@ -53,9 +53,9 @@ def getParticipants(value_text):
 
         if 'Type' in match[2]:
             resultado = match[2].split("Type")
-            Platform = resultado[0]
+            Platform = resultado[0].replace("Phone","")
         else:
-            Platform = match[2]
+            Platform = match[2].replace("Phone","")
 
         informacao = {
             'Phone Number': match[0],

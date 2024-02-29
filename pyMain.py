@@ -56,6 +56,8 @@ class MyHandler(PatternMatchingEventHandler):
         if DebugMode:
             print("\nLog Evento:" + str(event))
 
+        countdown(2)
+
         if event.event_type == "created":
 
             fileProcess = {}

@@ -12,6 +12,11 @@ def getEvents(value_text):
     # Processar cada correspondência
     informacoes = []
 
+    if 'Participants' in value_text:
+        Participants = getParticipants(value_text)
+    else:
+        Participants = None
+
     for match in correspondencias:
 
         if 'Type' in match[0]:
@@ -30,7 +35,8 @@ def getEvents(value_text):
             'To': match[3],
             'From Ip': match[4],
             'From Port': match[5],
-            'Media Type': MediaType
+            'Media Type': MediaType,
+            'Participants': Participants
         }
 
         informacoes.append(info)

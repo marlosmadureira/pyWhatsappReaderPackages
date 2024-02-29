@@ -38,35 +38,41 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode):
     if DebugMode:
         print(f"{ip_addresses_info}")
 
-    ips = []
-    iplog_div = ip_addresses_info.find('div', id='property-iplog')
+    data = []
+    ipinfo = {}
 
-    if iplog_div:
-        # Ignora a definição do log de mensagem e foca nos registros de mensagens
-        ipblocks = iplog_div.find_all('div', class_='div_table')[1:]  # Pula a descrição
+    ipblocks = ip_addresses_info.find_all('div', class_='div_table')[1:]  # Pula a descrição
 
-        for block in ipblocks:
-            ipinfo = {}
-            detail_blocks = block.find_all('div', class_='div_table', recursive=True)
+    for block in ipblocks:
 
-            for detail_block in detail_blocks:
-                key_div = detail_block.find('div', style='font-weight: bold; display:table;')
-                if key_div:
-                    value_div = key_div.find_next('div', style=lambda
-                        value: 'display:table-cell;' in value if value else False)
-                    if value_div:
-                        key_text = clean_html(
-                            key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
-                        value_text = clean_html(value_div.get_text(strip=True))
+        detail_blocks = block.find_all('div', class_='div_table', recursive=True)[1:]  # Pula a descrição
 
-                        # Evita a sobreposição de chaves, adicionando valores com o mesmo nome de chave
-                        if key_text != "Message":
-                            ipinfo[key_text] = value_text
+        for detail_block in detail_blocks:
 
-            if ipinfo and ipinfo not in ips:
-                ips.append(ipinfo)
+            key_div = detail_block.find('div', class_='div_table', style='font-weight: bold; display:table;')
 
-    return ips
+            if key_div:
+                value_div = key_div.find_next('div', style=lambda
+                    value: 'display:table-cell;' in value if value else False)
+
+                if value_div:
+                    key_text = clean_html(
+                        key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
+                    value_text = clean_html(value_div.get_text(strip=True))
+
+                    ipinfo[key_text] = value_text
+
+                    if 'IP Address' in key_text:
+                        if ipinfo not in data:
+                            data.append(ipinfo)
+                            ipinfo = {}
+
+    print(f"OUT {data}")
+
+    if data is not None:
+        return data
+    else:
+        return None
 
 
 def book_infoReader(address_book_info, fileName, DebugMode):
@@ -294,7 +300,7 @@ def web_infoReader(web_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
 
     data = {}
 
-    fields = web_info.find_all("div", class_="div_table", style="font-weight: bold;")
+    fields = web_info.find_all("div", class_="div_table", style="font-weight: bold;")[1:]  # Pula a descrição
 
     for field in fields:
         # Tenta encontrar o nome do campo de uma maneira que exclua o valor
@@ -327,7 +333,7 @@ def small_medium_business_infoReader(small_medium_business_info, fileName, Debug
 
     data = {}
 
-    fields = small_medium_business_info.find_all("div", class_="div_table", style="font-weight: bold;")
+    fields = small_medium_business_info.find_all("div", class_="div_table", style="font-weight: bold;")[1:]  # Pula a descrição
 
     for field in fields:
         # Tenta encontrar o nome do campo de uma maneira que exclua o valor

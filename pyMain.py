@@ -118,7 +118,7 @@ class MyHandler(PatternMatchingEventHandler):
                         message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
                         call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
 
-                        if message_log is not None or call_logs is not None:
+                        if message_log is not None:
                             dataType = "PRTT"
 
                             messages = message_logReader(message_log, fileName, DebugMode)

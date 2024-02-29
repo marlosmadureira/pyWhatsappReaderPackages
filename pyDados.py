@@ -223,11 +223,11 @@ def groups_infoReader(groups_info, fileName, DebugMode):
             for registro in participatingRegistros:
                 print(registro)
 
-        print(f"OUT Owned {ownedRegistros}")
+        # print(f"OUT Owned {ownedRegistros}")
+        #
+        # print(f"OUT Participating {participatingRegistros}")
 
-        print(f"OUT Participating {participatingRegistros}")
-
-        print(f"OUT All {allRegistros}")
+        print(f"OUT {allRegistros}")
 
         if len(allRegistros) > 0:
             return allRegistros

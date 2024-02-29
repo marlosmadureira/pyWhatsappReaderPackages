@@ -162,10 +162,10 @@ def removeFolderFiles(FolderPath):
 def parseHTMLFile(folderZip):
     htmlFile = folderZip + "/records.html"
 
-    soupHtml = ""
+    soupHtml = None
 
     if os.path.exists(htmlFile):
-        with open(htmlFile, 'r') as f:
+        with open(htmlFile, 'r', encoding='utf-8') as f:
             contents = f.read()
             soupHtml = BeautifulSoup(contents, 'html.parser')
             soupHtml.prettify()

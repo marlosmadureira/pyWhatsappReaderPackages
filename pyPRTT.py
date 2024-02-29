@@ -102,7 +102,7 @@ def message_logReader(message_log, fileName, DebugMode):
 
     print(f"OUT {messages}")
 
-    if messages is not None:
+    if len(messages) > 0:
         return messages
     else:
         return None
@@ -147,7 +147,7 @@ def call_logsReader(call_log_div, fileName, DebugMode):
 
     print(f"OUT {call_logs}")
 
-    if call_logs is not None:
+    if len(call_logs) > 0:
         return call_logs
     else:
         return None

@@ -50,10 +50,17 @@ def getParticipants(value_text):
 
     informacoes_separadas = []
     for match in matches:
+
+        if 'Type' in match[2]:
+            resultado = match[2].split("Type")
+            Platform = resultado[0]
+        else:
+            Platform = match[2]
+
         informacao = {
             'Phone Number': match[0],
             'State': match[1],
-            'Platform': match[2]
+            'Platform': Platform
         }
         informacoes_separadas.append(informacao)
 

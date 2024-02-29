@@ -35,11 +35,45 @@ def emails_infoReader(emails_info, fileName, DebugMode):
 def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO IP ADDRESS ===========================", 32)
 
-    print("FAZER")
+    if DebugMode:
+        print(f"{ip_addresses_info}")
+
+    ips = []
+    iplog_div = ip_addresses_info.find('div', id='property-iplog')
+
+    if iplog_div:
+        # Ignora a definição do log de mensagem e foca nos registros de mensagens
+        ipblocks = iplog_div.find_all('div', class_='div_table')[1:]  # Pula a descrição
+
+        for block in ipblocks:
+            ipinfo = {}
+            detail_blocks = block.find_all('div', class_='div_table', recursive=True)
+
+            for detail_block in detail_blocks:
+                key_div = detail_block.find('div', style='font-weight: bold; display:table;')
+                if key_div:
+                    value_div = key_div.find_next('div', style=lambda
+                        value: 'display:table-cell;' in value if value else False)
+                    if value_div:
+                        key_text = clean_html(
+                            key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
+                        value_text = clean_html(value_div.get_text(strip=True))
+
+                        # Evita a sobreposição de chaves, adicionando valores com o mesmo nome de chave
+                        if key_text != "Message":
+                            ipinfo[key_text] = value_text
+
+            if ipinfo and ipinfo not in ips:
+                ips.append(ipinfo)
+
+    return ips
 
 
 def book_infoReader(address_book_info, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO BOOK INFO ===========================", 32)
+
+    if DebugMode:
+        print(f"{address_book_info}")
 
     # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Symmetric contacts', 'Asymmetric contacts']
@@ -100,6 +134,9 @@ def book_infoReader(address_book_info, fileName, DebugMode):
 
 def groups_infoReader(groups_info, fileName, DebugMode):
     print_color(f"\n=========================== PROCESSANDO GROUPS INFO ===========================", 32)
+
+    if DebugMode:
+        print(f"{groups_info}")
 
     # Qualquer Novo Div Criada Pasta Inserir o Valor
     campos_desejados = ['Picture', 'Thumbnail', 'ID', 'Creation', 'Size', 'Description', 'Subject']

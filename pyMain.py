@@ -194,6 +194,7 @@ class MyHandler(PatternMatchingEventHandler):
                         if Executar:
                             sendDataJsonServer(fileProcess, dataType)
                         else:
+                            print_color(f"\n================= ENVIO PHP DESLIGADO =================",31)
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
 
                         print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))

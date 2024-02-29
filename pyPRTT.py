@@ -1,4 +1,71 @@
-from pyBiblioteca import print_color, grava_log, remover_espacos_regex
+import re
+
+from pyBiblioteca import print_color, clean_html
+
+
+def getEvents(value_text):
+    # Padrao regex para extrair informações
+    padrao = r"Type(\w+)Timestamp(.*?)From(\d+)To(\d+)From Ip(.*?)From Port(\d+)"
+
+    # Procurar todas as correspondências na string
+    correspondencias = re.findall(padrao, value_text)
+
+    # Processar cada correspondência
+    informacoes = []
+
+    if 'Participants' in value_text:
+        Participants = getParticipants(value_text)
+    else:
+        Participants = None
+
+    for match in correspondencias:
+
+        if 'Type' in match[0]:
+            resultado = match[0].split("Type")
+            Type = resultado[1]
+            MediaType = resultado[0]
+        else:
+            Type = match[0]
+            MediaType = None
+
+        # Criar dicionário com informações
+        info = {
+            'Type': Type,
+            'Timestamp': match[1],
+            'From': match[2],
+            'To': match[3],
+            'From Ip': match[4],
+            'From Port': match[5],
+            'Media Type': MediaType,
+            'Participants': Participants
+        }
+
+        informacoes.append(info)
+
+    return informacoes
+
+
+def getParticipants(value_text):
+    padrao = r'Phone Number(\d+)State(\w+)Platform(\w+)'
+    matches = re.findall(padrao, value_text)
+
+    informacoes_separadas = []
+    for match in matches:
+
+        if 'Type' in match[2]:
+            resultado = match[2].split("Type")
+            Platform = resultado[0].replace("Phone", "")
+        else:
+            Platform = match[2].replace("Phone", "")
+
+        informacao = {
+            'Phone Number': match[0],
+            'State': match[1],
+            'Platform': Platform
+        }
+        informacoes_separadas.append(informacao)
+
+    return informacoes_separadas
 
 
 def message_logReader(message_log, fileName, DebugMode):
@@ -7,106 +74,36 @@ def message_logReader(message_log, fileName, DebugMode):
     if DebugMode:
         print(message_log)
 
-    # Qualquer Novo Div Criada Pasta Inserir o Valor
-    campos_desejados = ['Timestamp', 'Message Id', 'Sender', 'Recipients', 'Sender Ip', 'Sender Port', 'Sender Device',
-                        'Type', 'Message Style', 'Message Size']
+    messages = []
 
-    # Lista para armazenar todos os registros
-    allRegistros = []
+    # Ignora a definição do log de mensagem e foca nos registros de mensagens
+    message_blocks = message_log.find_all('div', class_='div_table')[1:]  # Pula a descrição
 
-    # Encontrar todos os blocos de mensagem
-    message_blocks = message_log.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
-
-    # Iterar sobre cada bloco de mensagem
     for block in message_blocks:
-        # Dicionário para armazenar os dados de um registro
-        data = {}
+        message_info = {}
+        detail_blocks = block.find_all('div', class_='div_table', recursive=True)
 
-        # Encontrar todos os campos dentro de um bloco
-        fields = block.find_all("div", class_="div_table", style="font-weight: bold;")
+        for detail_block in detail_blocks:
+            key_div = detail_block.find('div', style='font-weight: bold; display:table;')
+            if key_div:
+                value_div = key_div.find_next('div', style=lambda
+                    value: 'display:table-cell;' in value if value else False)
+                if value_div:
+                    key_text = clean_html(
+                        key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
+                    value_text = clean_html(value_div.get_text(strip=True))
 
-        # Iterar sobre cada campo e extrair informações
-        for field in fields:
-            field_name_div = field.find("div", style="font-weight: bold; display:table;")
-            field_name_text = field_name_div.text.strip() if field_name_div else ""
+                    # Evita a sobreposição de chaves, adicionando valores com o mesmo nome de chave
+                    if key_text != "Message":
+                        message_info[key_text] = value_text
 
-            field_value_div = field.find("div",
-                                         style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
-            if field_value_div:
-                field_value = field_value_div.text.strip()
-                field_name = field_name_text.replace(field_value, '').strip()
-                if field_name in campos_desejados:
-                    data[remover_espacos_regex(field_name)] = field_value
+        if message_info and message_info not in messages:
+            messages.append(message_info)
 
-        if len(data) > 0:
-            # Adicionar o registro à lista
-            if data not in allRegistros:
-                allRegistros.append(data)
-
-    if DebugMode:
-        # Print dos registros
-        for registro in allRegistros:
-            print(registro)
-
-    # print(f"OUT {allRegistros}")
-
-    if allRegistros is not None:
-        return allRegistros
+    if messages is not None:
+        return messages
     else:
         return None
-
-
-def newCallInfo():
-    return {
-        'Call_id': None,
-        'Call_Creator': None,
-        'Type': None,
-        'Timestamp': None,
-        'To': None,
-        'From': None,
-        'From_Ip': None,
-        'From_Port': None,
-        'Media_Type': None
-    }
-
-
-def process_div_table(alldivs):
-    all_calls_info = []
-    newCall = newCallInfo()
-
-    for dev in alldivs:
-        text = dev.text.strip()
-        if 'Type' in text:
-            if newCall['Type'] is not None:
-                all_calls_info.append(newCall)
-            newCall = newCallInfo()
-            newCall['Type'] = text.replace("Type", "").strip()
-
-        if 'Timestamp' in text:
-            newCall['Timestamp'] = text.replace("Timestamp", "").strip()
-
-        if 'From' in text:
-            newCall['From'] = text.replace("From", "").strip()
-
-        if 'To' in text:
-            newCall['To'] = text.replace("To", "").strip()
-
-        if 'From Ip' in text:
-            newCall['From_Ip'] = text.replace("From Ip", "").strip()
-
-        if 'From Port' in text:
-            newCall['From_Port'] = text.replace("From Port", "").strip()
-
-        if 'Media Type' in text:
-            newCall['Media_Type'] = text.replace("Media Type", "").strip()
-
-        if 'Call Id' in text:
-            newCall['Call_id'] = text.replace("Call Id", "").strip()
-
-        if 'Call Creator' in text:
-            newCall['Call_Creator'] = text.replace("Call Creator", "").strip()
-
-    return all_calls_info
 
 
 def call_logsReader(call_logs, fileName, DebugMode):
@@ -115,65 +112,38 @@ def call_logsReader(call_logs, fileName, DebugMode):
     if DebugMode:
         print(call_logs)
 
-    alldivtables = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
+    call_logs = []
 
-    all_calls_info = process_div_table(alldivtables)
+    call_blocks = call_logs.find_all('div', class_='div_table')[1:]  # Pula a descrição dos logs de chamada
 
-    grava_log(all_calls_info, 'LogCall.txt')
+    for block in call_blocks:
+        call_info = {}
+        detail_blocks = block.find_all('div', class_='div_table', recursive=True)
 
-    print(all_calls_info)
+        for detail_block in detail_blocks:
+            key_div = detail_block.find('div', style='font-weight: bold; display:table;')
+            if key_div:
+                # Procura pelo próximo div que corresponde ao valor, considerando qualquer estilo após "display:table-cell;"
+                value_div = key_div.find_next('div', style=lambda
+                    value: 'display:table-cell;' in value if value else False)
+                if value_div:
+                    key_text = clean_html(
+                        key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
+                    value_text = clean_html(value_div.get_text(strip=True))
+                    # key_text = key_div.get_text(strip=True)
+                    # value_text = " ".join(value_div.stripped_strings).replace('\n', ' ').replace('<br/>', '\n')
 
-# def call_logsReader(call_logs, fileName, DebugMode):
-#     print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)
-#
-#     if DebugMode:
-#         print(call_logs)
-#
-#     # Qualquer Novo Div Criada Pasta Inserir o Valor
-#     campos_desejados = ['Call Id', 'Call Creator', 'Events'] #'Type', 'Timestamp', 'From', 'To', 'From Ip', 'From Port', 'Media Type',
-#
-#     # Lista para armazenar todos os registros
-#     allRegistros = []
-#
-#     # Encontrar todos os blocos de mensagem
-#     call_blocks = call_logs.find_all("div", class_="div_table", style="font-weight: bold; display:table;")
-#
-#     # Iterar sobre cada bloco de mensagem
-#     for block in call_blocks:
-#         # Dicionário para armazenar os dados de um registro
-#         data = {}
-#
-#         # Encontrar todos os campos dentro de um bloco
-#         fields = block.find_all("div", class_="div_table", style="font-weight: bold;")
-#
-#         # Iterar sobre cada campo e extrair informações
-#         for field in fields:
-#             field_name_div = field.find("div", style="font-weight: bold; display:table;")
-#             field_name_text = field_name_div.text.strip() if field_name_div else ""
-#
-#             field_value_div = field.find("div",
-#                                          style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;")
-#             if field_value_div:
-#                 field_value = field_value_div.text.strip()
-#                 field_name = field_name_text.replace(field_value, '').strip()
-#
-#                 if field_name in campos_desejados:
-#                     data[remover_espacos_regex(field_name)] = field_value
-#
-#                     if 'Events' in field_name:
-#                         print(f"\n{field_value_div}")
-#
-#         if len(data) > 0:
-#             allRegistros.append(data)
-#
-#     if DebugMode:
-#         # Print dos registros
-#         for registro in allRegistros:
-#             print(registro)
-#
-#     print(f"OUT {allRegistros}")
-#
-#     if allRegistros is not None:
-#         return allRegistros
-#     else:
-#         return None
+                    # Trata a possibilidade de múltiplos eventos dentro de uma única chamada
+                    if key_text != "Call":
+                        if 'Call Id' in key_text or 'Call Creator' in key_text:
+                            call_info[key_text] = value_text
+                        elif 'Events' in key_text:
+                            call_info[key_text] = getEvents(value_text)
+
+        if call_info and call_info not in call_logs:
+            call_logs.append(call_info)
+
+    if call_logs is not None:
+        return call_logs
+    else:
+        return None

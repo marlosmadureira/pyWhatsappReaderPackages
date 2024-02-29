@@ -1,5 +1,25 @@
-from bs4 import BeautifulSoup
+import json
+
+import requests
 import re
+from bs4 import BeautifulSoup
+from time import sleep
+
+
+def consulta_ips(ips_para_pesquisa):
+    #urlApi = f'http://ip-api.com/json/{ips_para_pesquisa}?fields=status,city,lat,lon,isp,query&lang=pt-BR'
+    urlApi = f'https://ipinfo.io/{ips_para_pesquisa}/json'
+
+    try:
+        r = requests.get(urlApi)
+
+        if r.status_code == 200 and r.text != "" and r.text is not None:
+            Jsondata = json.loads(r.text)
+            print(Jsondata)
+    except requests.exceptions.ConnectionError:
+        print('build http connection failed')
+    except Exception as inst:
+        print(f"Location: sendDataJsonServer, error: {inst}")
 
 
 def getEvents(value_text):
@@ -33,7 +53,7 @@ def getEvents(value_text):
             'Timestamp': match[1],
             'From': match[2],
             'To': match[3],
-            'From Ip': match[4],
+            'From Ip': consulta_ips(match[4]),
             'From Port': match[5],
             'Media Type': MediaType,
             'Participants': Participants
@@ -53,9 +73,9 @@ def getParticipants(value_text):
 
         if 'Type' in match[2]:
             resultado = match[2].split("Type")
-            Platform = resultado[0].replace("Phone","")
+            Platform = resultado[0].replace("Phone", "")
         else:
-            Platform = match[2].replace("Phone","")
+            Platform = match[2].replace("Phone", "")
 
         informacao = {
             'Phone Number': match[0],
@@ -186,7 +206,7 @@ def parse_call_logs(soup):
 # Caminho do arquivo HTML (ajustar conforme necessário)
 # file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/1388347178711117/records.html"
 # file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/853013806245227/records.html"
-file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/1448793812374061/records.html"
+file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/195219527016517/records.html"
 
 # Processar o arquivo e exibir os resultados
 parsed_data = parse_html(file_path)

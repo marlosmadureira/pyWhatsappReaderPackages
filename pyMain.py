@@ -240,6 +240,8 @@ if __name__ == '__main__':
     checkFolder(DIRERROS)
     checkFolder(DIREXTRACAO)
 
+    checkFolder("log")
+
     observer = Observer()
     observer.schedule(MyHandler(), path=DIRNOVOS if DIRNOVOS else '.')
     observer.start()

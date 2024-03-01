@@ -197,8 +197,9 @@ class MyHandler(PatternMatchingEventHandler):
 
                             print(retornoJson)
 
-                            if 'MostraJsonPython' in retornoJson:
-                                if retornoJson['jsonRetorno']['MostraJsonPython']:
+                            if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+                                Jsondata = json.loads(retornoJson['jsonRetorno'])
+                                if Jsondata['MostraJsonPython']:
                                     openJsonEstruturado(fileProcess)
 
                         else:

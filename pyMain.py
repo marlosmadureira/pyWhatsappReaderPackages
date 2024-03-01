@@ -10,7 +10,7 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
-    removeFolderFiles, print_color, somentenumero, grava_log, delete_log
+    removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado
 from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
@@ -189,15 +189,15 @@ class MyHandler(PatternMatchingEventHandler):
 
                         print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
-                        print('\nEnvio PHP ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
-
                         if Executar:
+                            print_color(
+                                f"\n=========================== ENVIADO PHP ===========================", 32)
                             sendDataJsonServer(fileProcess, dataType)
+
+                            openJsonEstruturado(fileProcess)
                         else:
                             print_color(f"\n================= ENVIO PHP DESLIGADO =================",31)
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
-
-                        print('\nFim ', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
 
                         removeFolderFiles(folderZip)
 

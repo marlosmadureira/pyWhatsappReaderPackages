@@ -193,9 +193,13 @@ class MyHandler(PatternMatchingEventHandler):
                         if Executar:
                             print_color(f"\n=========================== ENVIADO PHP ===========================", 32)
 
-                            openJsonEstruturado(fileProcess)
+                            retornoJson = sendDataJsonServer(fileProcess, dataType)
 
-                            sendDataJsonServer(fileProcess, dataType)
+                            print(retornoJson)
+
+                            if retornoJson['LogJson']:
+                                openJsonEstruturado(fileProcess)
+
                         else:
                             print_color(f"\n================= ENVIO PHP DESLIGADO =================", 31)
 

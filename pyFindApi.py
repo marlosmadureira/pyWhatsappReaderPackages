@@ -75,9 +75,10 @@ def sendDataJsonServer(Dados, type):
         r = requests.post(APILINK, data=payload)
 
         if r.status_code == 200 and r.text != "" and r.text is not None:
-            Jsondata = json.loads(r.text)
-            print(Jsondata)
 
+            Jsondata = json.loads(r.text)
+
+            return Jsondata
     except requests.exceptions.ConnectionError:
         print('build http connection failed')
     except Exception as inst:

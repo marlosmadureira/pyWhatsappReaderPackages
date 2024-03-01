@@ -11,8 +11,6 @@
 	set_time_limit(0);
 	ini_set('memory_limit', '-1');
 
-	$LogJson = True;
-
 	function gravalog($filename,$content){
 		$filename = str_replace(".zip", '', $filename);
 		$FileLog = fopen('./Logs/'.$filename.".txt", "a"); 	//CRIANDO ARQUVIVO
@@ -914,7 +912,7 @@
 						}
 					}	
 
-					$jsonRetorno['LogJson'] = $LogJson;
+					$jsonRetorno['MostraJsonPython'] = True;
 
 				}else{
 					$FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a"); 		//CRIANDO ARQUVIVO

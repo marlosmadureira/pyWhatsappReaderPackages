@@ -197,8 +197,9 @@ class MyHandler(PatternMatchingEventHandler):
 
                             print(retornoJson)
 
-                            if retornoJson['jsonRetorno']['MostraJsonPython']:
-                                openJsonEstruturado(fileProcess)
+                            if 'MostraJsonPython' in retornoJson:
+                                if retornoJson['jsonRetorno']['MostraJsonPython']:
+                                    openJsonEstruturado(fileProcess)
 
                         else:
                             print_color(f"\n================= ENVIO PHP DESLIGADO =================", 31)

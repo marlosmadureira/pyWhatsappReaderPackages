@@ -115,8 +115,8 @@
 	        if(isset($json->DateRange)){
 	            $DateRange = trim(pg_escape_string($json->DateRange));
 	        }
-	        if(isset($json->EmailAddresses)){
-	            $EmailAddresses = trim(pg_escape_string($json->EmailAddresses));
+	        if(isset($json->Service)){
+	            $Service = trim(pg_escape_string($json->Service));
 	        }
 	        
 	        $jsonRetorno['FileName'] = trim(pg_escape_string($FileName));
@@ -198,6 +198,10 @@
 
 								$ar_id = $queryArId['ar_id'];
 
+								if(isset($json->Dados->EmailAddresses)){
+						            $EmailAddresses = trim(pg_escape_string($json->Dados->EmailAddresses));
+						        }
+
 					            if(isset($json->Dados->ipAddresses)){
 					                foreach($json->Dados->ipAddresses as $registro){
 					                	if(isset($registro->IPAddress)){
@@ -233,8 +237,8 @@
 					            }
 					            
 					            if(isset($json->Dados->connectionInfo)){
-					            	if(isset($json->Dados->connectionInfo->ServiceStart)){
-						                $dadoServiceStart = trim(pg_escape_string($json->Dados->connectionInfo->ServiceStart));
+					            	if(isset($json->Dados->connectionInfo->Servicestart)){
+						                $dadoServiceStart = trim(pg_escape_string($json->Dados->connectionInfo->Servicestart));
 						            }else{
 						            	$dadoServiceStart = null; 
 						            }
@@ -269,9 +273,14 @@
 						            	$dadoPushName = null; 
 						            }
 						            if(isset($json->Dados->connectionInfo->LastSeen)){
-						                $dadoLastSeen = trim(pg_escape_string($json->Dados->connectionInfo->LastSeen));
+						                $dadoLastSeen = trim(pg_escape_string($json->Dados->connectionInfo->Lastseen));
 						            }else{
 						            	$dadoLastSeen = null; 
+						            }
+						            if(isset($json->Dados->connectionInfo->LastIP)){
+						                $LastIP = trim(pg_escape_string($json->Dados->connectionInfo->LastIP));
+						            }else{
+						            	$LastIP = null; 
 						            }
 					                //GRAVANDO CONEXÃO CONEXÃO INFO 
 					                $sqlInsert = "INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES ( '".$dadoServiceStart."', '".$dadoDeviceType."', '".$dadoAppVersion."', '".$dadoDeviceOSBuildNumber."', '".$dadoConnectionState."', '".$dadoOnlineSince."', '".$dadoPushName."', '".$dadoLastSeen."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
@@ -314,6 +323,11 @@
 					                	$dadoInactiveSince = trim(pg_escape_string($json->Dados->webInfo->InactiveSince));
 					                }else{
 					                	$dadoInactiveSince = null;
+					                }
+					                if(isset($json->Dados->webInfo->Availability)){
+					                	$Availability = trim(pg_escape_string($json->Dados->webInfo->Availability));
+					                }else{
+					                	$Availability = null;
 					                }
 					                //GRAVANDO OS DADOS WEBINFO
 					                $sqlInsert = "INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) SELECT '".$dadoVersion."', '".$dadoPlatform."', '".$dadoOnlineSince."', '".$dadoInactiveSince."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id." WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '".$dadoVersion."' AND we_platform = '".$dadoPlatform."' AND telefone = '".$AccountIdentifier."');";
@@ -511,14 +525,57 @@
 					                }
 					            }
 
-					            if(isset($json->Dados->smallMediumBusiness)){
+					            if(isset($json->Dados->smallmediumbusinessinfo)){
 					            	//AINDA NÃO IMPLEMENTADO PQ NÃO HOUVE DADOS PARA ANALAISE
-					            	$dadosmallMediumBusiness = trim(pg_escape_string($json->Dados->smallMediumBusiness));		            	
+					            	$dadosmallMediumBusiness = trim(pg_escape_string($json->Dados->smallmediumbusinessinfo));		            	
 					            }
 
-					            if(isset($json->Dados->ncmecReports)){
+					            if(isset($json->Dados->ncmecReportsInfo)){
 					            	//AINDA NÃO IMPLEMENTADO PQ NÃO HOUVE DADOS PARA ANALAISE
-					            	$dadoncmecReports = trim(pg_escape_string($json->Dados->ncmecReports));		            	
+					            	if(isset($json->Dados->ncmecReportsInfo->NcmecReportsDefinition)){
+					            		$NcmecReportsDefinition = trim(pg_escape_string($json->Dados->ncmecReportsInfo->NcmecReportsDefinition));
+					            	}else{
+					            		$NcmecReportsDefinition = null;
+					            	}
+
+					            	if(isset($json->Dados->ncmecReportsInfo->NCMECCyberTipNumbers)){		            	
+					            		$NCMECCyberTipNumbers = trim(pg_escape_string($json->Dados->ncmecReportsInfo->NCMECCyberTipNumbers));
+					            	}else{
+					            		$NCMECCyberTipNumbers = null;
+					            	}
+					            }
+
+					            if(isset($json->Dados->deviceinfo)){
+					            	//AINDA NÃO IMPLEMENTADO PQ NÃO HOUVE DADOS PARA ANALAISE
+					            	if(isset($json->Dados->deviceinfo->AppVersion)){
+					            		$AppVersion = trim(pg_escape_string($json->Dados->deviceinfo->AppVersion));
+					            	}else{
+					            		$AppVersion = null;
+					            	}
+
+					            	if(isset($json->Dados->deviceinfo->OSVersion)){            	
+					            		$OSVersion = trim(pg_escape_string($json->Dados->deviceinfo->OSVersion));
+					            	}else{
+					            		$OSVersion = null;
+					            	}
+
+					            	if(isset($json->Dados->deviceinfo->OSBuildNumber)){
+					            		$OSBuildNumber = trim(pg_escape_string($json->Dados->deviceinfo->OSBuildNumber));		            	
+					            	}else{
+					            		$OSBuildNumber = null;
+					            	}
+
+					            	if(isset($json->Dados->deviceinfo->DeviceManufacturer)){
+					            		$DeviceManufacturer = trim(pg_escape_string($json->Dados->deviceinfo->DeviceManufacturer));
+					            	}else{
+					            		$DeviceManufacturer = null;
+					            	}
+
+					            	if(isset($json->Dados->deviceinfo->DeviceModel)){
+					            		$DeviceModel = trim(pg_escape_string($json->Dados->deviceinfo->DeviceModel));	 
+					            	}else{
+					            		$DeviceModel = null;
+					            	}
 					            }
 							}
 							$jsonRetorno['GravaBanco'] = True;

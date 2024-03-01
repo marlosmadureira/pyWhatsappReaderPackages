@@ -25,7 +25,7 @@ DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
 DebugMode = False
-Executar = False
+Executar = True
 
 
 def getUnidadeFileName(nome_original):

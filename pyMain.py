@@ -14,7 +14,8 @@ from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, 
 from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
-from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, emails_infoReader, ip_addresses_infoReader, small_medium_business_infoReader, device_infoReader
+from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, \
+    emails_infoReader, ip_addresses_infoReader, small_medium_business_infoReader, device_infoReader
 
 # Configs
 load_dotenv()
@@ -48,7 +49,6 @@ def getUnidadeFileName(nome_original):
 
 
 class MyHandler(PatternMatchingEventHandler):
-
     patterns = ["*.zip"]
 
     def process(self, event):
@@ -174,7 +174,8 @@ class MyHandler(PatternMatchingEventHandler):
                             if web_info is not None:
                                 fileDados['webInfo'] = webinfo
 
-                            smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info, fileName,DebugMode)
+                            smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info,
+                                                                                       fileName, DebugMode)
                             if smallmediumbusinessinfo is not None:
                                 fileDados['smallmediumbusinessinfo'] = webinfo
 
@@ -190,13 +191,14 @@ class MyHandler(PatternMatchingEventHandler):
                         print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
                         if Executar:
-                            print_color(
-                                f"\n=========================== ENVIADO PHP ===========================", 32)
-                            sendDataJsonServer(fileProcess, dataType)
+                            print_color(f"\n=========================== ENVIADO PHP ===========================", 32)
 
                             openJsonEstruturado(fileProcess)
+
+                            sendDataJsonServer(fileProcess, dataType)
                         else:
-                            print_color(f"\n================= ENVIO PHP DESLIGADO =================",31)
+                            print_color(f"\n================= ENVIO PHP DESLIGADO =================", 31)
+
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
 
                         removeFolderFiles(folderZip)

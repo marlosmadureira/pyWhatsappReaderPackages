@@ -195,12 +195,14 @@ class MyHandler(PatternMatchingEventHandler):
 
                             retornoJson = sendDataJsonServer(fileProcess, dataType)
 
-                            print(retornoJson)
-
                             if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+
                                 Jsondata = json.loads(retornoJson['jsonRetorno'])
+
                                 if Jsondata['MostraJsonPython']:
                                     openJsonEstruturado(fileProcess)
+
+                            print(retornoJson)
 
                         else:
                             print_color(f"\n================= ENVIO PHP DESLIGADO =================", 31)

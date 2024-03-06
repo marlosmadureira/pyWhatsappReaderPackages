@@ -177,7 +177,7 @@ class MyHandler(PatternMatchingEventHandler):
                             smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info,
                                                                                        fileName, DebugMode)
                             if smallmediumbusinessinfo is not None:
-                                fileDados['smallmediumbusinessinfo'] = webinfo
+                                fileDados['smallmediumbusinessinfo'] = smallmediumbusinessinfo
 
                             deviceinfo = device_infoReader(device_info, fileName, DebugMode)
                             if deviceinfo is not None:

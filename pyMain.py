@@ -237,17 +237,17 @@ class MyHandler(PatternMatchingEventHandler):
                 print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads {contar_arquivos_zip(DIRNOVOS)}\n")
 
     def on_created(self, event):
-
         self.process(event)
+        print_color(f"\n{event.src_path} foi criado!", 36)
 
     def on_deleted(self, event):
-        print(f"{event.src_path} foi deletado!")
+        print_color(f"\n{event.src_path} foi deletado!", 36)
 
     def on_modified(self, event):
-        print(f"{event.src_path} foi modificado!")
+        print_color(f"\n{event.src_path} foi modificado!", 36)
 
     def on_moved(self, event):
-        print(f"{event.src_path} foi movido/renomeado para {event.dest_path}!")
+        print_color(f"\n{event.src_path} foi movido/renomeado para {event.dest_path}!", 36)
 
 
 if __name__ == '__main__':

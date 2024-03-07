@@ -18,16 +18,6 @@
 		fclose($FileLog ); //FIM DE LOG
 	}
 
-    function duplicidadesql($db, $sql){
-        $query = selectpadraoconta($db, $sql);
-
-        if($query > 0){
-            return $query;
-        }else{
-            return null;
-        }
-    }
-
 	if(!empty($_POST['token']) && $_POST['token'] == $tokenAuthorized){
 
 		if($_POST['action'] == "updateStatus"){
@@ -171,21 +161,23 @@
 					if($type == "DADOS"){
 
 						$sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = ".$linh_id." AND ar_arquivo = '".$FileName."' AND ar_dtgerado = '".$DateRange."'";
-						$repetido = selectpadraoconta($db, $sqlexistente);
+						$repetido = selectpadraoumalinha($db, $sqlexistente);
 
 						if (empty($repetido['ar_id'])){
 							$sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES (".$linh_id.", '".$AccountIdentifier."', '".$DateRange."', NOW(), '".$FileName."', 1, 1, '".$EmailAddresses."') RETURNING ar_id;";
 
 							if ($executaSql){
-	                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND ar_arquivo = '".$FileName."' AND ar_dtgerado = '".$DateRange."'";
-	                            $existente = duplicidadesql($db, $sql);
-	                            if(empty($existente)){
+	                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = ".$linh_id." AND ar_arquivo = '".$FileName."' AND ar_dtgerado = '".$DateRange."'"; 
+
+								$existente = selectpadraoumalinha($db, $sqlexistente);
+								if(empty($existente['ar_id'])){
 									$queryArId = inserirRegistroReturning($db,$sqlInsert);
 
 									if($printLogJson){
 										$jsonRetorno['3'] = 'OK';
 									}
 								}
+
 							}
 
 							if($logGrava){
@@ -214,19 +206,23 @@
 					                    }else{
 					                    	$dadoTime = null;
 					                    }
-					                    //GRAVANDO OS LOGS DE IP/TIME 
-					                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) VALUES ('".$dadoIPAddress."', '".$dadoTime."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
-					                    if ($executaSql){
-	                                        $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_iptime WHERE ip_ip = '".$dadoIPAddress."' AND ip_tempo = '".$dadoTime ."' AND telefone = '".$AccountIdentifier."';";
-	                                        $existente = duplicidadesql($db, $sqlexistente);
-	                                        if(empty($existente)){
-					                    		inserirRegistro($db,$sqlInsert);
+					                    
+					                    if(!empty($dadoIPAddress)){
+						                    //GRAVANDO OS LOGS DE IP/TIME 
+						                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) VALUES ('".$dadoIPAddress."', '".$dadoTime."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
+						                    if ($executaSql){
+		                                        $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_iptime WHERE ip_ip = '".$dadoIPAddress."' AND linh_id = ".$linh_id." AND ip_tempo = '".$dadoTime ."' AND telefone = '".$AccountIdentifier."';";
+		                                        
+						                    	$existente = selectpadraoumalinha($db, $sqlexistente);
+						                    	if(empty($existente['ar_id'])){
+						                    		inserirRegistro($db,$sqlInsert);
 
-					                    		if($printLogJson){
-													$jsonRetorno['4'] = 'OK';
-												}
-					                    	}
-					                    }
+						                    		if($printLogJson){
+														$jsonRetorno['4'] = 'OK';
+													}
+						                    	}
+						                    }
+						                }
 
 					                    if($logGrava){
 						                    gravalog($FileName, "4");
@@ -282,19 +278,23 @@
 						            }else{
 						            	$LastIP = null; 
 						            }
-					                //GRAVANDO CONEXÃO CONEXÃO INFO 
-					                $sqlInsert = "INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES ( '".$dadoServiceStart."', '".$dadoDeviceType."', '".$dadoAppVersion."', '".$dadoDeviceOSBuildNumber."', '".$dadoConnectionState."', '".$dadoOnlineSince."', '".$dadoPushName."', '".$dadoLastSeen."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
-					                if ($executaSql){
-	                                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_conexaoinfo WHERE servicestart = '".$dadoServiceStart."' AND devicetype = '".$dadoDeviceType."' AND appversion = '".$dadoAppVersion."' AND deviceosbuildnumber = '".$dadoDeviceOSBuildNumber."' AND telefone = '".$AccountIdentifier."';";
-	                                    $existente = duplicidadesql($db, $sqlexistente);
-	                                    if(empty($existente)){
-					                		inserirRegistro($db,$sqlInsert);
 
-					                		if($printLogJson){
-												$jsonRetorno['5'] = 'OK';
-											}
-					                	}
-					                }
+						            if(!empty($dadoServiceStart)){
+						                //GRAVANDO CONEXÃO CONEXÃO INFO 
+						                $sqlInsert = "INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES ( '".$dadoServiceStart."', '".$dadoDeviceType."', '".$dadoAppVersion."', '".$dadoDeviceOSBuildNumber."', '".$dadoConnectionState."', '".$dadoOnlineSince."', '".$dadoPushName."', '".$dadoLastSeen."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
+						                if ($executaSql){
+		                                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_conexaoinfo WHERE servicestart = '".$dadoServiceStart."' AND linh_id = ".$linh_id." AND devicetype = '".$dadoDeviceType."' AND appversion = '".$dadoAppVersion."' AND deviceosbuildnumber = '".$dadoDeviceOSBuildNumber."' AND telefone = '".$AccountIdentifier."';"; 
+
+						                	$existente = selectpadraoumalinha($db, $sqlexistente);
+					                    	if(empty($existente['ar_id'])){
+					                    		inserirRegistro($db,$sqlInsert);
+
+					                    		if($printLogJson){
+													$jsonRetorno['5'] = 'OK';
+												}
+					                    	}
+						                }
+						            }
 
 					                if($logGrava){
 						                gravalog($FileName, "5");
@@ -329,20 +329,25 @@
 					                }else{
 					                	$Availability = null;
 					                }
-					                //GRAVANDO OS DADOS WEBINFO
-					                $sqlInsert = "INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) SELECT '".$dadoVersion."', '".$dadoPlatform."', '".$dadoOnlineSince."', '".$dadoInactiveSince."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id." WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '".$dadoVersion."' AND we_platform = '".$dadoPlatform."' AND telefone = '".$AccountIdentifier."');";
-					                $sqlInsert = "INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) VALUES ('".$dadoVersion."', '".$dadoPlatform."', '".$dadoOnlineSince."', '".$dadoInactiveSince."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";				                
-					                if ($executaSql){
-	                                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '".$dadoVersion."' AND we_platform = '".$dadoPlatform."' AND telefone = '".$AccountIdentifier."';";
-	                                    $existente = duplicidadesql($db, $sqlexistente);
-	                                    if(empty($existente)){
-					                		inserirRegistro($db,$sqlInsert);
 
-					                		if($printLogJson){
-												$jsonRetorno['6'] = 'OK';
-											}
-					                	}
-					                }
+					                if(!empty($dadoVersion)){
+						                //GRAVANDO OS DADOS WEBINFO
+						                $sqlInsert = "INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) SELECT '".$dadoVersion."', '".$dadoPlatform."', '".$dadoOnlineSince."', '".$dadoInactiveSince."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id." WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '".$dadoVersion."' AND we_platform = '".$dadoPlatform."' AND telefone = '".$AccountIdentifier."');";
+						                $sqlInsert = "INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) VALUES ('".$dadoVersion."', '".$dadoPlatform."', '".$dadoOnlineSince."', '".$dadoInactiveSince."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";				                
+						                
+						                if ($executaSql){
+		                                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '".$dadoVersion."' AND linh_id = ".$linh_id." AND we_platform = '".$dadoPlatform."' AND telefone = '".$AccountIdentifier."';"; 
+
+						                	$existente = selectpadraoumalinha($db, $sqlexistente);
+					                    	if(empty($existente['ar_id'])){
+					                    		inserirRegistro($db,$sqlInsert);
+
+					                    		if($printLogJson){
+													$jsonRetorno['6'] = 'OK';
+												}
+					                    	}
+						                }
+						            }
 
 					                if($logGrava){
 						                gravalog($FileName, "6");
@@ -391,19 +396,23 @@
 					                    }else{
 					                    	$dadoSubject =  null;
 					                    }
-					                    //GRAVANDO INFORMAÇÕES DO GRUPO OWNED 
-					                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES ('".$dadoTipoGroup."', '".$pathFile."', '".$dadoThumbnail."', '".$dadoID."', '".$dadoCreation."', '".$dadoSize."', '".$dadoDescription."', '".$dadoSubject."', '".$AccountIdentifier."', ".$ar_id.", '".$dadoPicture."', ".$linh_id.");";
-					                    if ($executaSql){
-	                                        $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_grupoinfo WHERE grouptype = '".$dadoTipoGroup."' AND creation = '".$dadoCreation."' AND id_msg = '".$dadoID."' AND telefone = '".$AccountIdentifier."';";
-	                                        $existente = duplicidadesql($db, $sqlexistente);
-					                    	if(empty($existente)){
-					                    		inserirRegistro($db,$sqlInsert);
 
-					                    		if($printLogJson){
-													$jsonRetorno['7'] = 'OK';
-												}
-					                    	}
-					                    }
+					                    if(!empty($dadoID)){
+						                    //GRAVANDO INFORMAÇÕES DO GRUPO OWNED 
+						                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES ('".$dadoTipoGroup."', '".$pathFile."', '".$dadoThumbnail."', '".$dadoID."', '".$dadoCreation."', '".$dadoSize."', '".$dadoDescription."', '".$dadoSubject."', '".$AccountIdentifier."', ".$ar_id.", '".$dadoPicture."', ".$linh_id.");";
+						                    if ($executaSql){
+		                                        $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_grupoinfo WHERE grouptype = '".$dadoTipoGroup."' AND linh_id = ".$linh_id." AND creation = '".$dadoCreation."' AND id_msg = '".$dadoID."' AND telefone = '".$AccountIdentifier."';"; 
+
+						                    	$existente = selectpadraoumalinha($db, $sqlexistente);
+						                    	if(empty($existente['ar_id'])){
+						                    		inserirRegistro($db,$sqlInsert);
+
+						                    		if($printLogJson){
+														$jsonRetorno['7'] = 'OK';
+													}
+						                    	}
+						                    }
+						                }
 
 					                    if($logGrava){
 						                    gravalog($FileName, "7");
@@ -451,19 +460,23 @@
 					                    }else{
 					                    	$dadoSubject =  null;
 					                    }
-					                    //GRAVANDO INFORMAÇÕES DO GRUPO PARTICIPATING 
-					                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES ('".$dadoTipoGroup."', '".$pathFile."', '".$dadoThumbnail."', '".$dadoID."', '".$dadoCreation."', '".$dadoSize."', '".$dadoDescription."', '".$dadoSubject."', '".$AccountIdentifier."', ".$ar_id.", '".$dadoPicture."', ".$linh_id.");";
-					                    if ($executaSql){
-	                                        $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_grupoinfo WHERE grouptype = '".$dadoTipoGroup."' AND creation = '".$dadoCreation."' AND id_msg = '".$dadoID."' AND telefone = '".$AccountIdentifier."';";
-	                                        $existente = duplicidadesql($db, $sqlexistente);
-	                                        if(empty($existente)){
-					                    		inserirRegistro($db,$sqlInsert);
 
-								                if($printLogJson){
-													$jsonRetorno['8'] = 'OK';
-												}
-					                    	}
-					                    }
+					                    if(!empty($dadoID)){
+						                    //GRAVANDO INFORMAÇÕES DO GRUPO PARTICIPATING 
+						                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES ('".$dadoTipoGroup."', '".$pathFile."', '".$dadoThumbnail."', '".$dadoID."', '".$dadoCreation."', '".$dadoSize."', '".$dadoDescription."', '".$dadoSubject."', '".$AccountIdentifier."', ".$ar_id.", '".$dadoPicture."', ".$linh_id.");";
+						                    if ($executaSql){
+		                                        $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_grupoinfo WHERE grouptype = '".$dadoTipoGroup."' AND linh_id = ".$linh_id." AND creation = '".$dadoCreation."' AND id_msg = '".$dadoID."' AND telefone = '".$AccountIdentifier."';"; 
+
+						                    	$existente = selectpadraoumalinha($db, $sqlexistente);
+						                    	if(empty($existente['ar_id'])){
+						                    		inserirRegistro($db,$sqlInsert);
+
+						                    		if($printLogJson){
+														$jsonRetorno['8'] = 'OK';
+													}
+						                    	}
+						                    }
+						                }
 
 					                    if($logGrava){
 						                    gravalog($FileName, "8");
@@ -483,15 +496,16 @@
 						                    if(isset($dadosymmetricContacts) && !empty($dadosymmetricContacts)){ 
 						                    	$sqlInsert = "INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES ('".$dadosymmetricContacts."', 'S', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 						                    	if ($executaSql){
-		                                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '".$dadosymmetricContacts."' AND ag_tipo = 'S' AND telefone = '".$AccountIdentifier."';";
-		                                            $existente = duplicidadesql($db, $sqlexistente);
-		                                            if(empty($existente)){
-						                    			inserirRegistro($db,$sqlInsert);
+		                                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '".$dadosymmetricContacts."' AND linh_id = ".$linh_id." AND ag_tipo = 'S' AND telefone = '".$AccountIdentifier."';"; 
 
-									                    if($printLogJson){
+						                    		$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
 															$jsonRetorno['9'] = 'OK';
 														}
-						                    		}
+							                    	}
 						                    	}
 
 						                    	if($logGrava){
@@ -512,15 +526,16 @@
 						                    if(isset($dadoasymmetricContacts) && !empty($dadoasymmetricContacts)){ 
 						                    	$sqlInsert = "INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES ('".$dadoasymmetricContacts."', 'A', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 						                    	if ($executaSql){
-		                                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '".$dadoasymmetricContacts."' AND ag_tipo = 'A' AND telefone = '".$AccountIdentifier."';";
-		                                            $existente = duplicidadesql($db, $sqlexistente);
-		                                            if(empty($existente)){
-						                    			inserirRegistro($db,$sqlInsert);
+		                                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '".$dadoasymmetricContacts."' AND linh_id = ".$linh_id." AND ag_tipo = 'A' AND telefone = '".$AccountIdentifier."';"; 
 
-						                    			if($printLogJson){
+						                    		$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
 															$jsonRetorno['10'] = 'OK';
 														}
-						                    		}
+							                    	}
 						                    	}
 
 						                    	if($logGrava){
@@ -535,7 +550,11 @@
 
 					            if(isset($json->Dados->smallmediumbusinessinfo)){
 					            	//AINDA NÃO IMPLEMENTADO PQ NÃO HOUVE DADOS PARA ANALAISE
-					            	$dadosmallMediumBusiness = trim(pg_escape_string($json->Dados->smallmediumbusinessinfo));		            	
+					            	$dadosmallMediumBusiness = trim(pg_escape_string($json->Dados->smallmediumbusinessinfo));	
+
+					            	if($printLogJson){
+										$jsonRetorno['18'] = 'OK';
+									}	            	
 					            }
 
 					            if(isset($json->Dados->ncmecReportsInfo)){
@@ -551,6 +570,10 @@
 					            	}else{
 					            		$NCMECCyberTipNumbers = null;
 					            	}
+
+					            	if($printLogJson){
+										$jsonRetorno['19'] = 'OK';
+									}
 					            }
 
 					            if(isset($json->Dados->deviceinfo)){
@@ -584,6 +607,30 @@
 					            	}else{
 					            		$DeviceModel = null;
 					            	}
+
+					            	if(!empty($AppVersion)){
+					                    //GRAVANDO INFORMAÇÕES DO GRUPO PARTICIPATING 
+					                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_deviceinfo (dev_appversion, dev_osversion, dev_buildnumber, dev_manufacturer, dev_devicemodel, ar_id, linh_id, telefone) VALUES ('".$AppVersion."', '".$OSVersion."', '".$OSBuildNumber."', '".$DeviceManufacturer."', '".$DeviceModel."', ".$ar_id.", ".$linh_id.", '".$AccountIdentifier."');";
+					                    if ($executaSql){
+	                                        $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_deviceinfo WHERE dev_appversion = '".$AppVersion."' AND linh_id = ".$linh_id." AND dev_osversion = '".$OSVersion."' AND telefone = '".$AccountIdentifier."';"; 
+
+					                    	$existente = selectpadraoumalinha($db, $sqlexistente);
+					                    	if(empty($existente['ar_id'])){
+					                    		inserirRegistro($db,$sqlInsert);
+
+					                    		if($printLogJson){
+													$jsonRetorno['20'] = 'OK';
+												}
+					                    	}
+					                    }
+					                }
+
+					            	if($logGrava){
+				                    	gravalog($FileName, "20");
+				                    	gravalog($FileName, $sqlInsert);
+				                    	gravalog($FileName, $existente . ' - ' . $sqlexistente);
+				                    }
+
 					            }
 							}
 							$jsonRetorno['GravaBanco'] = True;
@@ -605,15 +652,16 @@
 							$sqlDados = "INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, linh_id) VALUES ('".$AccountIdentifier."', '".$DateRange."', NOW(), '".$FileName."', 0, 1, ".$linh_id.") RETURNING ar_id;";
 
 							if ($executaSql){
-	                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 0 AND ar_arquivo = '".$FileName."' AND ar_dtgerado = '".$DateRange."';";
-	                            $existente = duplicidadesql($db, $sqlexistente);
-	                            if(empty($existente)){
-									$queryArId = inserirRegistroReturning($db,$sqlDados);
+	                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 0 AND ar_arquivo = '".$FileName."' AND linh_id = ".$linh_id." AND ar_dtgerado = '".$DateRange."';"; 
 
-									if($printLogJson){
+								$existente = selectpadraoumalinha($db, $sqlexistente);
+		                    	if(empty($existente['ar_id'])){
+		                    		inserirRegistro($db,$sqlInsert);
+
+		                    		if($printLogJson){
 										$jsonRetorno['11'] = 'OK';
 									}
-								}
+		                    	}
 							}
 
 							if($logGrava){
@@ -690,15 +738,16 @@
 								        		$TipoDirecaoMsg = "Enviou"; 
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttSender."', '".$prttRecipients."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		if ($executaSql){
-	                                                $sqlexistente = "SELECT indn_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';";
-	                                                $existente = duplicidadesql($db, $sqlexistente);
-	                                                if(empty($existente)){
-								        				inserirRegistro($db,$sqlInsert);
+	                                                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND linh_id = ".$linh_id." AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';"; 
 
-								        				if($printLogJson){
+								        			$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
 															$jsonRetorno['12'] = 'OK';
 														}
-								        			}
+							                    	}
 								        		}
 
 								        		if($logGrava){
@@ -710,15 +759,16 @@
 								        		$TipoDirecaoMsg = "Recebeu"; 
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttRecipients."', '".$prttSender."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		if ($executaSql){
-	                                                $sqlexistente = "SELECT indn_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."'  AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';";
-	                                                $existente = duplicidadesql($db, $sqlexistente);
-	                                                if(empty($existente)){
-								        				inserirRegistro($db,$sqlInsert);
+	                                                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND linh_id = ".$linh_id." AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';"; 
 
-								        				if($printLogJson){
+								        			$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
 															$jsonRetorno['13'] = 'OK';
 														}
-								        			}
+							                    	}
 								        		}
 								        		if($logGrava){
 									        		gravalog($FileName, "13");
@@ -732,15 +782,16 @@
 								        		$TipoDirecaoMsg = "Enviou"; 
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttSender."', '".$prttRecipients."', '".$prttGroupId."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		if ($executaSql){
-	                                                $sqlexistente = "SELECT indn_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';";
-	                                                $existente = duplicidadesql($db, $sqlexistente);
-	                                                if(empty($existente)){
-								        				inserirRegistro($db,$sqlInsert);
+	                                                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND linh_id = ".$linh_id." AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';"; 
 
-								        				if($printLogJson){
+								        			$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
 															$jsonRetorno['14'] = 'OK';
 														}
-								        			}
+							                    	}
 								        		}
 
 								        		if($logGrava){
@@ -752,15 +803,16 @@
 								        		$TipoDirecaoMsg = "Recebeu"; 
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttRecipients."', '".$prttSender."', '".$prttGroupId."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		if ($executaSql){
-	                                                $sqlexistente = "SELECT indn_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."'  AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';";
-	                                                $existente = duplicidadesql($db, $sqlexistente);
-	                                                if(empty($existente)){
-								        				inserirRegistro($db,$sqlInsert);
+	                                                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND linh_id = ".$linh_id." AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';"; 
 
-								        				if($printLogJson){
+								        			$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
 															$jsonRetorno['15'] = 'OK';
 														}
-								        			}
+							                    	}
 								        		}
 								        		if($logGrava){
 									        		gravalog($FileName, "15");
@@ -844,9 +896,10 @@
 								                			//INSERT DE CHAMADAS TROCADAS EM ALVO/INTERLOCUTOR 
 										                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES ( '".$prttcallID."', '".$prttcallCreator."', '".$prttEtype."', '".$prttEtimestamp."', '".$prttEsolicitante."', '".$prttEatendente."', '".$prttEsolIP."', '".$prttEsolPort."', '".$prttEmediaType."', '".$prttPhoneNumber."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.", '".$TipoDirecaoCall."');";
 										                    if ($executaSql){
-	                                                            $sqlexistente = "SELECT cal_id FROM leitores.tb_whatszap_call_log WHERE call_id = '".$prttcallID."' AND call_creator = '".$prttcallCreator."' AND call_timestamp = '".$prttEtimestamp."' AND call_from = '".$prttEsolicitante."' AND call_to = '".$prttEatendente."' AND call_from_ip = '".$prttEsolIP."' AND call_media_type = '".$prttEmediaType."' AND call_phone_number = '".$prttPhoneNumber."' AND telefone = '".$AccountIdentifier."';";
-	                                                            $existente = duplicidadesql($db, $sqlexistente);
-	                                                            if(empty($existente)){
+	                                                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_call_log WHERE call_id = '".$prttcallID."' AND linh_id = ".$linh_id." AND call_creator = '".$prttcallCreator."' AND call_timestamp = '".$prttEtimestamp."' AND call_from = '".$prttEsolicitante."' AND call_to = '".$prttEatendente."' AND call_from_ip = '".$prttEsolIP."' AND call_media_type = '".$prttEmediaType."' AND call_phone_number = '".$prttPhoneNumber."' AND telefone = '".$AccountIdentifier."';"; 
+
+										                    	$existente = selectpadraoumalinha($db, $sqlexistente);
+										                    	if(empty($existente['ar_id'])){
 										                    		inserirRegistro($db,$sqlInsert);
 
 										                    		if($printLogJson){
@@ -866,9 +919,10 @@
 								                    //INSERT DE CHAMADAS TROCADAS EM ALVO/INTERLOCUTOR 
 								                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUSE ('".$prttcallID."', '".$prttcallCreator."', '".$prttEtype."', '".$prttEtimestamp."', '".$prttEsolicitante."', '".$prttEatendente."', '".$prttEsolIP."', '".$prttEsolPort."', '".$prttEmediaType."', '".$prttPhoneNumber."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.", '".$TipoDirecaoCall."');";
 								                    if ($executaSql){
-	                                                    $sqlexistente = "SELECT cal_id FROM leitores.tb_whatszap_call_log WHERE call_id = '".$prttcallID."' AND call_creator = '".$prttcallCreator."' AND call_timestamp = '".$prttEtimestamp."' AND call_from = '".$prttEsolicitante."' AND call_to = '".$prttEatendente."' AND call_from_ip = '".$prttEsolIP."' AND call_media_type = '".$prttEmediaType."' AND call_phone_number = '".$prttPhoneNumber."' AND telefone = '".$AccountIdentifier."';";
-	                                                    $existente = duplicidadesql($db, $sqlexistente);
-	                                                    if(empty($existente)){
+	                                                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_call_log WHERE call_id = '".$prttcallID."' AND linh_id = ".$linh_id." AND call_creator = '".$prttcallCreator."' AND call_timestamp = '".$prttEtimestamp."' AND call_from = '".$prttEsolicitante."' AND call_to = '".$prttEatendente."' AND call_from_ip = '".$prttEsolIP."' AND call_media_type = '".$prttEmediaType."' AND call_phone_number = '".$prttPhoneNumber."' AND telefone = '".$AccountIdentifier."';"; 
+
+								                    	$existente = selectpadraoumalinha($db, $sqlexistente);
+								                    	if(empty($existente['ar_id'])){
 								                    		inserirRegistro($db,$sqlInsert);
 
 								                    		if($printLogJson){

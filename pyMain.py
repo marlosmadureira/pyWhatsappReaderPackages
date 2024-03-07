@@ -202,7 +202,7 @@ class MyHandler(PatternMatchingEventHandler):
                                 if Jsondata['MostraJsonPython']:
                                     openJsonEstruturado(fileProcess)
 
-                            print(retornoJson)
+                            print(f"\n{retornoJson}")
 
                         else:
                             print_color(f"\n================= ENVIO PHP DESLIGADO =================", 31)

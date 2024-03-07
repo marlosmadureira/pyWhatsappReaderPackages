@@ -53,6 +53,8 @@ class MyHandler(PatternMatchingEventHandler):
 
     def process(self, event):
 
+        contar_arquivos_zip(DIRNOVOS)
+
         if DebugMode:
             print("\nLog Evento:" + str(event))
 
@@ -232,9 +234,9 @@ class MyHandler(PatternMatchingEventHandler):
                 print("\nMovendo de: ", source)
                 print("Para: ", DIRLIDOS)
                 print("Arquivo Finalizado!\n")
-                print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads {contar_arquivos_zip(DIRNOVOS)}\n")
+                print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads")
             else:
-                print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads {contar_arquivos_zip(DIRNOVOS)}\n")
+                print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads")
 
     def on_created(self, event):
         self.process(event)

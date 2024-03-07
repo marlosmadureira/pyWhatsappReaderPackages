@@ -232,9 +232,9 @@ class MyHandler(PatternMatchingEventHandler):
                 print("\nMovendo de: ", source)
                 print("Para: ", DIRLIDOS)
                 print("Arquivo Finalizado!\n")
-                print("\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+                print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads {contar_arquivos_zip(DIRNOVOS)}\n")
             else:
-                print("\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+                print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads {contar_arquivos_zip(DIRNOVOS)}\n")
 
     def on_created(self, event):
 

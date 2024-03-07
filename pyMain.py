@@ -10,7 +10,7 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
-    removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado
+    removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado, contar_arquivos_zip
 from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
@@ -242,13 +242,13 @@ class MyHandler(PatternMatchingEventHandler):
 
 
 if __name__ == '__main__':
-    dttmpstatus = ""
-    print("\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
-
     checkFolder(DIRNOVOS)
     checkFolder(DIRLIDOS)
     checkFolder(DIRERROS)
     checkFolder(DIREXTRACAO)
+
+    dttmpstatus = ""
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads {contar_arquivos_zip(DIRNOVOS)}\n")
 
     checkFolder("log")
 

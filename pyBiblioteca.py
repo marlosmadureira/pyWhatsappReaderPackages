@@ -1,3 +1,4 @@
+import fnmatch
 import json
 import os
 import re
@@ -171,3 +172,25 @@ def parseHTMLFile(folderZip):
             soupHtml.prettify()
 
     return soupHtml
+
+
+def contar_arquivos_zip(diretorio):
+    """
+    Conta quantos arquivos ZIP existem dentro de um diretório.
+
+    Args:
+    - diretorio: caminho do diretório a ser verificado.
+
+    Returns:
+    - int: número de arquivos ZIP encontrados no diretório.
+    """
+    # Inicializa o contador de arquivos ZIP
+    contador_zip = 0
+
+    # Lista todos os arquivos e diretórios no caminho especificado
+    for arquivo in os.listdir(diretorio):
+        # Verifica se o item é um arquivo e termina com '.zip'
+        if os.path.isfile(os.path.join(diretorio, arquivo)) and fnmatch.fnmatch(arquivo, '*.zip'):
+            contador_zip += 1
+
+    print(f"Arquivos em Fila {contador_zip}")

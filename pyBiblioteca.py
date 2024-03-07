@@ -1,4 +1,5 @@
 import fnmatch
+import glob
 import json
 import os
 import re
@@ -184,13 +185,22 @@ def contar_arquivos_zip(diretorio):
     Returns:
     - int: número de arquivos ZIP encontrados no diretório.
     """
-    # Inicializa o contador de arquivos ZIP
-    contador_zip = 0
+    # # Inicializa o contador de arquivos ZIP
+    # contador_zip = 0
+    #
+    # # Lista todos os arquivos e diretórios no caminho especificado
+    # for arquivo in os.listdir(diretorio):
+    #     # Verifica se o item é um arquivo e termina com '.zip'
+    #     if os.path.isfile(os.path.join(diretorio, arquivo)) and fnmatch.fnmatch(arquivo, '*.zip'):
+    #         contador_zip += 1
+    #
+    # print(f"Arquivos em Fila {contador_zip}")
 
-    # Lista todos os arquivos e diretórios no caminho especificado
-    for arquivo in os.listdir(diretorio):
-        # Verifica se o item é um arquivo e termina com '.zip'
-        if os.path.isfile(os.path.join(diretorio, arquivo)) and fnmatch.fnmatch(arquivo, '*.zip'):
-            contador_zip += 1
+    # Constrói o padrão de busca para arquivos ZIP
+    padrao_busca = os.path.join(diretorio, '*.zip')
 
-    print(f"Arquivos em Fila {contador_zip}")
+    # Usa glob.glob para encontrar todos os arquivos que correspondem ao padrão
+    arquivos_zip = glob.glob(padrao_busca)
+
+    # Retorna o número de arquivos ZIP encontrados
+    print(f"Arquivos em Fila {arquivos_zip}")

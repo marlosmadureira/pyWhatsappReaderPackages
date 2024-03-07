@@ -5,6 +5,7 @@ import os
 import time
 import shutil
 
+import keyboard
 from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer
@@ -265,9 +266,9 @@ if __name__ == '__main__':
 
     observer = Observer()
     observer.schedule(MyHandler(), path=DIRNOVOS if DIRNOVOS else '.')
-    observer.start()
 
     try:
+        observer.start()
         while True:
             time.sleep(5)
             result = StatusServidor(dttmpstatus)
@@ -277,5 +278,5 @@ if __name__ == '__main__':
                 printTimeData()
     except KeyboardInterrupt:
         observer.stop()
-
-    observer.join()
+    finally:
+        observer.join()

@@ -240,6 +240,15 @@ class MyHandler(PatternMatchingEventHandler):
 
         self.process(event)
 
+    def on_deleted(self, event):
+        print(f"{event.src_path} foi deletado!")
+
+    def on_modified(self, event):
+        print(f"{event.src_path} foi modificado!")
+
+    def on_moved(self, event):
+        print(f"{event.src_path} foi movido/renomeado para {event.dest_path}!")
+
 
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)
@@ -248,7 +257,7 @@ if __name__ == '__main__':
     checkFolder(DIREXTRACAO)
 
     dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads {contar_arquivos_zip(DIRNOVOS)}\n")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
     checkFolder("log")
 

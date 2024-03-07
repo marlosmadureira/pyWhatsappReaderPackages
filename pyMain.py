@@ -248,7 +248,7 @@ if __name__ == '__main__':
     checkFolder(DIREXTRACAO)
 
     dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads {contar_arquivos_zip(DIRNOVOS)}\n")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
     checkFolder("log")
 

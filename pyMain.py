@@ -261,19 +261,16 @@ if __name__ == '__main__':
     checkFolder(DIRLIDOS)
     checkFolder(DIRERROS)
     checkFolder(DIREXTRACAO)
-
+    checkFolder("log")
     dttmpstatus = ""
     print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
-
-    checkFolder("log")
-
     observer = Observer()
     observer.schedule(MyHandler(), path=DIRNOVOS if DIRNOVOS else '.')
 
     try:
         observer.start()
         while True:
-            time.sleep(5)
+            countdown(4)
             result = StatusServidor(dttmpstatus)
             if result == True:
                 dttmpstatus = datetime.today().strftime('%Y%m%d%H%M%S')

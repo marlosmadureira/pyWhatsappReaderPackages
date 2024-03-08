@@ -5,7 +5,6 @@ import os
 import time
 import shutil
 
-import keyboard
 from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer

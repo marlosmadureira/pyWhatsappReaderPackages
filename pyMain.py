@@ -193,7 +193,7 @@ class MyHandler(PatternMatchingEventHandler):
                         print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
                         if Executar:
-                            print_color(f"\n=========================== ENVIADO PHP ===========================", 32)
+                            print_color(f"\n=========================== ENVIADO PHP {fileName} ===========================", 32)
 
                             retornoJson = sendDataJsonServer(fileProcess, dataType)
 
@@ -207,7 +207,7 @@ class MyHandler(PatternMatchingEventHandler):
                             print(f"\n{retornoJson}")
 
                         else:
-                            print_color(f"\n================= ENVIO PHP DESLIGADO =================", 31)
+                            print_color(f"\n================= ENVIO PHP DESLIGADO {fileName} =================", 31)
 
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
 

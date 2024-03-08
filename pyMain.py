@@ -195,25 +195,38 @@ class MyHandler(PatternMatchingEventHandler):
                         if Executar:
                             sizeFile = get_size(source)
 
-                            if sizeFile > 200:
-                                print_color(
-                                    f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
-                                    32)
+                            print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
 
-                                sendDataPostgres(fileProcess, dataType)
-                            else:
-                                print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
+                            retornoJson = sendDataJsonServer(fileProcess, dataType)
 
-                                retornoJson = sendDataJsonServer(fileProcess, dataType)
+                            if 'MostraJsonPython' in retornoJson['jsonRetorno']:
 
-                                if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+                                Jsondata = json.loads(retornoJson['jsonRetorno'])
 
-                                    Jsondata = json.loads(retornoJson['jsonRetorno'])
+                                if Jsondata['MostraJsonPython']:
+                                    openJsonEstruturado(fileProcess)
 
-                                    if Jsondata['MostraJsonPython']:
-                                        openJsonEstruturado(fileProcess)
+                            print(f"\n{retornoJson}")
 
-                                print(f"\n{retornoJson}")
+                            # if sizeFile > 200:
+                            #     print_color(
+                            #         f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
+                            #         32)
+                            #
+                            #     sendDataPostgres(fileProcess, dataType)
+                            # else:
+                            #     print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
+                            #
+                            #     retornoJson = sendDataJsonServer(fileProcess, dataType)
+                            #
+                            #     if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+                            #
+                            #         Jsondata = json.loads(retornoJson['jsonRetorno'])
+                            #
+                            #         if Jsondata['MostraJsonPython']:
+                            #             openJsonEstruturado(fileProcess)
+                            #
+                            #     print(f"\n{retornoJson}")
 
                         else:
                             print_color(f"\n================= ENVIO PHP DESLIGADO {fileName} Unidade {Unidade} =================", 31)

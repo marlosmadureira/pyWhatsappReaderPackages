@@ -732,16 +732,20 @@
 
 								        	//VERIFICAÇÃO PARA INSERIR AS TROCAS DE MENSAGENS INDIVIDUAL
 								        	if($prttSender == $AccountIdentifier){
-
 								        		$TipoDirecaoMsg = "Enviou"; 
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttSender."', '".$prttRecipients."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		
 								        		if ($executaSql){
-	                                                inserirRegistro($db,$sqlInsert);
+	                                                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND linh_id = ".$linh_id." AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';"; 
 
-						                    		if($printLogJson){
-														$jsonRetorno['12'] = 'OK';
-													}
+								        			$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
+															$jsonRetorno['12'] = 'OK';
+														}
+							                    	}
 								        		}
 
 								        		if($logGrava){
@@ -756,13 +760,17 @@
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttRecipients."', '".$prttSender."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		
 								        		if ($executaSql){
-	                                                inserirRegistro($db,$sqlInsert);
+	                                                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND linh_id = ".$linh_id." AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';"; 
 
-						                    		if($printLogJson){
-														$jsonRetorno['13'] = 'OK';
-													}
+								        			$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
+															$jsonRetorno['13'] = 'OK';
+														}
+							                    	}
 								        		}
-
 								        		if($logGrava){
 									        		gravalog($FileName, "13");
 									        		gravalog($FileName, $sqlInsert);
@@ -774,16 +782,20 @@
 
 								        	//VERIFICAÇÃO PARA INSERIR AS TROCAS DE MENSAGENS GROUP
 								        	if($prttSender == $AccountIdentifier){
-
 								        		$TipoDirecaoMsg = "Enviou"; 
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttSender."', '".$prttRecipients."', '".$prttGroupId."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		
 								        		if ($executaSql){
-	                                                inserirRegistro($db,$sqlInsert);
+	                                                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND linh_id = ".$linh_id." AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';"; 
 
-						                    		if($printLogJson){
-														$jsonRetorno['14'] = 'OK';
-													}
+								        			$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
+															$jsonRetorno['14'] = 'OK';
+														}
+							                    	}
 								        		}
 
 								        		if($logGrava){
@@ -798,11 +810,16 @@
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttRecipients."', '".$prttSender."', '".$prttGroupId."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		
 								        		if ($executaSql){
-	                                                inserirRegistro($db,$sqlInsert);
+	                                                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_index_zapcontatos_new WHERE messageid = '".$prttMessageId."' AND linh_id = ".$linh_id." AND datahora = '".$prttTimestamp."' AND telefone = '".$AccountIdentifier."';"; 
 
-						                    		if($printLogJson){
-														$jsonRetorno['15'] = 'OK';
-													}
+								        			$existente = selectpadraoumalinha($db, $sqlexistente);
+							                    	if(empty($existente['ar_id'])){
+							                    		inserirRegistro($db,$sqlInsert);
+
+							                    		if($printLogJson){
+															$jsonRetorno['15'] = 'OK';
+														}
+							                    	}
 								        		}
 
 								        		if($logGrava){
@@ -888,16 +905,20 @@
 								                			}else{
 								                				$prttPhoneNumber = null;
 								                			}
-
 								                			//INSERT DE CHAMADAS TROCADAS EM ALVO/INTERLOCUTOR 
 										                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES ( '".$prttcallID."', '".$prttcallCreator."', '".$prttEtype."', '".$prttEtimestamp."', '".$prttEsolicitante."', '".$prttEatendente."', '".$prttEsolIP."', '".$prttEsolPort."', '".$prttEmediaType."', '".$prttPhoneNumber."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.", '".$TipoDirecaoCall."');";
 										                   
 										                    if ($executaSql){
-	                                                            inserirRegistro($db,$sqlInsert);
+	                                                            $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_call_log WHERE call_id = '".$prttcallID."' AND linh_id = ".$linh_id." AND call_creator = '".$prttcallCreator."' AND call_timestamp = '".$prttEtimestamp."' AND call_from = '".$prttEsolicitante."' AND call_to = '".$prttEatendente."' AND call_from_ip = '".$prttEsolIP."' AND call_media_type = '".$prttEmediaType."' AND call_phone_number = '".$prttPhoneNumber."' AND telefone = '".$AccountIdentifier."';"; 
 
-									                    		if($printLogJson){
-																	$jsonRetorno['16'] = 'OK';
-																}
+										                    	$existente = selectpadraoumalinha($db, $sqlexistente);
+										                    	if(empty($existente['ar_id'])){
+										                    		inserirRegistro($db,$sqlInsert);
+
+										                    		if($printLogJson){
+																		$jsonRetorno['16'] = 'OK';
+																	}
+										                    	}
 										                    }
 
 										                    if($logGrava){
@@ -914,11 +935,16 @@
 								                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES ('".$prttcallID."', '".$prttcallCreator."', '".$prttEtype."', '".$prttEtimestamp."', '".$prttEsolicitante."', '".$prttEatendente."', '".$prttEsolIP."', '".$prttEsolPort."', '".$prttEmediaType."', '".$prttPhoneNumber."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.", '".$TipoDirecaoCall."');";
 								                    
 								                    if ($executaSql){
-								                    	inserirRegistro($db,$sqlInsert);
+	                                                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_call_log WHERE call_id = '".$prttcallID."' AND linh_id = ".$linh_id." AND call_creator = '".$prttcallCreator."' AND call_timestamp = '".$prttEtimestamp."' AND call_from = '".$prttEsolicitante."' AND call_to = '".$prttEatendente."' AND call_from_ip = '".$prttEsolIP."' AND call_media_type = '".$prttEmediaType."' AND call_phone_number = '".$prttPhoneNumber."' AND telefone = '".$AccountIdentifier."';"; 
 
-							                    		if($printLogJson){
-															$jsonRetorno['17'] = 'OK';
-														}
+								                    	$existente = selectpadraoumalinha($db, $sqlexistente);
+								                    	if(empty($existente['ar_id'])){
+								                    		inserirRegistro($db,$sqlInsert);
+
+								                    		if($printLogJson){
+																$jsonRetorno['17'] = 'OK';
+															}
+								                    	}
 								                    }
 
 								                    if($logGrava){
@@ -936,7 +962,6 @@
 
 							    $jsonRetorno['GravaBanco'] = True;
 							}
-							
 						}else{
 							$jsonRetorno['Repetido'] = "Arquivo Existente " . $FileName;
 							$FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a"); 		//CRIANDO ARQUVIVO

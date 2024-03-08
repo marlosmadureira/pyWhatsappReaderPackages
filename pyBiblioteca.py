@@ -1,4 +1,3 @@
-import fnmatch
 import glob
 import json
 import os
@@ -197,7 +196,7 @@ def contar_arquivos_zip(diretorio):
     # print(f"Arquivos em Fila {contador_zip}")
 
     # Constrói o padrão de busca para arquivos ZIP
-    padrao_busca = os.path.basename(os.path.join(diretorio, '*.zip'))
+    padrao_busca = os.path.join(diretorio, '*.zip')
 
     # Usa glob.glob para encontrar todos os arquivos que correspondem ao padrão
     arquivos_zip = glob.glob(padrao_busca)

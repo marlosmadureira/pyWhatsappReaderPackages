@@ -239,7 +239,11 @@ class MyHandler(PatternMatchingEventHandler):
                 print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads")
 
     def on_created(self, event):
-        self.process(event)
+        try:
+            self.process(event)
+        except Exception as inst:
+            pass
+
         print_color(f"\n{event.src_path} foi criado!", 36)
 
     def on_deleted(self, event):

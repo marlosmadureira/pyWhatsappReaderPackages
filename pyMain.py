@@ -10,8 +10,8 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
-    removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado, contar_arquivos_zip
-from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
+    removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado, contar_arquivos_zip, get_size
+from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue, sendDataDumpPostgres
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
 from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, \
@@ -195,21 +195,29 @@ class MyHandler(PatternMatchingEventHandler):
                         if Executar:
                             print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
 
-                            retornoJson = sendDataJsonServer(fileProcess, dataType)
+                            sizeFile = get_size(source)
 
-                            if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+                            print(sizeFile)
 
-                                Jsondata = json.loads(retornoJson['jsonRetorno'])
-
-                                if Jsondata['MostraJsonPython']:
-                                    openJsonEstruturado(fileProcess)
-
-                            print(f"\n{retornoJson}")
+                            # sendDataDumpPostgres(fileProcess, dataType)
+                            #
+                            # retornoJson = sendDataJsonServer(fileProcess, dataType)
+                            #
+                            # if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+                            #
+                            #     Jsondata = json.loads(retornoJson['jsonRetorno'])
+                            #
+                            #     if Jsondata['MostraJsonPython']:
+                            #         openJsonEstruturado(fileProcess)
+                            #
+                            # print(f"\n{retornoJson}")
 
                         else:
                             print_color(f"\n================= ENVIO PHP DESLIGADO {fileName} Unidade {Unidade} =================", 31)
 
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
+
+
 
                         removeFolderFiles(folderZip)
 

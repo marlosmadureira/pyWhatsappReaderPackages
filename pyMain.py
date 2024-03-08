@@ -270,7 +270,7 @@ if __name__ == '__main__':
     try:
         observer.start()
         while True:
-            countdown(4)
+            time.sleep(3)
             result = StatusServidor(dttmpstatus)
             if result == True:
                 dttmpstatus = datetime.today().strftime('%Y%m%d%H%M%S')

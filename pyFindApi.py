@@ -87,7 +87,7 @@ def sendDataJsonServer(Dados, type):
         # sendSlackMSG(errorData)
 
 
-def sendDataDumpPostgres(Dados, type):
+def sendDataPostgres(Dados, type):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
 
@@ -133,10 +133,75 @@ def sendDataDumpPostgres(Dados, type):
         else:
             EmailAddresses = None
 
-        if AccountIdentifier is not None:
-            print(f"{AccountIdentifier}")
+        if AccountIdentifier is not None and Unidade is not None:
+
+            sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
+            db.execute(sqlTratamento)
+            queryTratamento = db.fetchone()
+
+            if queryTratamento is not None and queryTratamento[0] > 0:
+                apli_id = queryTratamento[0]
+                linh_id = queryTratamento[1]
+                conta_id = re.sub('[^0-9]', '', queryTratamento[2])
+
+                sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = '%s' WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
+
+                try:
+                    db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
+                    con.commit()
+                except:
+                    db.execute("rollback")
+                    pass
+
+            sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
+
+            try:
+                db.execute(sqllinh_id)
+                queryLinId = db.fetchone()
+            except:
+                pass
+
+            if queryLinId is not None and queryLinId[0] > 0:
+
+                linh_id = queryLinId[0]
+
+                sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = {linh_id} AND ar_arquivo = '{FileName}' AND ar_dtgerado = '{DateRange}'"
+
+                try:
+                    db.execute(sqlexistente)
+                    queryExiste = db.fetchone()
+                except:
+                    pass
+
+                if queryExiste is None:
+
+                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) SELECT {linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}' RETURNING ar_id;"
+
+                    try:
+                        db.execute(sqlInsert)
+                        con.commit()
+                        result = db.fetchone()
+                        if result is not None and result[0] is not None:
+                            ar_id = result[0]
+                        else:
+                            ar_id = None
+                    except:
+                        db.execute("rollback")
+                        pass
+
+                    if ar_id is not None:
+                        if 'DADOS' in type:
+                            print('')
+
+
+                        if 'PRTT' in type:
+                            print('')
+                else:
+                    print(f"\nARQUIVO EXISTNTE {FileName}")
+            else:
+                print(f"\nLINHA NÃO LOCALIZADA OU INTERCEPTADA {AccountIdentifier}\n")
         else:
-            print("\nNÃO LOCALIZADO A CONTA\n")
+            print(f"\nNÃO LOCALIZADO A CONTA {AccountIdentifier}\n")
 
             return False
 

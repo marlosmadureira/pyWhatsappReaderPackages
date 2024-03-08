@@ -11,7 +11,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
     removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado, contar_arquivos_zip, get_size
-from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue, sendDataDumpPostgres
+from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue, sendDataPostgres
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader
 from pyDados import book_infoReader, groups_infoReader, ncmec_reportsReader, connection_infoReader, web_infoReader, \
@@ -193,24 +193,27 @@ class MyHandler(PatternMatchingEventHandler):
                         print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
                         if Executar:
-                            print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
-
                             sizeFile = get_size(source)
 
-                            print(sizeFile)
+                            if sizeFile > 200:
+                                print_color(
+                                    f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
+                                    32)
 
-                            # sendDataDumpPostgres(fileProcess, dataType)
-                            #
-                            # retornoJson = sendDataJsonServer(fileProcess, dataType)
-                            #
-                            # if 'MostraJsonPython' in retornoJson['jsonRetorno']:
-                            #
-                            #     Jsondata = json.loads(retornoJson['jsonRetorno'])
-                            #
-                            #     if Jsondata['MostraJsonPython']:
-                            #         openJsonEstruturado(fileProcess)
-                            #
-                            # print(f"\n{retornoJson}")
+                                sendDataPostgres(fileProcess, dataType)
+                            else:
+                                print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
+
+                                retornoJson = sendDataJsonServer(fileProcess, dataType)
+
+                                if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+
+                                    Jsondata = json.loads(retornoJson['jsonRetorno'])
+
+                                    if Jsondata['MostraJsonPython']:
+                                        openJsonEstruturado(fileProcess)
+
+                                print(f"\n{retornoJson}")
 
                         else:
                             print_color(f"\n================= ENVIO PHP DESLIGADO {fileName} Unidade {Unidade} =================", 31)

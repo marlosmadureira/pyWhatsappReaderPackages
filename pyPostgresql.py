@@ -1,7 +1,7 @@
 import os
-import re
 
-from pyBiblioteca import conectBD
+
+from pyBiblioteca import conectBD, grava_log, somentenumero
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,8 +17,10 @@ APITOKEN = os.getenv("APITOKEN")
 executaSql = False
 
 
-def sendDataPostgres(Dados, type, DebugMode, Out):
+def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
     Out = True
+
+    grava_log(Dados, f'{type}_{fileName}.json')
 
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
@@ -41,7 +43,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out):
             InternalTicketNumber = None
 
         if Dados.get('AccountIdentifier'):
-            AccountIdentifier = re.sub('[^0-9]', '', Dados['AccountIdentifier'])
+            AccountIdentifier = somentenumero(Dados['AccountIdentifier'])
         else:
             AccountIdentifier = None
 
@@ -68,13 +70,18 @@ def sendDataPostgres(Dados, type, DebugMode, Out):
         if AccountIdentifier is not None and Unidade is not None:
 
             sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
-            db.execute(sqlTratamento)
-            queryTratamento = db.fetchone()
+
+            if executaSql:
+                try:
+                    db.execute(sqlTratamento)
+                    queryTratamento = db.fetchone()
+                except:
+                    pass
 
             if queryTratamento is not None and queryTratamento[0] > 0:
                 apli_id = queryTratamento[0]
                 linh_id = queryTratamento[1]
-                conta_id = re.sub('[^0-9]', '', queryTratamento[2])
+                conta_id = somentenumero(queryTratamento[2])
 
                 sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = '%s' WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
 
@@ -88,11 +95,12 @@ def sendDataPostgres(Dados, type, DebugMode, Out):
 
             sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
 
-            try:
-                db.execute(sqllinh_id)
-                queryLinId = db.fetchone()
-            except:
-                pass
+            if executaSql:
+                try:
+                    db.execute(sqllinh_id)
+                    queryLinId = db.fetchone()
+                except:
+                    pass
 
             if queryLinId is not None and queryLinId[0] > 0:
 
@@ -100,11 +108,12 @@ def sendDataPostgres(Dados, type, DebugMode, Out):
 
                 sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = {linh_id} AND ar_arquivo = '{FileName}' AND ar_dtgerado = '{DateRange}'"
 
-                try:
-                    db.execute(sqlexistente)
-                    queryExiste = db.fetchone()
-                except:
-                    pass
+                if executaSql:
+                    try:
+                        db.execute(sqlexistente)
+                        queryExiste = db.fetchone()
+                    except:
+                        pass
 
                 if queryExiste is None:
 

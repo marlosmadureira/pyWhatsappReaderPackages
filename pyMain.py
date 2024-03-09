@@ -202,7 +202,7 @@ class MyHandler(PatternMatchingEventHandler):
                                     f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
                                     32)
 
-                                sendDataPostgres(fileProcess, dataType, DebugMode, Out)
+                                sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
                             else:
                                 print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
 
@@ -221,8 +221,6 @@ class MyHandler(PatternMatchingEventHandler):
                             print_color(f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================", 31)
 
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
-
-                            sendDataPostgres(fileProcess, dataType)
 
                         removeFolderFiles(folderZip)
 

@@ -18,7 +18,7 @@ APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
 DebugMode = False
-
+executaSql = False
 
 def setDateObjetoProrrogue(AccountIdentifier, Unidade, fileName):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
@@ -135,6 +135,7 @@ def sendDataPostgres(Dados, type):
 
         if AccountIdentifier is not None and Unidade is not None:
 
+
             sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
             db.execute(sqlTratamento)
             queryTratamento = db.fetchone()
@@ -146,12 +147,13 @@ def sendDataPostgres(Dados, type):
 
                 sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = '%s' WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
 
-                try:
-                    db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
-                    con.commit()
-                except:
-                    db.execute("rollback")
-                    pass
+                if executaSql:
+                    try:
+                        db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
+                        con.commit()
+                    except:
+                        db.execute("rollback")
+                        pass
 
             sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
 
@@ -177,22 +179,22 @@ def sendDataPostgres(Dados, type):
 
                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) SELECT {linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}' RETURNING ar_id;"
 
-                    try:
-                        db.execute(sqlInsert)
-                        con.commit()
-                        result = db.fetchone()
-                        if result is not None and result[0] is not None:
-                            ar_id = result[0]
-                        else:
-                            ar_id = None
-                    except:
-                        db.execute("rollback")
-                        pass
+                    if executaSql:
+                        try:
+                            db.execute(sqlInsert)
+                            con.commit()
+                            result = db.fetchone()
+                            if result is not None and result[0] is not None:
+                                ar_id = result[0]
+                            else:
+                                ar_id = None
+                        except:
+                            db.execute("rollback")
+                            pass
 
                     if ar_id is not None:
                         if 'DADOS' in type:
                             print('')
-
 
                         if 'PRTT' in type:
                             print('')
@@ -202,8 +204,6 @@ def sendDataPostgres(Dados, type):
                 print(f"\nLINHA NÃO LOCALIZADA OU INTERCEPTADA {AccountIdentifier}\n")
         else:
             print(f"\nNÃO LOCALIZADO A CONTA {AccountIdentifier}\n")
-
-            return False
 
     db.close()
     con.close()

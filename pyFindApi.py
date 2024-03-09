@@ -135,7 +135,249 @@ def sendDataPostgres(Dados, type):
 
         if AccountIdentifier is not None and Unidade is not None:
             if 'DADOS' in type:
-                print(Dados)
+
+                if Dados['Dados'].get('EmailAddresses'):
+                    EmailAddresses = Dados['Dados'].get('EmailAddresses')
+
+                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                if Dados['Dados'].get('ipAddresses'):
+                    ipAddresses = Dados['Dados']['ipAddresses']
+                    if len(ipAddresses) > 0:
+                        for registro in ipAddresses:
+                            if registro.get('IPAddress'):
+                                dadoIPAddress = registro['IPAddress']
+                            else:
+                                dadoIPAddress = None
+
+                            if registro.get('Time'):
+                                dadoTime = registro['Time'].replace("UTC", "")
+                            else:
+                                dadoTime = None
+
+                            print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                if Dados['Dados'].get('connectionInfo'):
+                    connectionInfo = Dados['Dados']['connectionInfo']
+
+                    if connectionInfo.get('Servicestart'):
+                        dadoServiceStart = connectionInfo['Servicestart']
+                    else:
+                        dadoServiceStart = None
+
+                    if connectionInfo.get('DeviceType'):
+                        dadoDeviceType = connectionInfo['DeviceType']
+                    else:
+                        dadoDeviceType = None
+
+                    if connectionInfo.get('AppVersion'):
+                        dadoAppVersion = connectionInfo['AppVersion']
+                    else:
+                        dadoAppVersion = None
+
+                    if connectionInfo.get('DeviceOSBuildNumber'):
+                        dadoDeviceOSBuildNumber = connectionInfo['DeviceOSBuildNumber']
+                    else:
+                        dadoDeviceOSBuildNumber = None
+
+                    if connectionInfo.get('ConnectionState'):
+                        dadoConnectionState = connectionInfo['ConnectionState']
+                    else:
+                        dadoConnectionState = None
+
+                    if connectionInfo.get('OnlineSince'):
+                        dadoOnlineSince = connectionInfo['OnlineSince']
+                    else:
+                        dadoOnlineSince = None
+
+                    if connectionInfo.get('PushName'):
+                        dadoPushName = connectionInfo['PushName']
+                    else:
+                        dadoPushName = None
+
+                    if connectionInfo.get('Lastseen'):
+                        dadoLastSeen = connectionInfo['Lastseen']
+                    else:
+                        dadoLastSeen = None
+
+                    if connectionInfo.get('LastIP'):
+                        dadoLastIP = connectionInfo['LastIP']
+                    else:
+                        dadoLastIP = None
+
+                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                if Dados['Dados'].get('webInfo'):
+                    webInfo = Dados['Dados']['webInfo']
+                    if webInfo.get('Version'):
+                        dadoVersion = webInfo['Version']
+                    else:
+                        dadoVersion = None
+
+                    if webInfo.get('Platform'):
+                        dadoPlatform = webInfo['Platform']
+                    else:
+                        dadoPlatform = None
+
+                    if webInfo.get('OnlineSince'):
+                        dadoOnlineSince = webInfo['OnlineSince']
+                    else:
+                        dadoOnlineSince = None
+
+                    if webInfo.get('InactiveSince'):
+                        dadoInactiveSince = webInfo['InactiveSince']
+                    else:
+                        dadoInactiveSince = None
+
+                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                if Dados['Dados'].get('groupsInfo'):
+                    if Dados['Dados']['groupsInfo'].get('ownedGroups'):
+                        ownedGroups = Dados['Dados']['groupsInfo']['ownedGroups']
+                        if len(ownedGroups) > 0:
+                            dadoTipoGroup = 'Owned'
+                            pathFile = None
+                            for registro in ownedGroups:
+                                if registro.get('Picture'):
+                                    dadoPicture = registro['Picture']
+                                else:
+                                    dadoPicture = None
+
+                                if registro.get('Thumbnail'):
+                                    dadoThumbnail = registro['Thumbnail']
+                                else:
+                                    dadoThumbnail = None
+
+                                if registro.get('ID'):
+                                    dadoID = registro['ID']
+                                else:
+                                    dadoID = None
+
+                                if registro.get('Creation'):
+                                    dadoCreation = registro['Creation']
+                                else:
+                                    dadoCreation = None
+
+                                if registro.get('Size'):
+                                    dadoSize = registro['Size']
+                                else:
+                                    dadoSize = None
+
+                                if registro.get('Description'):
+                                    dadoDescription = registro['Description']
+                                else:
+                                    dadoDescription = None
+
+                                if registro.get('Subject'):
+                                    dadoSubject = registro['Subject']
+                                else:
+                                    dadoSubject = None
+
+                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                    if Dados['Dados']['groupsInfo'].get('ParticipatingGroups'):
+                        if Dados['Dados']['groupsInfo'].get('ParticipatingGroups'):
+                            ParticipatingGroups = Dados['Dados']['groupsInfo']['ParticipatingGroups']
+                            if len(ParticipatingGroups) > 0:
+                                dadoTipoGroup = 'Participating'
+                                pathFile = None
+                                for registro in ParticipatingGroups:
+                                    if registro.get('Picture'):
+                                        dadoPicture = registro['Picture']
+                                    else:
+                                        dadoPicture = None
+
+                                    if registro.get('Thumbnail'):
+                                        dadoThumbnail = registro['Thumbnail']
+                                    else:
+                                        dadoThumbnail = None
+
+                                    if registro.get('ID'):
+                                        dadoID = registro['ID']
+                                    else:
+                                        dadoID = None
+
+                                    if registro.get('Creation'):
+                                        dadoCreation = registro['Creation']
+                                    else:
+                                        dadoCreation = None
+
+                                    if registro.get('Size'):
+                                        dadoSize = registro['Size']
+                                    else:
+                                        dadoSize = None
+
+                                    if registro.get('Description'):
+                                        dadoDescription = registro['Description']
+                                    else:
+                                        dadoDescription = None
+
+                                    if registro.get('Subject'):
+                                        dadoSubject = registro['Subject']
+                                    else:
+                                        dadoSubject = None
+
+                                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                if Dados['Dados'].get('addressBookInfo'):
+                    if Dados['Dados']['addressBookInfo'][0].get('Symmetriccontacts'):
+                        symmetricContacts = Dados['Dados']['addressBookInfo'][0]['Symmetriccontacts']
+                        if len(symmetricContacts) > 0:
+                            for contacts in symmetricContacts:
+                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+
+                    if Dados['Dados']['addressBookInfo'][0].get('Asymmetriccontacts'):
+                        asymmetricContacts = Dados['Dados']['addressBookInfo'][0]['Asymmetriccontacts']
+                        if len(asymmetricContacts) > 0:
+                            for contacts in asymmetricContacts:
+                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                if Dados['Dados'].get('ncmecReportsInfo'):
+                    if Dados['Dados']['ncmecReportsInfo'].get('NcmecReportsDefinition'):
+                        NcmecReportsDefinition = Dados['Dados']['ncmecReportsInfo']['NcmecReportsDefinition']
+                    else:
+                        NcmecReportsDefinition = None
+
+                    if Dados['Dados']['ncmecReportsInfo'].get('NCMECCyberTipNumbers'):
+                        NCMECCyberTipNumbers = Dados['Dados']['ncmecReportsInfo']['NCMECCyberTipNumbers']
+                    else:
+                        NCMECCyberTipNumbers = None
+
+                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                if Dados['Dados'].get('smallmediumbusinessinfo'):
+                    smallMediumBusiness = Dados['Dados']['smallmediumbusinessinfo']
+
+                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                if Dados['Dados'].get('deviceinfo'):
+                    if Dados['Dados']['deviceinfo'].get('AppVersion'):
+                        AppVersion = Dados['Dados']['deviceinfo']['AppVersion']
+                    else:
+                        AppVersion = None
+
+                    if Dados['Dados']['deviceinfo'].get('OSVersion'):
+                        OSVersion = Dados['Dados']['deviceinfo']['OSVersion']
+                    else:
+                        OSVersion = None
+
+                    if Dados['Dados']['deviceinfo'].get('OSBuildNumber'):
+                        OSBuildNumber = Dados['Dados']['deviceinfo']['OSBuildNumber']
+                    else:
+                        OSBuildNumber = None
+
+                    if Dados['Dados']['deviceinfo'].get('DeviceManufacturer'):
+                        DeviceManufacturer = Dados['Dados']['deviceinfo']['DeviceManufacturer']
+                    else:
+                        DeviceManufacturer = None
+
+                    if Dados['Dados']['deviceinfo'].get('DeviceModel'):
+                        DeviceModel = Dados['Dados']['deviceinfo']['DeviceModel']
+                    else:
+                        DeviceModel = None
+
+                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
             if 'PRTT' in type:
                 if Dados['Prtt'].get('msgLogs'):
@@ -197,55 +439,60 @@ def sendDataPostgres(Dados, type):
                         else:
                             prttMessageSize = None
 
+                        if prttGroupId == None:
+                            print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                        else:
+                            print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
                 if Dados['Prtt'].get('callLogs'):
                     callLogs = Dados['Prtt']['callLogs']
 
                     for registro in callLogs:
-                        if registro.get('callID'):
-                            prttcallID = registro['callID']
+                        if registro.get('CallId'):
+                            prttcallID = registro['CallId']
                         else:
                             prttcallID = None
 
-                        if registro.get('callCreator'):
-                            prttcallCreator = registro['callCreator']
+                        if registro.get('CallCreator'):
+                            prttcallCreator = registro['CallCreator']
                         else:
                             prttcallCreator = None
 
                         if registro.get('Events') and prttcallCreator is not None and prttcallID is not None:
                             eventos = registro['Events']
                             for evento in eventos:
-                                if evento.get('type'):
-                                    prttEtype = evento['type']
+                                if evento.get('Type'):
+                                    prttEtype = evento['Type']
                                 else:
                                     prttEtype = None
 
-                                if evento.get('timestamp'):
-                                    prttEtimestamp = evento['timestamp'].replace("UTC", "")
+                                if evento.get('Timestamp'):
+                                    prttEtimestamp = evento['Timestamp'].replace("UTC", "")
                                 else:
                                     prttEtimestamp = None
 
-                                if evento.get('solicitante'):
-                                    prttEsolicitante = evento['solicitante']
+                                if evento.get('From'):
+                                    prttEsolicitante = evento['From']
                                 else:
                                     prttEsolicitante = None
 
-                                if evento.get('atendente'):
-                                    prttEatendente = evento['atendente']
+                                if evento.get('To'):
+                                    prttEatendente = evento['To']
                                 else:
                                     prttEatendente = None
 
-                                if evento.get('solIP'):
-                                    prttEsolIP = evento['solIP']
+                                if evento.get('FromIp'):
+                                    prttEsolIP = evento['FromIp']
                                 else:
                                     prttEsolIP = None
 
-                                if evento.get('solPort'):
-                                    prttEsolPort = evento['solPort']
+                                if evento.get('FromPort'):
+                                    prttEsolPort = evento['FromPort']
                                 else:
                                     prttEsolPort = None
 
-                                if evento.get('mediaType'):
-                                    prttEmediaType = evento['mediaType']
+                                if evento.get('MediaType'):
+                                    prttEmediaType = evento['MediaType']
                                 else:
                                     prttEmediaType = None
 
@@ -259,8 +506,17 @@ def sendDataPostgres(Dados, type):
                                 else:
                                     prttPhoneNumber = None
 
-                                print(f"{prttEtype}")
+                                if evento.get('Participants'):
+                                    Participants = evento['Participants']
+                                    for eventoParticipante in Participants:
+                                        if eventoParticipante.get('PhoneNumber'):
+                                            prttPhoneNumber = eventoParticipante['PhoneNumber']
+                                        else:
+                                            prttPhoneNumber = None
 
+                                        print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                else:
+                                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
         #     sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
         #     db.execute(sqlTratamento)

@@ -233,6 +233,8 @@ class MyHandler(PatternMatchingEventHandler):
 
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
 
+                            sendDataPostgres(fileProcess, dataType)
+
                         removeFolderFiles(folderZip)
 
                         filePath = DIRLIDOS + fileName

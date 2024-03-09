@@ -233,8 +233,6 @@ class MyHandler(PatternMatchingEventHandler):
 
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
 
-
-
                         removeFolderFiles(folderZip)
 
                         filePath = DIRLIDOS + fileName

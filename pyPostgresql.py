@@ -17,7 +17,9 @@ APITOKEN = os.getenv("APITOKEN")
 executaSql = False
 
 
-def sendDataPostgres(Dados, type):
+def sendDataPostgres(Dados, type, DebugMode, Out):
+    Out = True
+
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
 
@@ -71,6 +73,9 @@ def sendDataPostgres(Dados, type):
 
                     print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
+                    if Out:
+                        print(f"{EmailAddresses}")
+
                 if Dados['Dados'].get('ipAddresses'):
                     ipAddresses = Dados['Dados']['ipAddresses']
                     if len(ipAddresses) > 0:
@@ -86,6 +91,9 @@ def sendDataPostgres(Dados, type):
                                 dadoTime = None
 
                             print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                    if Out:
+                        print(f"{ipAddresses}")
 
                 if Dados['Dados'].get('connectionInfo'):
                     connectionInfo = Dados['Dados']['connectionInfo']
@@ -137,6 +145,9 @@ def sendDataPostgres(Dados, type):
 
                     print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
+                    if Out:
+                        print(f"{connectionInfo}")
+
                 if Dados['Dados'].get('webInfo'):
                     webInfo = Dados['Dados']['webInfo']
                     if webInfo.get('Version'):
@@ -160,6 +171,9 @@ def sendDataPostgres(Dados, type):
                         dadoInactiveSince = None
 
                     print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                    if Out:
+                        print(f"{webInfo}")
 
                 if Dados['Dados'].get('groupsInfo'):
                     if Dados['Dados']['groupsInfo'].get('ownedGroups'):
@@ -205,49 +219,54 @@ def sendDataPostgres(Dados, type):
 
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
+                        if Out:
+                            print(f"{ownedGroups}")
+
                     if Dados['Dados']['groupsInfo'].get('ParticipatingGroups'):
-                        if Dados['Dados']['groupsInfo'].get('ParticipatingGroups'):
-                            ParticipatingGroups = Dados['Dados']['groupsInfo']['ParticipatingGroups']
-                            if len(ParticipatingGroups) > 0:
-                                dadoTipoGroup = 'Participating'
-                                pathFile = None
-                                for registro in ParticipatingGroups:
-                                    if registro.get('Picture'):
-                                        dadoPicture = registro['Picture']
-                                    else:
-                                        dadoPicture = None
+                        ParticipatingGroups = Dados['Dados']['groupsInfo']['ParticipatingGroups']
+                        if len(ParticipatingGroups) > 0:
+                            dadoTipoGroup = 'Participating'
+                            pathFile = None
+                            for registro in ParticipatingGroups:
+                                if registro.get('Picture'):
+                                    dadoPicture = registro['Picture']
+                                else:
+                                    dadoPicture = None
 
-                                    if registro.get('Thumbnail'):
-                                        dadoThumbnail = registro['Thumbnail']
-                                    else:
-                                        dadoThumbnail = None
+                                if registro.get('Thumbnail'):
+                                    dadoThumbnail = registro['Thumbnail']
+                                else:
+                                    dadoThumbnail = None
 
-                                    if registro.get('ID'):
-                                        dadoID = registro['ID']
-                                    else:
-                                        dadoID = None
+                                if registro.get('ID'):
+                                    dadoID = registro['ID']
+                                else:
+                                    dadoID = None
 
-                                    if registro.get('Creation'):
-                                        dadoCreation = registro['Creation']
-                                    else:
-                                        dadoCreation = None
+                                if registro.get('Creation'):
+                                    dadoCreation = registro['Creation']
+                                else:
+                                    dadoCreation = None
 
-                                    if registro.get('Size'):
-                                        dadoSize = registro['Size']
-                                    else:
-                                        dadoSize = None
+                                if registro.get('Size'):
+                                    dadoSize = registro['Size']
+                                else:
+                                    dadoSize = None
 
-                                    if registro.get('Description'):
-                                        dadoDescription = registro['Description']
-                                    else:
-                                        dadoDescription = None
+                                if registro.get('Description'):
+                                    dadoDescription = registro['Description']
+                                else:
+                                    dadoDescription = None
 
-                                    if registro.get('Subject'):
-                                        dadoSubject = registro['Subject']
-                                    else:
-                                        dadoSubject = None
+                                if registro.get('Subject'):
+                                    dadoSubject = registro['Subject']
+                                else:
+                                    dadoSubject = None
 
-                                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                        if Out:
+                            print(f"{ParticipatingGroups}")
 
                 if Dados['Dados'].get('addressBookInfo'):
                     if Dados['Dados']['addressBookInfo'][0].get('Symmetriccontacts'):
@@ -256,11 +275,17 @@ def sendDataPostgres(Dados, type):
                             for contacts in symmetricContacts:
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
+                        if Out:
+                            print(f"{symmetricContacts}")
+
                     if Dados['Dados']['addressBookInfo'][0].get('Asymmetriccontacts'):
                         asymmetricContacts = Dados['Dados']['addressBookInfo'][0]['Asymmetriccontacts']
                         if len(asymmetricContacts) > 0:
                             for contacts in asymmetricContacts:
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                        if Out:
+                            print(f"{asymmetricContacts}")
 
                 if Dados['Dados'].get('ncmecReportsInfo'):
                     if Dados['Dados']['ncmecReportsInfo'].get('NcmecReportsDefinition'):
@@ -275,10 +300,16 @@ def sendDataPostgres(Dados, type):
 
                     print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
+                    if Out:
+                        print(f"{Dados['Dados'].get('ncmecReportsInfo')}")
+
                 if Dados['Dados'].get('smallmediumbusinessinfo'):
                     smallMediumBusiness = Dados['Dados']['smallmediumbusinessinfo']
 
                     print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                    if Out:
+                        print(f"{smallMediumBusiness}")
 
                 if Dados['Dados'].get('deviceinfo'):
                     if Dados['Dados']['deviceinfo'].get('AppVersion'):
@@ -307,6 +338,9 @@ def sendDataPostgres(Dados, type):
                         DeviceModel = None
 
                     print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                    if Out:
+                        print(f"{Dados['Dados'].get('deviceinfo')}")
 
             if 'PRTT' in type:
                 if Dados['Prtt'].get('msgLogs'):
@@ -372,6 +406,9 @@ def sendDataPostgres(Dados, type):
                             print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
                         else:
                             print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                    if Out:
+                        print(f"{msgLogs}")
 
                 if Dados['Prtt'].get('callLogs'):
                     callLogs = Dados['Prtt']['callLogs']
@@ -446,6 +483,9 @@ def sendDataPostgres(Dados, type):
                                         print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
                                 else:
                                     print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                    if Out:
+                        print(f"{callLogs}")
 
         #     sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
         #     db.execute(sqlTratamento)

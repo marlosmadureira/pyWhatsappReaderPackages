@@ -196,7 +196,7 @@ class MyHandler(PatternMatchingEventHandler):
                         if Executar:
                             sizeFile = get_size(source)
 
-                            if sizeFile > 200:
+                            if sizeFile > 400:
                                 print_color(
                                     f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
                                     32)

@@ -11,7 +11,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
     removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado, contar_arquivos_zip, get_size
-from pyFindApi import sendDataJsonServer, setDateObjetoProrrogue
+from pyGetSendApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyPostgresql import sendDataPostgres
 from pyRequestParameter import requestReaderParameter
 from pyPRTT import message_logReader, call_logsReader

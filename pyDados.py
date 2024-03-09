@@ -1,9 +1,8 @@
 from pyBiblioteca import print_color, remover_espacos_regex, clean_html
 
 
-def emails_infoReader(emails_info, fileName, DebugMode):
+def emails_infoReader(emails_info, fileName, DebugMode, Out):
     if emails_info is not None:
-        print_color(f"\n=========================== PROCESSANDO EMAIL ===========================", 32)
 
         if DebugMode:
             print(f"{emails_info}")
@@ -25,7 +24,10 @@ def emails_infoReader(emails_info, fileName, DebugMode):
                 field_name = field_name_text.replace(field_value, '').strip()
                 data[remover_espacos_regex(field_name)] = field_value
 
-        print(f"OUT {data}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO EMAIL ===========================", 32)
+
+            print(f"OUT {data}")
 
         if data is not None:
             return data
@@ -35,9 +37,8 @@ def emails_infoReader(emails_info, fileName, DebugMode):
         return None
 
 
-def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode):
+def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out):
     if ip_addresses_info is not None:
-        print_color(f"\n=========================== PROCESSANDO IP ADDRESS ===========================", 32)
 
         if DebugMode:
             print(f"{ip_addresses_info}")
@@ -71,7 +72,10 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode):
                                 data.append(ipinfo)
                                 ipinfo = {}
 
-        print(f"OUT {data}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO IP ADDRESS ===========================", 32)
+
+            print(f"OUT {data}")
 
         if len(data) > 0:
             return data
@@ -81,9 +85,8 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode):
         return None
 
 
-def book_infoReader(address_book_info, fileName, DebugMode):
+def book_infoReader(address_book_info, fileName, DebugMode, Out):
     if address_book_info is not None:
-        print_color(f"\n=========================== PROCESSANDO BOOK INFO ===========================", 32)
 
         if DebugMode:
             print(f"{address_book_info}")
@@ -136,7 +139,10 @@ def book_infoReader(address_book_info, fileName, DebugMode):
             for registro in allRegistros:
                 print(registro)
 
-        print(f"OUT {allRegistros}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO BOOK INFO ===========================", 32)
+
+            print(f"OUT {allRegistros}")
 
         if len(allRegistros) > 0:
             return allRegistros
@@ -146,9 +152,8 @@ def book_infoReader(address_book_info, fileName, DebugMode):
         return None
 
 
-def groups_infoReader(groups_info, fileName, DebugMode):
+def groups_infoReader(groups_info, fileName, DebugMode, Out):
     if groups_info is not None:
-        print_color(f"\n=========================== PROCESSANDO GROUPS INFO ===========================", 32)
 
         if DebugMode:
             print(f"{groups_info}")
@@ -223,11 +228,14 @@ def groups_infoReader(groups_info, fileName, DebugMode):
             for registro in participatingRegistros:
                 print(registro)
 
-        # print(f"OUT Owned {ownedRegistros}")
-        #
-        # print(f"OUT Participating {participatingRegistros}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO GROUPS INFO ===========================", 32)
 
-        print(f"OUT {allRegistros}")
+            # print(f"OUT Owned {ownedRegistros}")
+            #
+            # print(f"OUT Participating {participatingRegistros}")
+
+            print(f"OUT {allRegistros}")
 
         if len(allRegistros) > 0:
             return allRegistros
@@ -237,9 +245,8 @@ def groups_infoReader(groups_info, fileName, DebugMode):
         return None
 
 
-def ncmec_reportsReader(ncmec_reports, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
+def ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
     if ncmec_reports is not None:
-        print_color(f"\n=========================== PROCESSANDO NCMEC REPORTS ===========================", 32)
 
         if DebugMode:
             print(f"{ncmec_reports}")
@@ -261,7 +268,10 @@ def ncmec_reportsReader(ncmec_reports, fileName, DebugMode):  # SEM AMOSTRA PARA
                 field_name = field_name_text.replace(field_value, '').strip()
                 data[remover_espacos_regex(field_name)] = field_value
 
-        print(f"OUT {data}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO NCMEC REPORTS ===========================", 32)
+
+            print(f"OUT {data}")
 
         if data is not None:
             return data
@@ -271,9 +281,8 @@ def ncmec_reportsReader(ncmec_reports, fileName, DebugMode):  # SEM AMOSTRA PARA
         return None
 
 
-def connection_infoReader(connection_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
+def connection_infoReader(connection_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
     if connection_info is not None:
-        print_color(f"\n=========================== PROCESSANDO CONNECTION INFO ===========================", 32)
 
         if DebugMode:
             print(f"{connection_info}")
@@ -297,7 +306,10 @@ def connection_infoReader(connection_info, fileName, DebugMode):  # SEM AMOSTRA 
                 if 'Device Id' in field_name or 'Service start' in field_name or 'Device Type' in field_name or 'App Version' in field_name or 'Device OS Build Number' in field_name or 'Connection State' in field_name or 'Last seen' in field_name or 'Last IP' in field_name:
                     data[remover_espacos_regex(field_name)] = field_value
 
-        print(f"OUT {data}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO CONNECTION INFO ===========================", 32)
+
+            print(f"OUT {data}")
 
         if data is not None:
             return data
@@ -307,9 +319,8 @@ def connection_infoReader(connection_info, fileName, DebugMode):  # SEM AMOSTRA 
         return None
 
 
-def web_infoReader(web_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
+def web_infoReader(web_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
     if web_info is not None:
-        print_color(f"\n=========================== PROCESSANDO WEB INFO ===========================", 32)
 
         if DebugMode:
             print(f"{web_info}")
@@ -333,7 +344,10 @@ def web_infoReader(web_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
                 if 'Web Info' in field_name or 'Availability' in field_name or 'Online Since' in field_name or 'Platform' in field_name or 'Version' in field_name:
                     data[remover_espacos_regex(field_name)] = field_value
 
-        print(f"OUT {data}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO WEB INFO ===========================", 32)
+
+            print(f"OUT {data}")
 
         if data is not None:
             return data
@@ -343,9 +357,8 @@ def web_infoReader(web_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
         return None
 
 
-def small_medium_business_infoReader(small_medium_business_info, fileName, DebugMode):  # SEM AMOSTRA PARA TESTAR
+def small_medium_business_infoReader(small_medium_business_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
     if small_medium_business_info is not None:
-        print_color(f"\n=========================== PROCESSANDO SMALL MEDIUM BUSINESS ===========================", 32)
 
         if DebugMode:
             print(f"{small_medium_business_info}")
@@ -370,7 +383,11 @@ def small_medium_business_infoReader(small_medium_business_info, fileName, Debug
                 if 'Small Medium Business' in field_name or 'Address' in field_name or 'Email' in field_name or 'Name' in field_name:
                     data[remover_espacos_regex(field_name)] = field_value
 
-        print(f"OUT {data}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO SMALL MEDIUM BUSINESS ===========================",
+                        32)
+
+            print(f"OUT {data}")
 
         if data is not None:
             return data
@@ -380,9 +397,8 @@ def small_medium_business_infoReader(small_medium_business_info, fileName, Debug
         return None
 
 
-def device_infoReader(device_info, fileName, DebugMode):
+def device_infoReader(device_info, fileName, DebugMode, Out):
     if device_info is not None:
-        print_color(f"\n=========================== PROCESSANDO DEVICE INFO ===========================", 32)
 
         if DebugMode:
             print(f"{device_info}")
@@ -406,7 +422,10 @@ def device_infoReader(device_info, fileName, DebugMode):
                 if 'Device Id' in field_name or 'App Version' in field_name or 'OS Version' in field_name or 'OS Build Number' in field_name or 'Device Manufacturer' in field_name or 'Device Mode' in field_name:
                     data[remover_espacos_regex(field_name)] = field_value
 
-        print(f"OUT {data}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO DEVICE INFO ===========================", 32)
+
+            print(f"OUT {data}")
 
         if data is not None:
             return data

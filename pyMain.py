@@ -27,6 +27,7 @@ DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
 DebugMode = False
+Out = False
 Executar = True
 
 
@@ -95,7 +96,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                     # Cabeçalho de Todos os Arquivos HTML
                     request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
-                    parameter = requestReaderParameter(request_parameters, DebugMode)
+                    parameter = requestReaderParameter(request_parameters, DebugMode, Out)
 
                     if parameter is not None:
 
@@ -124,8 +125,8 @@ class MyHandler(PatternMatchingEventHandler):
                         if message_log is not None:
                             dataType = "PRTT"
 
-                            messages = message_logReader(message_log, fileName, DebugMode)
-                            calls = call_logsReader(call_logs, fileName, DebugMode)
+                            messages = message_logReader(message_log, fileName, DebugMode, Out)
+                            calls = call_logsReader(call_logs, fileName, DebugMode, Out)
 
                             if messages is not None:
                                 fileDados['msgLogs'] = messages
@@ -149,40 +150,40 @@ class MyHandler(PatternMatchingEventHandler):
                         if address_book_info is not None:
                             dataType = "DADOS"
 
-                            emailsinfo = emails_infoReader(emails_info, fileName, DebugMode)
+                            emailsinfo = emails_infoReader(emails_info, fileName, DebugMode, Out)
                             if emailsinfo is not None:
                                 fileDados['EmailAddresses'] = emailsinfo
 
-                            ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode)
+                            ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out)
                             if ipaddresses is not None:
                                 fileDados['ipAddresses'] = ipaddresses
 
-                            bookinfo = book_infoReader(address_book_info, fileName, DebugMode)
+                            bookinfo = book_infoReader(address_book_info, fileName, DebugMode, Out)
                             if address_book_info is not None:
                                 fileDados['addressBookInfo'] = bookinfo
 
-                            groupsinfo = groups_infoReader(groups_info, fileName, DebugMode)
+                            groupsinfo = groups_infoReader(groups_info, fileName, DebugMode, Out)
                             if groups_info is not None:
                                 fileDados['groupsInfo'] = groupsinfo
 
-                            ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode)
+                            ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out)
                             if ncmecreports is not None:
                                 fileDados['ncmecReportsInfo'] = ncmecreports
 
-                            connectioninfo = connection_infoReader(connection_info, fileName, DebugMode)
+                            connectioninfo = connection_infoReader(connection_info, fileName, DebugMode, Out)
                             if connection_info is not None:
                                 fileDados['connectionInfo'] = connectioninfo
 
-                            webinfo = web_infoReader(web_info, fileName, DebugMode)
+                            webinfo = web_infoReader(web_info, fileName, DebugMode, Out)
                             if web_info is not None:
                                 fileDados['webInfo'] = webinfo
 
                             smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info,
-                                                                                       fileName, DebugMode)
+                                                                                       fileName, DebugMode, Out)
                             if smallmediumbusinessinfo is not None:
                                 fileDados['smallmediumbusinessinfo'] = smallmediumbusinessinfo
 
-                            deviceinfo = device_infoReader(device_info, fileName, DebugMode)
+                            deviceinfo = device_infoReader(device_info, fileName, DebugMode, Out)
                             if deviceinfo is not None:
                                 fileDados['deviceinfo'] = deviceinfo
 
@@ -201,7 +202,7 @@ class MyHandler(PatternMatchingEventHandler):
                                     f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
                                     32)
 
-                                sendDataPostgres(fileProcess, dataType)
+                                sendDataPostgres(fileProcess, dataType, DebugMode, Out)
                             else:
                                 print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
 

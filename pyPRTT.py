@@ -68,9 +68,8 @@ def getParticipants(value_text):
     return informacoes_separadas
 
 
-def message_logReader(message_log, fileName, DebugMode):
+def message_logReader(message_log, fileName, DebugMode, Out):
     if message_log is not None:
-        print_color(f"\n=========================== PROCESSANDO MESSAGES LOGS ===========================", 32)
 
         if DebugMode:
             print(message_log)
@@ -101,7 +100,10 @@ def message_logReader(message_log, fileName, DebugMode):
             if message_info and message_info not in messages:
                 messages.append(message_info)
 
-        print(f"OUT {messages}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO MESSAGES LOGS ===========================", 32)
+
+            print(f"OUT {messages}")
 
         if len(messages) > 0:
             return messages
@@ -111,9 +113,8 @@ def message_logReader(message_log, fileName, DebugMode):
         return None
 
 
-def call_logsReader(call_log_div, fileName, DebugMode):
+def call_logsReader(call_log_div, fileName, DebugMode, Out):
     if call_log_div is not None:
-        print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)
 
         if DebugMode:
             print(call_log_div)
@@ -149,7 +150,10 @@ def call_logsReader(call_log_div, fileName, DebugMode):
             if call_info and call_info not in call_logs:
                 call_logs.append(call_info)
 
-        print(f"OUT {call_logs}")
+        if Out:
+            print_color(f"\n=========================== PROCESSANDO CALL LOGS ===========================", 32)
+
+            print(f"OUT {call_logs}")
 
         if len(call_logs) > 0:
             return call_logs

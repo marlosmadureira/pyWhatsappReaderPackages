@@ -1,8 +1,5 @@
-import json
 import os
 import re
-
-import requests
 
 from pyBiblioteca import conectBD
 from dotenv import load_dotenv

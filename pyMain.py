@@ -218,7 +218,7 @@ class MyHandler(PatternMatchingEventHandler):
                                 print(f"\n{retornoJson}")
 
                         else:
-                            print_color(f"\n================= ENVIO PHP DESLIGADO {fileName} Unidade {Unidade} =================", 31)
+                            print_color(f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================", 31)
 
                             grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
 

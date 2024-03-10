@@ -1,6 +1,5 @@
 import os
 
-
 from pyBiblioteca import conectBD, grava_log, somentenumero
 from dotenv import load_dotenv
 
@@ -18,9 +17,9 @@ executaSql = False
 
 
 def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
-    Out = True
 
-    grava_log(Dados, f'{type}_{fileName}.json')
+    if DebugMode:
+        grava_log(Dados, f'{type}_{fileName}.json')
 
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()

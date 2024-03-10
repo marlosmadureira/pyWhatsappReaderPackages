@@ -118,7 +118,7 @@ def roolBackPostgres(ar_id):
 def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
     delete_log(f'log/{type}_{fileName}.json')
 
-    grava_log(Dados, f'{type}_{fileName}.json')
+    grava_log(Dados, f'Send_{type}_{fileName}.json')
 
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()

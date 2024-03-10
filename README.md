@@ -4,3 +4,10 @@
 
 # PIP3 INSTALL
 # pip3 install watchdog python-dotenv psycopg2-binary slacker-log-handler beautifulsoup4 lxml memory-profiler
+
+# Excecutando para Ver o Grafico
+# mprof run pyMain.py
+
+# Ver Grafico de Execução
+# mprof plot
+

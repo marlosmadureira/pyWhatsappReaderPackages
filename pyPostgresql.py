@@ -165,30 +165,6 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
         if AccountIdentifier is not None and Unidade is not None:
 
-            sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
-
-            if executaSql:
-                try:
-                    db.execute(sqlTratamento)
-                    queryTratamento = db.fetchone()
-                except:
-                    pass
-
-            if queryTratamento is not None and queryTratamento[0] > 0:
-                apli_id = queryTratamento[0]
-                linh_id = queryTratamento[1]
-                conta_id = somentenumero(queryTratamento[2])
-
-                sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = '%s' WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
-
-                if executaSql:
-                    try:
-                        db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
-                        con.commit()
-                    except:
-                        db.execute("rollback")
-                        pass
-
             sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
 
             if executaSql:

@@ -220,7 +220,7 @@ class MyHandler(PatternMatchingEventHandler):
                         else:
                             print_color(f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================", 31)
 
-                            grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.txt')
+                            grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
 
                         removeFolderFiles(folderZip)
 
@@ -232,7 +232,10 @@ class MyHandler(PatternMatchingEventHandler):
                             delete_log(source)
 
             except Exception as inst:
+
                 print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
+
+                grava_log(fileProcess, f'log/Log_Error_{dataType}_Out_{fileName}.json')
 
                 filePath = DIRERROS + fileName
 

@@ -242,6 +242,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                         con.commit()
                                     except:
                                         db.execute("rollback")
+                                        pass
 
                                 if logSql:
                                     print("Log Email ", db.query)
@@ -264,11 +265,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                             dadoTime = None
 
                                         if dadoIPAddress is not None and dadoTime is not None:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) SELECT '{dadoIPAddress}', '{dadoTime}', '{AccountIdentifier}', {ar_id}, {linh_id}";
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) VALUES ('%s', '%s', '%s', %s, %s)";
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert)
+                                                    db.execute(sqlInsert, (dadoIPAddress, dadoTime, AccountIdentifier, ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -327,11 +328,12 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 else:
                                     dadoLastIP = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) SELECT '{dadoServiceStart}', '{dadoDeviceType}', '{dadoAppVersion}', '{dadoDeviceOSBuildNumber}', '{dadoConnectionState}', '{dadoOnlineSince}', '{dadoPushName}', '{dadoLastSeen}', '{AccountIdentifier}', {ar_id}, {linh_id}  WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_conexaoinfo WHERE servicestart = '{dadoServiceStart}' AND devicetype = '{dadoDeviceType}' AND appversion = '{dadoAppVersion}' AND deviceosbuildnumber = '{dadoDeviceOSBuildNumber}' AND telefone = '{AccountIdentifier}');"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_conexaoinfo WHERE servicestart = '%s' AND devicetype = '%s' AND appversion = '%s' AND deviceosbuildnumber = '%s' AND telefone = '%s');"
 
                                 if executaSql:
                                     try:
-                                        db.execute(sqlInsert)
+                                        db.execute(sqlInsert,
+                                                   (dadoServiceStart, dadoDeviceType, dadoAppVersion, dadoDeviceOSBuildNumber, dadoConnectionState, dadoOnlineSince, dadoPushName, dadoLastSeen, AccountIdentifier, ar_id, linh_id, dadoServiceStart, dadoDeviceType, dadoAppVersion, dadoDeviceOSBuildNumber, AccountIdentifier))
                                         con.commit()
                                     except:
                                         db.execute("rollback")
@@ -365,11 +367,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 else:
                                     dadoInactiveSince = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) SELECT '{dadoVersion}',{dadoPlatform}', '{dadoOnlineSince}', '{dadoInactiveSince}', '{AccountIdentifier}', {ar_id}, {linh_id} WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '{dadoVersion}' AND we_platform = '{dadoPlatform}' AND telefone = '{AccountIdentifier}');"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '%s' AND we_platform = '%s' AND telefone = '%s');"
 
                                 if executaSql:
                                     try:
-                                        db.execute(sqlInsert)
+                                        db.execute(sqlInsert,(dadoVersion, dadoPlatform, dadoOnlineSince, dadoInactiveSince, AccountIdentifier, ar_id, linh_id, dadoVersion, dadoPlatform, AccountIdentifier))
                                         con.commit()
                                     except:
                                         db.execute("rollback")
@@ -511,11 +513,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                     symmetricContacts = Dados['Dados']['addressBookInfo'][0]['Symmetriccontacts']
                                     if len(symmetricContacts) > 0:
                                         for contacts in symmetricContacts:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) SELECT '{contacts}', 'S', '{AccountIdentifier}', {ar_id}, {linh_id} WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '{contacts}' AND ag_tipo = 'S' AND telefone = '{AccountIdentifier}');"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '%s' AND ag_tipo = '%s' AND telefone = '%s');"
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert)
+                                                    db.execute(sqlInsert, (contacts, 'S', AccountIdentifier, ar_id, linh_id, contacts, 'S', AccountIdentifier))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -531,11 +533,13 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                     asymmetricContacts = Dados['Dados']['addressBookInfo'][0]['Asymmetriccontacts']
                                     if len(asymmetricContacts) > 0:
                                         for contacts in asymmetricContacts:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) SELECT '{contacts}', 'A', '{AccountIdentifier}', {ar_id}, {linh_id} WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '{contacts}' AND ag_tipo = 'S' AND telefone = '{AccountIdentifier}');"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '%s' AND ag_tipo = '%s' AND telefone = '%s');"
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert)
+                                                    db.execute(sqlInsert, (
+                                                    contacts, 'A', AccountIdentifier, ar_id, linh_id, contacts, 'A',
+                                                    AccountIdentifier))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")

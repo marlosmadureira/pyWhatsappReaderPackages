@@ -471,9 +471,65 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                         prttMessageSize = None
 
                                     if prttGroupId == None:
-                                        print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                        if prttSender == AccountIdentifier:
+                                            TipoDirecaoMsg = "Enviou";
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '{prttTimestamp}', '{prttMessageId}', '{TipoDirecaoMsg}', '{prttSender}', '{prttRecipients}', '{prttSenderIp}', {prttSenderPort}, '{prttSenderDevice}', {prttMessageSize}, '{prttType}', '{prttMessageStyle}', '{AccountIdentifier}', {ar_id}, {linh_id}"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert)
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log msgLogs Individual Enviou", sqlInsert)
+
+                                        else:
+                                            TipoDirecaoMsg = "Recebeu";
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '{prttTimestamp}', '{prttMessageId}', '{TipoDirecaoMsg}', '{prttRecipients}', '{prttSender}', '{prttSenderIp}', {prttSenderPort}, '{prttSenderDevice}', {prttMessageSize}, '{prttType}', '{prttMessageStyle}', '{AccountIdentifier}', {ar_id}, {linh_id}"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert)
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log msgLogs Individual Recebeu", sqlInsert)
                                     else:
-                                        print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                        if prttSender == AccountIdentifier:
+                                            TipoDirecaoMsg = "Enviou";
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '{prttTimestamp}', '{prttMessageId}', '{TipoDirecaoMsg}', '{prttSender}', '{prttRecipients}', '{prttGroupId}', '{prttSenderIp}', {prttSenderPort}, '{prttSenderDevice}', {prttMessageSize}, '{prttType}', '{prttMessageStyle}', '{AccountIdentifier}', {ar_id}, {linh_id}"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert)
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log msgLogs Grupo Enviou", sqlInsert)
+
+                                        else:
+                                            TipoDirecaoMsg = "Recebeu";
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '{prttTimestamp}', '{prttMessageId}', '{TipoDirecaoMsg}', '{prttRecipients}', '{prttSender}', '{prttGroupId}', '{prttSenderIp}', {prttSenderPort}, '{prttSenderDevice}', {prttMessageSize}, '{prttType}', '{prttMessageStyle}', '{AccountIdentifier}', {ar_id}, {linh_id}"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert)
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log msgLogs Grupo Recebeu", sqlInsert)
 
                                 if Out:
                                     print(f"{msgLogs}")
@@ -549,9 +605,32 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     else:
                                                         prttPhoneNumber = None
 
-                                                    print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) SELECT '{prttcallID}', '{prttcallCreator}', '{prttEtype}', '{prttEtimestamp}', '{prttEsolicitante}', '{prttEatendente}', '{prttEsolIP}', '{prttEsolPort}', '{prttEmediaType}', '{prttPhoneNumber}', '{AccountIdentifier}', {ar_id}, {linh_id}, '{TipoDirecaoCall}'"
+
+                                                    if executaSql:
+                                                        try:
+                                                            db.execute(sqlInsert)
+                                                            con.commit()
+                                                        except:
+                                                            db.execute("rollback")
+                                                            pass
+
+                                                    if logSql:
+                                                        print("Log callLogs Eventos Participantes", sqlInsert)
+
                                             else:
-                                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) SELECT '{prttcallID}', '{prttcallCreator}', '{prttEtype}', '{prttEtimestamp}', '{prttEsolicitante}', '{prttEatendente}', '{prttEsolIP}', '{prttEsolPort}', '{prttEmediaType}', '{prttPhoneNumber}', '{AccountIdentifier}', {ar_id}, {linh_id}, '{TipoDirecaoCall}'"
+
+                                                if executaSql:
+                                                    try:
+                                                        db.execute(sqlInsert)
+                                                        con.commit()
+                                                    except:
+                                                        db.execute("rollback")
+                                                        pass
+
+                                                if logSql:
+                                                    print("Log callLogs Eventos", sqlInsert)
 
                                 if Out:
                                     print(f"{callLogs}")

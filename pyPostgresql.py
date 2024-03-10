@@ -138,7 +138,17 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                             if Dados['Dados'].get('EmailAddresses'):
                                 EmailAddresses = Dados['Dados'].get('EmailAddresses')
 
-                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                sqlUpdate = f"UPDATE leitores.tb_whatszap_arquivo SET ar_email_addresses = '%s' WHERE ar_id = %s"
+
+                                if executaSql:
+                                    try:
+                                        db.execute(sqlUpdate, (EmailAddresses, ar_id))
+                                        con.commit()
+                                    except:
+                                        db.execute("rollback")
+
+                                if logSql:
+                                    print("Log Email ", db.query)
 
                                 if Out:
                                     print(f"{EmailAddresses}")
@@ -157,8 +167,19 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                         else:
                                             dadoTime = None
 
-                                        print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                        if dadoIPAddress is not None and dadoTime is not None:
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) SELECT '{dadoIPAddress}', '{dadoTime}', '{AccountIdentifier}', {ar_id}, {linh_id}";
 
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert)
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log IP ", sqlInsert)
                                 if Out:
                                     print(f"{ipAddresses}")
 
@@ -210,7 +231,18 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 else:
                                     dadoLastIP = None
 
-                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) SELECT '{dadoServiceStart}', '{dadoDeviceType}', '{dadoAppVersion}', '{dadoDeviceOSBuildNumber}', '{dadoConnectionState}', '{dadoOnlineSince}', '{dadoPushName}', '{dadoLastSeen}', '{AccountIdentifier}', {ar_id}, {linh_id}  WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_conexaoinfo WHERE servicestart = '{dadoServiceStart}' AND devicetype = '{dadoDeviceType}' AND appversion = '{dadoAppVersion}' AND deviceosbuildnumber = '{dadoDeviceOSBuildNumber}' AND telefone = '{AccountIdentifier}');"
+
+                                if executaSql:
+                                    try:
+                                        db.execute(sqlInsert)
+                                        con.commit()
+                                    except:
+                                        db.execute("rollback")
+                                        pass
+
+                                if logSql:
+                                    print("Log Conexao ", sqlInsert)
 
                                 if Out:
                                     print(f"{connectionInfo}")
@@ -237,7 +269,18 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 else:
                                     dadoInactiveSince = None
 
-                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) SELECT '{dadoVersion}',{dadoPlatform}', '{dadoOnlineSince}', '{dadoInactiveSince}', '{AccountIdentifier}', {ar_id}, {linh_id} WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '{dadoVersion}' AND we_platform = '{dadoPlatform}' AND telefone = '{AccountIdentifier}');"
+
+                                if executaSql:
+                                    try:
+                                        db.execute(sqlInsert)
+                                        con.commit()
+                                    except:
+                                        db.execute("rollback")
+                                        pass
+
+                                if logSql:
+                                    print("Log Web Info ", sqlInsert)
 
                                 if Out:
                                     print(f"{webInfo}")
@@ -284,7 +327,18 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                             else:
                                                 dadoSubject = None
 
-                                            print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_grupoinfo WHERE grouptype = '%s' AND creation = '%s' AND id_msg = '%s' AND telefone = '%s');"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert, (dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation, dadoSize, dadoDescription, dadoSubject, AccountIdentifier, ar_id, dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID, AccountIdentifier))
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log ownedGroups ", db.query)
 
                                     if Out:
                                         print(f"{ownedGroups}")
@@ -330,7 +384,18 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                             else:
                                                 dadoSubject = None
 
-                                            print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_grupoinfo WHERE grouptype = '%s' AND creation = '%s' AND id_msg = '%s' AND telefone = '%s');"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert, (dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation, dadoSize, dadoDescription, dadoSubject, AccountIdentifier, ar_id, dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID, AccountIdentifier))
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log ParticipatingGroups ", db.query)
 
                                     if Out:
                                         print(f"{ParticipatingGroups}")
@@ -340,7 +405,18 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                     symmetricContacts = Dados['Dados']['addressBookInfo'][0]['Symmetriccontacts']
                                     if len(symmetricContacts) > 0:
                                         for contacts in symmetricContacts:
-                                            print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) SELECT '{contacts}', 'S', '{AccountIdentifier}', {ar_id}, {linh_id} WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '{contacts}' AND ag_tipo = 'S' AND telefone = '{AccountIdentifier}');"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert)
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log symmetricContacts ", sqlInsert)
 
                                     if Out:
                                         print(f"{symmetricContacts}")
@@ -349,11 +425,23 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                     asymmetricContacts = Dados['Dados']['addressBookInfo'][0]['Asymmetriccontacts']
                                     if len(asymmetricContacts) > 0:
                                         for contacts in asymmetricContacts:
-                                            print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) SELECT '{contacts}', 'A', '{AccountIdentifier}', {ar_id}, {linh_id} WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '{contacts}' AND ag_tipo = 'S' AND telefone = '{AccountIdentifier}');"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert)
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                            if logSql:
+                                                print("Log asymmetricContacts ", sqlInsert)
 
                                     if Out:
                                         print(f"{asymmetricContacts}")
 
+                            # FALTA AMOSTRA
                             if Dados['Dados'].get('ncmecReportsInfo'):
                                 if Dados['Dados']['ncmecReportsInfo'].get('NcmecReportsDefinition'):
                                     NcmecReportsDefinition = Dados['Dados']['ncmecReportsInfo'][
@@ -371,6 +459,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 if Out:
                                     print(f"{Dados['Dados'].get('ncmecReportsInfo')}")
 
+                            #FALTA AMOSTRA
                             if Dados['Dados'].get('smallmediumbusinessinfo'):
                                 smallMediumBusiness = Dados['Dados']['smallmediumbusinessinfo']
 
@@ -405,7 +494,18 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 else:
                                     DeviceModel = None
 
-                                print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_deviceinfo (dev_appversion, dev_osversion, dev_buildnumber, dev_manufacturer, dev_devicemodel, ar_id, linh_id, telefone) SELECT '%s', '%s', '%s', '%s', '%s', %s, %s, '%s' WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_deviceinfo WHERE dev_appversion = '%s' AND dev_osversion = '%s' AND dev_buildnumber = '%s' AND telefone = '%s');"
+
+                                if executaSql:
+                                    try:
+                                        db.execute(sqlInsert, (AppVersion, OSVersion, OSBuildNumber, DeviceManufacturer, DeviceModel, ar_id, linh_id, AccountIdentifier, AppVersion, OSVersion, OSBuildNumber, AccountIdentifier))
+                                        con.commit()
+                                    except:
+                                        db.execute("rollback")
+                                        pass
+
+                                if logSql:
+                                    print("Log Device Info ", db.query)
 
                                 if Out:
                                     print(f"{Dados['Dados'].get('deviceinfo')}")

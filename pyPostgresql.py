@@ -1,6 +1,6 @@
 import os
 
-from pyBiblioteca import conectBD, grava_log, somentenumero
+from pyBiblioteca import conectBD, grava_log, delete_log, somentenumero
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,18 +13,115 @@ DB_PASS = os.getenv("DB_PASS")
 APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
-executaSql = False
+executaSql = True
+logSql = False
 
 
-def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
-
-    if DebugMode:
-        grava_log(Dados, f'{type}_{fileName}.json')
-
+def roolBackPostgres(ar_id):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
 
-        logSql = False
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_agenda WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_conexaoinfo WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_grupoinfo WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_iptime WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_weinfo WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_deviceinfo WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_index_zapcontatos_new WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_call_log WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_index_zapcontatos WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+        sqlDelete = f"DELETE FROM leitores.tb_whatszap_arquivo WHERE ar_id = %s"
+        if executaSql:
+            try:
+                db.execute(sqlDelete, (ar_id))
+                con.commit()
+            except:
+                db.execute("rollback")
+                pass
+
+    db.close()
+    con.close()
+
+
+def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
+    delete_log(f'log/{type}_{fileName}.json')
+
+    grava_log(Dados, f'{type}_{fileName}.json')
+
+    with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
+        db = con.cursor()
 
         if Dados.get('FileName'):
             FileName = Dados['FileName']
@@ -330,7 +427,12 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert, (dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation, dadoSize, dadoDescription, dadoSubject, AccountIdentifier, ar_id, dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID, AccountIdentifier))
+                                                    db.execute(sqlInsert, (
+                                                        dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation,
+                                                        dadoSize, dadoDescription, dadoSubject, AccountIdentifier,
+                                                        ar_id,
+                                                        dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID,
+                                                        AccountIdentifier))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -387,7 +489,12 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert, (dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation, dadoSize, dadoDescription, dadoSubject, AccountIdentifier, ar_id, dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID, AccountIdentifier))
+                                                    db.execute(sqlInsert, (
+                                                        dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation,
+                                                        dadoSize, dadoDescription, dadoSubject, AccountIdentifier,
+                                                        ar_id,
+                                                        dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID,
+                                                        AccountIdentifier))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -458,7 +565,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 if Out:
                                     print(f"{Dados['Dados'].get('ncmecReportsInfo')}")
 
-                            #FALTA AMOSTRA
+                            # FALTA AMOSTRA
                             if Dados['Dados'].get('smallmediumbusinessinfo'):
                                 smallMediumBusiness = Dados['Dados']['smallmediumbusinessinfo']
 
@@ -497,7 +604,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                 if executaSql:
                                     try:
-                                        db.execute(sqlInsert, (AppVersion, OSVersion, OSBuildNumber, DeviceManufacturer, DeviceModel, ar_id, linh_id, AccountIdentifier, AppVersion, OSVersion, OSBuildNumber, AccountIdentifier))
+                                        db.execute(sqlInsert, (
+                                            AppVersion, OSVersion, OSBuildNumber, DeviceManufacturer, DeviceModel,
+                                            ar_id,
+                                            linh_id, AccountIdentifier, AppVersion, OSVersion, OSBuildNumber,
+                                            AccountIdentifier))
                                         con.commit()
                                     except:
                                         db.execute("rollback")

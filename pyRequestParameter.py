@@ -2,8 +2,6 @@ from pyBiblioteca import print_color, remover_espacos_regex
 
 
 def requestReaderParameter(parameters, DebugMode, Out):
-    print_color(f"\n=========================== PROCESSANDO REQUEST PARAMENTER ===========================", 32)
-
     if DebugMode:
         print(f"{parameters}")
 
@@ -24,7 +22,9 @@ def requestReaderParameter(parameters, DebugMode, Out):
             field_name = field_name_text.replace(field_value, '').strip()
             data[remover_espacos_regex(field_name)] = field_value
 
-    print(f"OUT {data}")
+    if Out:
+        print_color(f"\n=========================== PROCESSANDO REQUEST PARAMENTER ===========================", 32)
+        print(f"OUT {data}")
 
     if data is not None:
         return data

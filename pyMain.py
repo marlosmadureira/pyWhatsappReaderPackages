@@ -199,7 +199,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                             print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
 
-                            if sizeFile > 400:
+                            if sizeFile > 400000:
                                 print_color(
                                     f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
                                     32)

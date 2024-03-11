@@ -1,7 +1,7 @@
 from pyBiblioteca import print_color, remover_espacos_regex
 
 
-def requestReaderParameter(parameters, DebugMode):
+def requestReaderParameter(parameters, DebugMode, Out):
     print_color(f"\n=========================== PROCESSANDO REQUEST PARAMENTER ===========================", 32)
 
     if DebugMode:

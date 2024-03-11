@@ -197,7 +197,7 @@ class MyHandler(PatternMatchingEventHandler):
                         if Executar:
                             sizeFile = get_size(source)
 
-                            print(f"{sizeFile}")
+                            print_color(f"TAMANHO DO PACOTE {sizeFile}", 32)
 
                             if sizeFile > 400:
                                 print_color(

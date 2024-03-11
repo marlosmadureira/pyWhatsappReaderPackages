@@ -187,14 +187,15 @@ def contar_arquivos_zip(diretorio):
 
 def get_size(path):
     size = os.path.getsize(path)
-    if size < 1024:
-        return size  # f"{size} bytes"
-    elif size < 1024 * 1024:
-        return round(size / 1024, 2)  # f"{round(size / 1024, 2)} KB"
-    elif size < 1024 * 1024 * 1024:
-        return round(size / (1024 * 1024), 2)  # f"{round(size / (1024 * 1024), 2)} MB"
-    elif size < 1024 * 1024 * 1024 * 1024:
-        return round(size / (1024 * 1024 * 1024), 2)  # f"{round(size / (1024 * 1024 * 1024), 2)} GB"
+    return size
+    # if size < 1024:
+    #     return size  # f"{size} bytes"
+    # elif size < 1024 * 1024:
+    #     return round(size / 1024, 2)  # f"{round(size / 1024, 2)} KB"
+    # elif size < 1024 * 1024 * 1024:
+    #     return round(size / (1024 * 1024), 2)  # f"{round(size / (1024 * 1024), 2)} MB"
+    # elif size < 1024 * 1024 * 1024 * 1024:
+    #     return round(size / (1024 * 1024 * 1024), 2)  # f"{round(size / (1024 * 1024 * 1024), 2)} GB"
 
 
 def listar_arquivos_json(path):

@@ -235,6 +235,8 @@ class MyHandler(PatternMatchingEventHandler):
 
                 print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
 
+                delete_log(f'log/Log_Error_{dataType}_Out_{fileName}.json')
+
                 grava_log(fileProcess, f'Log_Error_{dataType}_Out_{fileName}.json')
 
                 filePath = DIRERROS + fileName

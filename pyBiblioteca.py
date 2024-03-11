@@ -195,3 +195,25 @@ def get_size(path):
         return round(size / (1024 * 1024), 2)  # f"{round(size / (1024 * 1024), 2)} MB"
     elif size < 1024 * 1024 * 1024 * 1024:
         return round(size / (1024 * 1024 * 1024), 2)  # f"{round(size / (1024 * 1024 * 1024), 2)} GB"
+
+
+def listar_arquivos_json(path):
+    # Utiliza o módulo glob para encontrar todos os arquivos com a extensão .json na pasta especificada
+    padrao = os.path.join(path, '*.json')
+    arquivos_json = glob.glob(padrao)
+
+    return arquivos_json
+
+
+def openErrorJson():
+    path = f"{os.getcwd()}/log"
+
+    arquivos_json = listar_arquivos_json(path)
+
+    for dados_json in arquivos_json:
+        if 'Log_Error' in dados_json:
+            listNameFile = dados_json.split("_")
+            dataType = listNameFile[2]
+            fileName = listNameFile[3]
+
+            openJsonEstruturado(dados_json)

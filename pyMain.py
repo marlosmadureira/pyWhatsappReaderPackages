@@ -192,8 +192,6 @@ class MyHandler(PatternMatchingEventHandler):
 
                         print_color(f"\n{dataType}", 31)
 
-                        print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
-
                         if Executar:
                             sizeFile = get_size(source)
 
@@ -232,6 +230,8 @@ class MyHandler(PatternMatchingEventHandler):
                             shutil.move(source, DIRLIDOS)
                         else:
                             delete_log(source)
+
+                        print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
             except Exception as inst:
 

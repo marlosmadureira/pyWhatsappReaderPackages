@@ -146,10 +146,6 @@ def roolBackPostgres(ar_id):
 
 
 def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
-    delete_log(f'log/{type}_{fileName}.json')
-
-    grava_log(Dados, f'Send_{type}_{fileName}.json')
-
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
 
@@ -206,6 +202,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
             if logSql:
                 print(f"Log 1 ", sqlTratamento)
+                grava_log(sqlTratamento, f'log_1.txt')
 
             if queryTratamento is not None and queryTratamento[0] > 0:
                 apli_id = queryTratamento[0]
@@ -224,6 +221,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                     if logSql:
                         print(f"Log 2 ", db.query)
+                        grava_log(db.query, f'log_2.txt')
 
             sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
 
@@ -236,6 +234,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                 if logSql:
                     print(f"Log 3 ", db.query)
+                    grava_log(db.query, f'log_3.txt')
 
             if queryLinId is not None and queryLinId[0] > 0:
 
@@ -252,6 +251,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                     if logSql:
                         print(f"Log 4 ", db.query)
+                        grava_log(db.query, f'log_4.txt')
 
                 if queryExiste is None:
 
@@ -275,6 +275,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                         if logSql:
                             print(f"Log 5 ", db.query)
+                            grava_log(db.query, f'log_5.txt')
 
                     if ar_id is not None:
                         if 'DADOS' in type:
@@ -294,6 +295,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                     if logSql:
                                         print("Log 6 ", db.query)
+                                        grava_log(db.query, f'log_6.txt')
 
                                 if Out:
                                     print(f"{EmailAddresses}")
@@ -325,6 +327,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print("Log 7 ", db.query)
+                                                    grava_log(db.query, f'log_7.txt')
                                 if Out:
                                     print(f"{ipAddresses}")
 
@@ -389,6 +392,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                     if logSql:
                                         print(f"Log 8 ", db.query)
+                                        grava_log(db.query, f'log_8.txt')
 
                                 if logSql:
                                     print("Log Conexao ", sqlInsert)
@@ -430,6 +434,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                     if logSql:
                                         print(f"Log 9 ", db.query)
+                                        grava_log(db.query, f'log_9.txt')
 
                                 if Out:
                                     print(f"{webInfo}")
@@ -493,6 +498,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print(f"Log 10 ", db.query)
+                                                    grava_log(db.query, f'log_10.txt')
 
                                     if Out:
                                         print(f"{ownedGroups}")
@@ -555,6 +561,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print(f"Log 11 ", db.query)
+                                                    grava_log(db.query, f'log_11.txt')
 
                                     if Out:
                                         print(f"{ParticipatingGroups}")
@@ -576,6 +583,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print(f"Log 12 ", db.query)
+                                                    grava_log(db.query, f'log_12.txt')
 
                                     if Out:
                                         print(f"{symmetricContacts}")
@@ -598,6 +606,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print(f"Log 13 ", db.query)
+                                                    grava_log(db.query, f'log_13.txt')
 
                                     if Out:
                                         print(f"{asymmetricContacts}")
@@ -617,8 +626,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
-                                if logSql:
-                                    print(f"Log 14 ", db.query)
+                                # if logSql:
+                                #     print(f"Log 14 ", db.query)
+                                #     grava_log(db.query, f'log_14.txt')
 
                                 if Out:
                                     print(f"{Dados['Dados'].get('ncmecReportsInfo')}")
@@ -629,8 +639,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
-                                if logSql:
-                                    print(f"Log 15 ", db.query)
+                                # if logSql:
+                                #     print(f"Log 15 ", db.query)
+                                #     grava_log(db.query, f'log_15.txt')
 
                                 if Out:
                                     print(f"{smallMediumBusiness}")
@@ -677,6 +688,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                     if logSql:
                                         print(f"Log 16 ", db.query)
+                                        grava_log(db.query, f'log_16.txt')
 
                                 if Out:
                                     print(f"{Dados['Dados'].get('deviceinfo')}")
@@ -756,6 +768,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print(f"Log 17 ", db.query)
+                                                    grava_log(db.query, f'log_17.txt')
 
                                         else:
                                             TipoDirecaoMsg = "Recebeu";
@@ -771,6 +784,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print(f"Log 18 ", db.query)
+                                                    grava_log(db.query, f'log_18.txt')
                                     else:
                                         if prttSender == AccountIdentifier:
                                             TipoDirecaoMsg = "Enviou";
@@ -786,6 +800,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print(f"Log 19 ", db.query)
+                                                    grava_log(db.query, f'log_19.txt')
 
                                         else:
                                             TipoDirecaoMsg = "Recebeu";
@@ -801,6 +816,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if logSql:
                                                     print(f"Log 20 ", db.query)
+                                                    grava_log(db.query, f'log_20.txt')
 
                                 if Out:
                                     print(f"{msgLogs}")
@@ -888,6 +904,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                         if logSql:
                                                             print(f"Log 21 ", db.query)
+                                                            grava_log(db.query, f'log_21.txt')
 
                                             else:
                                                 sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) SELECT '{prttcallID}', '{prttcallCreator}', '{prttEtype}', '{prttEtimestamp}', '{prttEsolicitante}', '{prttEatendente}', '{prttEsolIP}', '{prttEsolPort}', '{prttEmediaType}', '{prttPhoneNumber}', '{AccountIdentifier}', {ar_id}, {linh_id}, '{TipoDirecaoCall}'"
@@ -902,6 +919,7 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                     if logSql:
                                                         print(f"Log 22 ", db.query)
+                                                        grava_log(db.query, f'log_22.txt')
 
                                 if Out:
                                     print(f"{callLogs}")

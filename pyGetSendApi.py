@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from pyBiblioteca import conectBD, somentenumero, grava_log
+from pyBiblioteca import conectBD, somentenumero, grava_log, print_color
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -80,7 +80,7 @@ def sendDataJsonServer(Dados, type):
 
             return Jsondata
     except requests.exceptions.ConnectionError:
-        print('build http connection failed')
+        print_color(f'\nBuild http Connection Failed {requests.exceptions.ConnectionError}', 31)
     except Exception as inst:
         errorData = "{Location: sendDataJsonServer, error: " + str(inst) + ", type: " + type + "}"
-        # sendSlackMSG(errorData)
+        print_color(f"{errorData}", 31)

@@ -182,7 +182,7 @@ def contar_arquivos_zip(diretorio):
     arquivos_zip = glob.glob(padrao_busca)
 
     # Retorna o número de arquivos ZIP encontrados
-    print(f"Arquivos em Fila {len(arquivos_zip)} {arquivos_zip}\n")
+    print(f"\nArquivos em Fila {len(arquivos_zip)} {arquivos_zip}\n")
 
 
 def get_size(path):

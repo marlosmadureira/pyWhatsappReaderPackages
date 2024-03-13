@@ -14,7 +14,7 @@ APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
 executaSql = True
-logSql = False
+logSql = True
 
 
 def roolBackPostgres(ar_id):
@@ -30,6 +30,9 @@ def roolBackPostgres(ar_id):
                 db.execute("rollback")
                 pass
 
+        if logSql:
+            print(f"Delete 1 ", sqlDelete)
+            
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_conexaoinfo WHERE ar_id = %s"
         if executaSql:
             try:
@@ -38,6 +41,9 @@ def roolBackPostgres(ar_id):
             except:
                 db.execute("rollback")
                 pass
+
+        if logSql:
+            print(f"Delete 2 ", sqlDelete)
 
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_grupoinfo WHERE ar_id = %s"
         if executaSql:
@@ -48,6 +54,9 @@ def roolBackPostgres(ar_id):
                 db.execute("rollback")
                 pass
 
+        if logSql:
+            print(f"Delete 3 ", sqlDelete)
+
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_iptime WHERE ar_id = %s"
         if executaSql:
             try:
@@ -56,6 +65,9 @@ def roolBackPostgres(ar_id):
             except:
                 db.execute("rollback")
                 pass
+
+        if logSql:
+            print(f"Delete 4 ", sqlDelete)
 
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_weinfo WHERE ar_id = %s"
         if executaSql:
@@ -66,6 +78,9 @@ def roolBackPostgres(ar_id):
                 db.execute("rollback")
                 pass
 
+        if logSql:
+            print(f"Delete 5 ", sqlDelete)
+
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_deviceinfo WHERE ar_id = %s"
         if executaSql:
             try:
@@ -74,6 +89,9 @@ def roolBackPostgres(ar_id):
             except:
                 db.execute("rollback")
                 pass
+
+        if logSql:
+            print(f"Delete 6 ", sqlDelete)
 
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_index_zapcontatos_new WHERE ar_id = %s"
         if executaSql:
@@ -84,6 +102,9 @@ def roolBackPostgres(ar_id):
                 db.execute("rollback")
                 pass
 
+        if logSql:
+            print(f"Delete 7 ", sqlDelete)
+
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_call_log WHERE ar_id = %s"
         if executaSql:
             try:
@@ -92,6 +113,9 @@ def roolBackPostgres(ar_id):
             except:
                 db.execute("rollback")
                 pass
+
+        if logSql:
+            print(f"Delete 8", sqlDelete)
 
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_index_zapcontatos WHERE ar_id = %s"
         if executaSql:
@@ -102,6 +126,9 @@ def roolBackPostgres(ar_id):
                 db.execute("rollback")
                 pass
 
+        if logSql:
+            print(f"Delete 9 ", sqlDelete)
+
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_arquivo WHERE ar_id = %s"
         if executaSql:
             try:
@@ -110,6 +137,9 @@ def roolBackPostgres(ar_id):
             except:
                 db.execute("rollback")
                 pass
+
+        if logSql:
+            print(f"Delete 10 ", sqlDelete)
 
     db.close()
     con.close()
@@ -174,6 +204,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                 except:
                     pass
 
+            if logSql:
+                print(f"Log 1 ", sqlTratamento)
+
             if queryTratamento is not None and queryTratamento[0] > 0:
                 apli_id = queryTratamento[0]
                 linh_id = queryTratamento[1]
@@ -189,6 +222,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                         db.execute("rollback")
                         pass
 
+                    if logSql:
+                        print(f"Log 2 ", db.query)
+
             sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
 
             if executaSql:
@@ -197,6 +233,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                     queryLinId = db.fetchone()
                 except:
                     pass
+
+                if logSql:
+                    print(f"Log 3 ", db.query)
 
             if queryLinId is not None and queryLinId[0] > 0:
 
@@ -210,6 +249,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                         queryExiste = db.fetchone()
                     except:
                         pass
+
+                    if logSql:
+                        print(f"Log 4 ", db.query)
 
                 if queryExiste is None:
 
@@ -231,6 +273,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                             db.execute("rollback")
                             pass
 
+                        if logSql:
+                            print(f"Log 5 ", db.query)
+
                     if ar_id is not None:
                         if 'DADOS' in type:
 
@@ -247,8 +292,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                         db.execute("rollback")
                                         pass
 
-                                if logSql:
-                                    print("Log Email ", db.query)
+                                    if logSql:
+                                        print("Log 6 ", db.query)
 
                                 if Out:
                                     print(f"{EmailAddresses}")
@@ -278,8 +323,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log IP ", sqlInsert)
+                                                if logSql:
+                                                    print("Log 7 ", db.query)
                                 if Out:
                                     print(f"{ipAddresses}")
 
@@ -342,6 +387,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                         db.execute("rollback")
                                         pass
 
+                                    if logSql:
+                                        print(f"Log 8 ", db.query)
+
                                 if logSql:
                                     print("Log Conexao ", sqlInsert)
 
@@ -380,8 +428,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                         db.execute("rollback")
                                         pass
 
-                                if logSql:
-                                    print("Log Web Info ", sqlInsert)
+                                    if logSql:
+                                        print(f"Log 9 ", db.query)
 
                                 if Out:
                                     print(f"{webInfo}")
@@ -443,8 +491,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log ownedGroups ", db.query)
+                                                if logSql:
+                                                    print(f"Log 10 ", db.query)
 
                                     if Out:
                                         print(f"{ownedGroups}")
@@ -505,8 +553,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log ParticipatingGroups ", db.query)
+                                                if logSql:
+                                                    print(f"Log 11 ", db.query)
 
                                     if Out:
                                         print(f"{ParticipatingGroups}")
@@ -526,8 +574,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log symmetricContacts ", sqlInsert)
+                                                if logSql:
+                                                    print(f"Log 12 ", db.query)
 
                                     if Out:
                                         print(f"{symmetricContacts}")
@@ -548,8 +596,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log asymmetricContacts ", sqlInsert)
+                                                if logSql:
+                                                    print(f"Log 13 ", db.query)
 
                                     if Out:
                                         print(f"{asymmetricContacts}")
@@ -569,6 +617,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
+                                if logSql:
+                                    print(f"Log 14 ", db.query)
+
                                 if Out:
                                     print(f"{Dados['Dados'].get('ncmecReportsInfo')}")
 
@@ -577,6 +628,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 smallMediumBusiness = Dados['Dados']['smallmediumbusinessinfo']
 
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
+
+                                if logSql:
+                                    print(f"Log 15 ", db.query)
 
                                 if Out:
                                     print(f"{smallMediumBusiness}")
@@ -621,8 +675,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                         db.execute("rollback")
                                         pass
 
-                                if logSql:
-                                    print("Log Device Info ", db.query)
+                                    if logSql:
+                                        print(f"Log 16 ", db.query)
 
                                 if Out:
                                     print(f"{Dados['Dados'].get('deviceinfo')}")
@@ -700,8 +754,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log msgLogs Individual Enviou", sqlInsert)
+                                                if logSql:
+                                                    print(f"Log 17 ", db.query)
 
                                         else:
                                             TipoDirecaoMsg = "Recebeu";
@@ -715,8 +769,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log msgLogs Individual Recebeu", sqlInsert)
+                                                if logSql:
+                                                    print(f"Log 18 ", db.query)
                                     else:
                                         if prttSender == AccountIdentifier:
                                             TipoDirecaoMsg = "Enviou";
@@ -730,8 +784,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log msgLogs Grupo Enviou", sqlInsert)
+                                                if logSql:
+                                                    print(f"Log 19 ", db.query)
 
                                         else:
                                             TipoDirecaoMsg = "Recebeu";
@@ -745,8 +799,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     db.execute("rollback")
                                                     pass
 
-                                            if logSql:
-                                                print("Log msgLogs Grupo Recebeu", sqlInsert)
+                                                if logSql:
+                                                    print(f"Log 20 ", db.query)
 
                                 if Out:
                                     print(f"{msgLogs}")
@@ -832,8 +886,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                             db.execute("rollback")
                                                             pass
 
-                                                    if logSql:
-                                                        print("Log callLogs Eventos Participantes", sqlInsert)
+                                                        if logSql:
+                                                            print(f"Log 21 ", db.query)
 
                                             else:
                                                 sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) SELECT '{prttcallID}', '{prttcallCreator}', '{prttEtype}', '{prttEtimestamp}', '{prttEsolicitante}', '{prttEatendente}', '{prttEsolIP}', '{prttEsolPort}', '{prttEmediaType}', '{prttPhoneNumber}', '{AccountIdentifier}', {ar_id}, {linh_id}, '{TipoDirecaoCall}'"
@@ -846,8 +900,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                         db.execute("rollback")
                                                         pass
 
-                                                if logSql:
-                                                    print("Log callLogs Eventos", sqlInsert)
+                                                    if logSql:
+                                                        print(f"Log 22 ", db.query)
 
                                 if Out:
                                     print(f"{callLogs}")

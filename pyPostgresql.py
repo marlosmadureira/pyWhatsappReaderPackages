@@ -14,7 +14,7 @@ APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
 executaSql = True
-logSql = True
+logSql = False
 
 
 def roolBackPostgres(ar_id):

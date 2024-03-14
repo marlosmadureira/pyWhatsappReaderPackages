@@ -233,6 +233,20 @@ class MyHandler(PatternMatchingEventHandler):
 
                         print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
+                else:
+                    print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
+
+                    grava_log(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 'LogPadraoAntigo.txt')
+
+                    removeFolderFiles(folderZip)
+
+                    filePath = DIRLIDOS + fileName
+
+                    if not os.path.exists(filePath):
+                        shutil.move(source, DIRLIDOS)
+                    else:
+                        delete_log(source)
+
             except Exception as inst:
 
                 print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)

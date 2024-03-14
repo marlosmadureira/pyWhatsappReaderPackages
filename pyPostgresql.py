@@ -756,11 +756,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                     if prttGroupId == None:
                                         if prttSender == AccountIdentifier:
                                             TipoDirecaoMsg = "Enviou";
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '{prttTimestamp}', '{prttMessageId}', '{TipoDirecaoMsg}', '{prttSender}', '{prttRecipients}', '{prttSenderIp}', {prttSenderPort}, '{prttSenderDevice}', {prttMessageSize}, '{prttType}', '{prttMessageStyle}', '{AccountIdentifier}', {ar_id}, {linh_id}"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s, '%s', '%s', '%s', %s, %s"
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert)
+                                                    db.execute(sqlInsert, (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender, prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice, prttMessageSize, prttType, prttMessageStyle, AccountIdentifier, ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -772,11 +772,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                         else:
                                             TipoDirecaoMsg = "Recebeu";
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '{prttTimestamp}', '{prttMessageId}', '{TipoDirecaoMsg}', '{prttRecipients}', '{prttSender}', '{prttSenderIp}', {prttSenderPort}, '{prttSenderDevice}', {prttMessageSize}, '{prttType}', '{prttMessageStyle}', '{AccountIdentifier}', {ar_id}, {linh_id}"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s, '%s', '%s', '%s', %s, %s"
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert)
+                                                    db.execute(sqlInsert, (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients, prttSender, prttSenderIp, prttSenderPort, prttSenderDevice, prttMessageSize, prttType, prttMessageStyle, AccountIdentifier, ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -788,11 +788,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                     else:
                                         if prttSender == AccountIdentifier:
                                             TipoDirecaoMsg = "Enviou";
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '{prttTimestamp}', '{prttMessageId}', '{TipoDirecaoMsg}', '{prttSender}', '{prttRecipients}', '{prttGroupId}', '{prttSenderIp}', {prttSenderPort}, '{prttSenderDevice}', {prttMessageSize}, '{prttType}', '{prttMessageStyle}', '{AccountIdentifier}', {ar_id}, {linh_id}"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s, '%s', '%s', '%s', %s, %s"
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert)
+                                                    db.execute(sqlInsert, (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender, prttRecipients, prttGroupId, prttSenderIp, prttSenderPort, prttSenderDevice, prttMessageSize, prttType, prttMessageStyle, AccountIdentifier, ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -804,11 +804,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                         else:
                                             TipoDirecaoMsg = "Recebeu";
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '{prttTimestamp}', '{prttMessageId}', '{TipoDirecaoMsg}', '{prttRecipients}', '{prttSender}', '{prttGroupId}', '{prttSenderIp}', {prttSenderPort}, '{prttSenderDevice}', {prttMessageSize}, '{prttType}', '{prttMessageStyle}', '{AccountIdentifier}', {ar_id}, {linh_id}"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s, '%s', '%s', '%s', %s, %s"
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert)
+                                                    db.execute(sqlInsert, (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients, prttSender, prttGroupId, prttSenderIp, prttSenderPort, prttSenderDevice, prttMessageSize, prttType, prttMessageStyle, AccountIdentifier, ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -892,11 +892,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                     else:
                                                         prttPhoneNumber = None
 
-                                                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) SELECT '{prttcallID}', '{prttcallCreator}', '{prttEtype}', '{prttEtimestamp}', '{prttEsolicitante}', '{prttEatendente}', '{prttEsolIP}', '{prttEsolPort}', '{prttEmediaType}', '{prttPhoneNumber}', '{AccountIdentifier}', {ar_id}, {linh_id}, '{TipoDirecaoCall}'"
+                                                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, %s, '%s'"
 
                                                     if executaSql:
                                                         try:
-                                                            db.execute(sqlInsert)
+                                                            db.execute(sqlInsert, (prttcallID, prttcallCreator, prttEtype, prttEtimestamp, prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort, prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id, linh_id, TipoDirecaoCall))
                                                             con.commit()
                                                         except:
                                                             db.execute("rollback")
@@ -907,11 +907,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                                             grava_log(db.query, f'log_21.txt')
 
                                             else:
-                                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) SELECT '{prttcallID}', '{prttcallCreator}', '{prttEtype}', '{prttEtimestamp}', '{prttEsolicitante}', '{prttEatendente}', '{prttEsolIP}', '{prttEsolPort}', '{prttEmediaType}', '{prttPhoneNumber}', '{AccountIdentifier}', {ar_id}, {linh_id}, '{TipoDirecaoCall}'"
+                                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, %s, '%s'"
 
                                                 if executaSql:
                                                     try:
-                                                        db.execute(sqlInsert)
+                                                        db.execute(sqlInsert, (prttcallID, prttcallCreator, prttEtype, prttEtimestamp, prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort, prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id, linh_id, TipoDirecaoCall))
                                                         con.commit()
                                                     except:
                                                         db.execute("rollback")

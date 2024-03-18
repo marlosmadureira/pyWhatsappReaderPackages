@@ -1,6 +1,6 @@
 import os
 
-from pyBiblioteca import conectBD, grava_log, delete_log, somentenumero
+from pyBiblioteca import conectBD, grava_log, somentenumero
 from dotenv import load_dotenv
 
 load_dotenv()

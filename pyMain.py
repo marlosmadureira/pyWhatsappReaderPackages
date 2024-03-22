@@ -26,9 +26,9 @@ DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
-DebugMode = False
-Out = False
-Executar = True
+DebugMode = True
+Out = True
+Executar = False
 
 
 def getUnidadeFileName(nome_original):
@@ -119,133 +119,134 @@ class MyHandler(PatternMatchingEventHandler):
                         if contaZap is not None:
                             setDateObjetoProrrogue(contaZap, Unidade, fileName)
 
-                        message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
-                        call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
+                            message_log = bsHtml.find('div', attrs={"id": "property-message_log"})
+                            call_logs = bsHtml.find('div', attrs={"id": "property-call_logs"})
 
-                        if message_log is not None:
-                            dataType = "PRTT"
+                            if message_log is not None:
+                                dataType = "PRTT"
 
-                            messages = message_logReader(message_log, fileName, DebugMode, Out)
-                            calls = call_logsReader(call_logs, fileName, DebugMode, Out)
+                                messages = message_logReader(message_log, fileName, DebugMode, Out)
+                                calls = call_logsReader(call_logs, fileName, DebugMode, Out)
 
-                            if messages is not None:
-                                fileDados['msgLogs'] = messages
+                                if messages is not None:
+                                    fileDados['msgLogs'] = messages
 
-                            if calls is not None:
-                                fileDados['callLogs'] = calls
+                                if calls is not None:
+                                    fileDados['callLogs'] = calls
 
-                            if 'PRTT' in dataType:
-                                fileProcess['Prtt'] = fileDados
+                                if 'PRTT' in dataType:
+                                    fileProcess['Prtt'] = fileDados
 
-                        ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
-                        emails_info = bsHtml.find('div', attrs={'id': "property-emails"})
-                        ip_addresses_info = bsHtml.find('div', attrs={"id": "property-ip_addresses"})
-                        connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
-                        web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
-                        groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
-                        address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
-                        small_medium_business_info = bsHtml.find('div', attrs={"id": "property-small_medium_business"})
-                        device_info = bsHtml.find('div', attrs={"id": "property-device_info"})
+                            ncmec_reports = bsHtml.find('div', attrs={"id": "property-ncmec_reports"})
+                            emails_info = bsHtml.find('div', attrs={'id': "property-emails"})
+                            ip_addresses_info = bsHtml.find('div', attrs={"id": "property-ip_addresses"})
+                            connection_info = bsHtml.find('div', attrs={"id": "property-connection_info"})
+                            web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
+                            groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
+                            address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
+                            small_medium_business_info = bsHtml.find('div', attrs={"id": "property-small_medium_business"})
+                            device_info = bsHtml.find('div', attrs={"id": "property-device_info"})
 
-                        if address_book_info is not None:
-                            dataType = "DADOS"
-
-                            emailsinfo = emails_infoReader(emails_info, fileName, DebugMode, Out)
-                            if emailsinfo is not None:
-                                fileDados['EmailAddresses'] = emailsinfo
-
-                            ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out)
-                            if ipaddresses is not None:
-                                fileDados['ipAddresses'] = ipaddresses
-
-                            bookinfo = book_infoReader(address_book_info, fileName, DebugMode, Out)
                             if address_book_info is not None:
-                                fileDados['addressBookInfo'] = bookinfo
+                                dataType = "DADOS"
 
-                            groupsinfo = groups_infoReader(groups_info, fileName, DebugMode, Out)
-                            if groups_info is not None:
-                                fileDados['groupsInfo'] = groupsinfo
+                                emailsinfo = emails_infoReader(emails_info, fileName, DebugMode, Out)
+                                if emailsinfo is not None:
+                                    fileDados['EmailAddresses'] = emailsinfo
 
-                            ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out)
-                            if ncmecreports is not None:
-                                fileDados['ncmecReportsInfo'] = ncmecreports
+                                ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out)
+                                if ipaddresses is not None:
+                                    fileDados['ipAddresses'] = ipaddresses
 
-                            connectioninfo = connection_infoReader(connection_info, fileName, DebugMode, Out)
-                            if connection_info is not None:
-                                fileDados['connectionInfo'] = connectioninfo
+                                bookinfo = book_infoReader(address_book_info, fileName, DebugMode, Out)
+                                if address_book_info is not None:
+                                    fileDados['addressBookInfo'] = bookinfo
 
-                            webinfo = web_infoReader(web_info, fileName, DebugMode, Out)
-                            if web_info is not None:
-                                fileDados['webInfo'] = webinfo
+                                groupsinfo = groups_infoReader(groups_info, fileName, DebugMode, Out)
+                                if groups_info is not None:
+                                    fileDados['groupsInfo'] = groupsinfo
 
-                            smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info,
-                                                                                       fileName, DebugMode, Out)
-                            if smallmediumbusinessinfo is not None:
-                                fileDados['smallmediumbusinessinfo'] = smallmediumbusinessinfo
+                                ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out)
+                                if ncmecreports is not None:
+                                    fileDados['ncmecReportsInfo'] = ncmecreports
 
-                            deviceinfo = device_infoReader(device_info, fileName, DebugMode, Out)
-                            if deviceinfo is not None:
-                                fileDados['deviceinfo'] = deviceinfo
+                                connectioninfo = connection_infoReader(connection_info, fileName, DebugMode, Out)
+                                if connection_info is not None:
+                                    fileDados['connectionInfo'] = connectioninfo
 
-                            if 'DADOS' in dataType:
-                                fileProcess['Dados'] = fileDados
+                                webinfo = web_infoReader(web_info, fileName, DebugMode, Out)
+                                if web_info is not None:
+                                    fileDados['webInfo'] = webinfo
 
-                        print_color(f"\n{dataType}", 31)
+                                smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info,
+                                                                                           fileName, DebugMode, Out)
+                                if smallmediumbusinessinfo is not None:
+                                    fileDados['smallmediumbusinessinfo'] = smallmediumbusinessinfo
 
-                        if Executar:
-                            sizeFile = get_size(source)
+                                deviceinfo = device_infoReader(device_info, fileName, DebugMode, Out)
+                                if deviceinfo is not None:
+                                    fileDados['deviceinfo'] = deviceinfo
 
-                            print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
+                                if 'DADOS' in dataType:
+                                    fileProcess['Dados'] = fileDados
 
-                            if sizeFile > 400000:
-                                print_color(
-                                    f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
-                                    32)
+                            print_color(f"\n{dataType}", 31)
 
-                                sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
+                            if Executar:
+                                sizeFile = get_size(source)
+
+                                print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
+
+                                if sizeFile > 400000:
+                                    print_color(
+                                        f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
+                                        32)
+
+                                    sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
+                                else:
+                                    print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
+
+                                    retornoJson = sendDataJsonServer(fileProcess, dataType)
+
+                                    if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+
+                                        Jsondata = json.loads(retornoJson['jsonRetorno'])
+
+                                        if Jsondata['MostraJsonPython']:
+                                            openJsonEstruturado(fileProcess)
+
+                                    print(f"\n{retornoJson}")
+
                             else:
-                                print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
+                                print_color(f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================", 31)
 
-                                retornoJson = sendDataJsonServer(fileProcess, dataType)
+                                grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
 
-                                if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+                            removeFolderFiles(folderZip)
 
-                                    Jsondata = json.loads(retornoJson['jsonRetorno'])
+                            filePath = DIRLIDOS + fileName
 
-                                    if Jsondata['MostraJsonPython']:
-                                        openJsonEstruturado(fileProcess)
+                            if not os.path.exists(filePath):
+                                shutil.move(source, DIRLIDOS)
+                            else:
+                                delete_log(source)
 
-                                print(f"\n{retornoJson}")
-
+                            print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
                         else:
-                            print_color(f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================", 31)
-
-                            grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
-
-                        removeFolderFiles(folderZip)
-
-                        filePath = DIRLIDOS + fileName
-
-                        if not os.path.exists(filePath):
-                            shutil.move(source, DIRLIDOS)
-                        else:
-                            delete_log(source)
-
-                        print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
-
+                            print_color(f"Erro de Padrão HTML {parameter}", 31)
                 else:
                     print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
 
                     grava_log(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 'LogPadraoAntigo.txt')
 
-                    removeFolderFiles(folderZip)
-
-                    filePath = DIRLIDOS + fileName
-
-                    if not os.path.exists(filePath):
-                        shutil.move(source, DIRLIDOS)
-                    else:
-                        delete_log(source)
+                    # removeFolderFiles(folderZip)
+                    #
+                    # filePath = DIRLIDOS + fileName
+                    #
+                    # if not os.path.exists(filePath):
+                    #     shutil.move(source, DIRLIDOS)
+                    # else:
+                    #     delete_log(source)
 
             except Exception as inst:
 

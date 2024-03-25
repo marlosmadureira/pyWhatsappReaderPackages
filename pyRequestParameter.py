@@ -7,6 +7,13 @@ def requestReaderParameter(parameters, DebugMode, Out):
 
     data = {}
 
+    if 'display:table-cell' in str(parameters):
+        print_color(f"\nPENULTIMO PADRÃO HTML display:table-cell", 36)
+    elif 'div_table outer' in str(parameters):
+        print_color(f"\nULTIMO PADRÃO HTML div_table outer", 36)
+    else:
+        print_color(f"\nPADRÃO NÃO IDENTIFICADO", 36)
+
     fields = parameters.find_all("div", class_="div_table outer")
 
     for field in fields:

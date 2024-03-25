@@ -10,7 +10,8 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
-    removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado, contar_arquivos_zip, get_size
+    removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado, contar_arquivos_zip, \
+    get_size, getUnidadeFileName
 from pyGetSendApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyPostgresql import sendDataPostgres
 from pyRequestParameter import requestReaderParameter
@@ -29,25 +30,6 @@ DIREXTRACAO = os.getenv("DIREXTRACAO")
 DebugMode = True
 Out = True
 Executar = False
-
-
-def getUnidadeFileName(nome_original):
-    FileName, Unidade = None, None
-
-    if "_" in nome_original:
-        DadosUnidade = nome_original.split("_")
-
-        Unidade = DadosUnidade[1].replace(".zip", "")
-
-        FileName = f"{DadosUnidade[0]}.zip";
-
-        os.rename(nome_original, FileName)
-    else:
-        Unidade = 1
-
-        FileName = nome_original
-
-    return FileName, Unidade
 
 
 class MyHandler(PatternMatchingEventHandler):
@@ -144,7 +126,8 @@ class MyHandler(PatternMatchingEventHandler):
                             web_info = bsHtml.find('div', attrs={"id": "property-web_info"})
                             groups_info = bsHtml.find('div', attrs={"id": "property-groups_info"})
                             address_book_info = bsHtml.find('div', attrs={"id": "property-address_book_info"})
-                            small_medium_business_info = bsHtml.find('div', attrs={"id": "property-small_medium_business"})
+                            small_medium_business_info = bsHtml.find('div',
+                                                                     attrs={"id": "property-small_medium_business"})
                             device_info = bsHtml.find('div', attrs={"id": "property-device_info"})
 
                             if address_book_info is not None:
@@ -204,7 +187,9 @@ class MyHandler(PatternMatchingEventHandler):
 
                                     sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
                                 else:
-                                    print_color(f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================", 32)
+                                    print_color(
+                                        f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================",
+                                        32)
 
                                     retornoJson = sendDataJsonServer(fileProcess, dataType)
 
@@ -218,7 +203,9 @@ class MyHandler(PatternMatchingEventHandler):
                                     print(f"\n{retornoJson}")
 
                             else:
-                                print_color(f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================", 31)
+                                print_color(
+                                    f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================",
+                                    31)
 
                                 grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
 

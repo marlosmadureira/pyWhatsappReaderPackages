@@ -21,6 +21,25 @@ APITOKEN = os.getenv("APITOKEN")
 DebugMode = False
 
 
+def getUnidadeFileName(nome_original):
+    FileName, Unidade = None, None
+
+    if "_" in nome_original:
+        DadosUnidade = nome_original.split("_")
+
+        Unidade = DadosUnidade[1].replace(".zip", "")
+
+        FileName = f"{DadosUnidade[0]}.zip";
+
+        os.rename(nome_original, FileName)
+    else:
+        Unidade = 1
+
+        FileName = nome_original
+
+    return FileName, Unidade
+
+
 def clean_html(html_text):
     """Remove tags HTML e espaços extras de uma string HTML."""
     text = re.sub('<[^>]+>', '', html_text)  # Remove tags HTML

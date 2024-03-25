@@ -27,7 +27,7 @@ DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
-DebugMode = True
+DebugMode = False
 Out = True
 Executar = False
 
@@ -291,15 +291,17 @@ if __name__ == '__main__':
     checkFolder(DIRERROS)
     checkFolder(DIREXTRACAO)
     checkFolder("log")
+
     dttmpstatus = ""
     print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+
     observer = Observer()
     observer.schedule(MyHandler(), path=DIRNOVOS if DIRNOVOS else '.')
+    observer.start()
 
     try:
-        observer.start()
         while True:
-            time.sleep(3)
+            time.sleep(5)
             result = StatusServidor(dttmpstatus)
             if result == True:
                 dttmpstatus = datetime.today().strftime('%Y%m%d%H%M%S')
@@ -307,5 +309,5 @@ if __name__ == '__main__':
                 printTimeData()
     except KeyboardInterrupt:
         observer.stop()
-    finally:
-        observer.join()
+
+    observer.join()

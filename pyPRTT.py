@@ -181,8 +181,6 @@ def call_logsReader(call_log_div, fileName, DebugMode, Out):
                         key_text = clean_html(
                             key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
                         value_text = clean_html(value_div.get_text(strip=True))
-                        # key_text = key_div.get_text(strip=True)
-                        # value_text = " ".join(value_div.stripped_strings).replace('\n', ' ').replace('<br/>', '\n')
 
                         # Trata a possibilidade de múltiplos eventos dentro de uma única chamada
                         if key_text != "Call":

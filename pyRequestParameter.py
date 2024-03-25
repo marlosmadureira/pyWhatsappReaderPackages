@@ -9,7 +9,9 @@ def requestReaderParameter(parameters, DebugMode, Out):
 
     fields = parameters.find_all("div", class_="div_table inner")
 
-    print(f"{fields}")
+    for field in fields:
+        field_name_div = field.find("div", class_="most_inner")
+        print(field_name_div)
 
 # def requestReaderParameter(parameters, DebugMode, Out):
 #     if DebugMode:

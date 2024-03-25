@@ -227,13 +227,22 @@ class MyHandler(PatternMatchingEventHandler):
                             filePath = DIRLIDOS + fileName
 
                             if not os.path.exists(filePath):
-                                shutil.move(source, DIRLIDOS)
+                                shutil.move(source, DIRERROS)
                             else:
                                 delete_log(source)
 
                             print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
                         else:
                             print_color(f"Erro de Padrão HTML {parameter}", 31)
+
+                            removeFolderFiles(folderZip)
+
+                            filePath = DIRLIDOS + fileName
+
+                            if not os.path.exists(filePath):
+                                shutil.move(source, DIRERROS)
+                            else:
+                                delete_log(source)
                 else:
                     print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
 
@@ -244,7 +253,7 @@ class MyHandler(PatternMatchingEventHandler):
                     # filePath = DIRLIDOS + fileName
                     #
                     # if not os.path.exists(filePath):
-                    #     shutil.move(source, DIRLIDOS)
+                    #     shutil.move(source, DIRERROS)
                     # else:
                     #     delete_log(source)
 

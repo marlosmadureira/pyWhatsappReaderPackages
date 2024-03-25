@@ -314,51 +314,46 @@ def groups_infoReader(groups_info, fileName, DebugMode, Out):
         ownedRegistros = []
         participatingRegistros = []
 
-        # Encontrar todos os blocos de mensagem
-        group_blocks = groups_info.find_all("div", class_="div_table outer")
+        # Dicionário para armazenar os dados de um registro
+        data = {}
 
-        # Iterar sobre cada bloco de mensagem
-        for block in group_blocks:
-            # Dicionário para armazenar os dados de um registro
-            data = {}
+        # Encontrar todos os campos dentro de um bloco
+        fields = groups_info.find_all("div", class_="div_table outer")
 
-            # Encontrar todos os campos dentro de um bloco
-            fields = block.find_all("div", class_="div_table inner")
+        # Iterar sobre cada campo e extrair informações
+        for field in fields:
+            field_name_div = field.find("div", class_="div_table inner")
+            field_name_text = field_name_div.text.strip() if field_name_div else ""
 
-            # Iterar sobre cada campo e extrair informações
-            for field in fields:
-                field_name_div = field.find("div", class_="div_table outer")
-                field_name_text = field_name_div.text.strip() if field_name_div else ""
+            if 'Owned' in field_name_text:
+                GroupOwned = True
+                GroupParticipating = False
 
-                if 'Owned' in field_name_text:
-                    GroupOwned = True
-                    GroupParticipating = False
+            if 'Participating' in field_name_text:
+                GroupOwned = False
+                GroupParticipating = True
 
-                if 'Participating' in field_name_text:
-                    GroupOwned = False
-                    GroupParticipating = True
+            field_value_div = field.find("div", class_="most_inner")
 
-                field_value_div = field.find("div", class_="most_inner")
+            if field_value_div:
+                field_value = field_value_div.text.strip()
+                field_name = field_name_text.replace(field_value, '').strip()
 
-                if field_value_div:
-                    field_value = field_value_div.text.strip()
-                    field_name = field_name_text.replace(field_value, '').strip()
+                if field_name in campos_desejados:
+                    if 'Picture' in field_name:
+                        data[remover_espacos_regex(field_name)] = field_value.replace('Linked Media File:', '')
+                    else:
+                        data[remover_espacos_regex(field_name)] = field_value
 
-                    if field_name in campos_desejados:
-                        if 'Picture' in field_name:
-                            data[remover_espacos_regex(field_name)] = field_value.replace('Linked Media File:', '')
-                        else:
-                            data[remover_espacos_regex(field_name)] = field_value
+                    if 'Subject' in field_name:
 
-                        if 'Subject' in field_name:
+                        if GroupOwned and data not in ownedRegistros:
+                            ownedRegistros.append(data)
 
-                            if GroupOwned and data not in ownedRegistros:
-                                ownedRegistros.append(data)
+                        if GroupParticipating and data not in participatingRegistros:
+                            participatingRegistros.append(data)
 
-                            if GroupParticipating and data not in participatingRegistros:
-                                participatingRegistros.append(data)
-
-                            data = {}
+                        data = {}
 
         allRegistros['ownedGroups'] = ownedRegistros
         allRegistros['ParticipatingGroups'] = participatingRegistros

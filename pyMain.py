@@ -214,7 +214,7 @@ class MyHandler(PatternMatchingEventHandler):
                             filePath = DIRLIDOS + fileName
 
                             if not os.path.exists(filePath):
-                                shutil.move(source, DIRERROS)
+                                shutil.move(source, DIRLIDOS)
                             else:
                                 delete_log(source)
 

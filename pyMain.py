@@ -222,6 +222,9 @@ class MyHandler(PatternMatchingEventHandler):
                         else:
                             print_color(f"Erro de Padrão HTML {parameter}", 31)
 
+                            grava_log(f"Erro de Padrão HTML: {fileName} Unidade: {Unidade}",
+                                      'LogPadraoAntigo.txt')
+
                             removeFolderFiles(folderZip)
 
                             filePath = DIRLIDOS + fileName

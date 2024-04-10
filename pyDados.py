@@ -1,4 +1,4 @@
-from pyBiblioteca import print_color, remover_espacos_regex, clean_html
+from pyBiblioteca import print_color, remover_espacos_regex, clean_html, tipoHtml
 
 
 def emails_infoReader(emails_info, fileName, DebugMode, Out):

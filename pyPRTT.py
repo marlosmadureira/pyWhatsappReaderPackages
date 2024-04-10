@@ -1,6 +1,6 @@
 import re
 
-from pyBiblioteca import print_color, clean_html, remover_espacos_regex
+from pyBiblioteca import print_color, clean_html, remover_espacos_regex, tipoHtml
 
 
 def getEvents(value_text):

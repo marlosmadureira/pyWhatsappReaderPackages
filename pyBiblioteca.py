@@ -237,3 +237,14 @@ def openErrorJson():
             fileName = listNameFile[3]
 
             openJsonEstruturado(dados_json)
+
+
+def tipoHtml(parameters):
+    if 'display:table-cell' in str(parameters):
+        print_color(f"\nPENULTIMO PADRÃO HTML display:table-cell", 36)
+    elif 'div_table outer' in str(parameters):
+        print_color(f"\nULTIMO PADRÃO HTML div_table outer", 36)
+    elif 't o' in str(parameters):
+        print_color(f"\nULTIMO PADRÃO HTML t o", 36)
+    else:
+        print_color(f"\nPADRÃO NÃO IDENTIFICADO", 36)

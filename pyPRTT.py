@@ -2,9 +2,10 @@ import re
 
 from pyBiblioteca import print_color, clean_html, remover_espacos_regex, tipoHtml
 
-tag1 = 't o'    # div_table outer
-tag2 = 't i'    # div_table inner
-tag3 = 'm'      # most_inner
+tag1 = 't o'  # div_table                                                                                                                   div_table outer
+tag2 = 't i'  # style="font-weight: bold; display:table;"                                                                                   div_table inner
+tag3 = 'm'    # style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;"    most_inner
+
 
 def getEvents(value_text):
     # Padrao regex para extrair informações

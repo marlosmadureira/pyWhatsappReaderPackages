@@ -1,8 +1,9 @@
 from pyBiblioteca import print_color, remover_espacos_regex, clean_html, tipoHtml
 
-tag1 = 't o'  # div_table outer
-tag2 = 't i'  # div_table inner
-tag3 = 'm'  # most_inner
+tag1 = 't o'  # div_table                                                                                                                   div_table outer
+tag2 = 't i'  # style="font-weight: bold; display:table;"                                                                                   div_table inner
+tag3 = 'm'    # style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;"    most_inner
+
 
 
 def emails_infoReader(emails_info, fileName, DebugMode, Out):

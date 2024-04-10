@@ -247,4 +247,4 @@ def tipoHtml(parameters):
     elif 't o' in str(parameters):
         print_color(f"\nULTIMO PADRÃO HTML t o", 36)
     else:
-        print_color(f"\nPADRÃO NÃO IDENTIFICADO", 36)
+        print_color(f"\nPADRÃO NÃO IDENTIFICADO", 31)

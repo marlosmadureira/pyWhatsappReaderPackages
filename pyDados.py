@@ -1,7 +1,15 @@
 from pyBiblioteca import print_color, remover_espacos_regex, clean_html, tipoHtml
 
+tag1 = 't o'  # div_table outer
+tag2 = 't i'  # div_table inner
+tag3 = 'm'  # most_inner
+
 
 def emails_infoReader(emails_info, fileName, DebugMode, Out):
+    global tag1
+    global tag2
+    global tag3
+
     if emails_info is not None:
 
         if DebugMode:
@@ -9,14 +17,14 @@ def emails_infoReader(emails_info, fileName, DebugMode, Out):
 
         data = {}
 
-        fields = emails_info.find_all("div", class_="div_table outer")
+        fields = emails_info.find_all("div", class_=f"{tag1}")
 
         for field in fields:
             # Tenta encontrar o nome do campo de uma maneira que exclua o valor
-            field_name_div = field.find("div", class_="div_table inner")
+            field_name_div = field.find("div", class_=f"{tag2}")
             field_name_text = field_name_div.text.strip() if field_name_div else ""
             # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
-            field_value_div = field.find("div", class_="most_inner")
+            field_value_div = field.find("div", class_=f"{tag3}")
             if field_value_div:
                 field_value = field_value_div.text.strip()
                 # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
@@ -73,6 +81,10 @@ def emails_infoReader(emails_info, fileName, DebugMode, Out):
 
 
 def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out):
+    global tag1
+    global tag2
+    global tag3
+
     if ip_addresses_info is not None:
 
         if DebugMode:
@@ -81,18 +93,18 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out):
         data = []
         ipinfo = {}
 
-        ipblocks = ip_addresses_info.find_all('div', class_='div_table outer')[1:]  # Pula a descrição
+        ipblocks = ip_addresses_info.find_all('div', class_=f"{tag1}")[1:]  # Pula a descrição
 
         for block in ipblocks:
 
-            detail_blocks = block.find_all('div', class_='div_table outer', recursive=True)[1:]  # Pula a descrição
+            detail_blocks = block.find_all('div', class_=f"{tag1}", recursive=True)[1:]  # Pula a descrição
 
             for detail_block in detail_blocks:
 
-                key_div = detail_block.find('div', class_='div_table inner')
+                key_div = detail_block.find('div', class_=f"{tag2}")
 
                 if key_div:
-                    value_div = key_div.find_next('div', class_=lambda value: 'most_inner' in value if value else False)
+                    value_div = key_div.find_next('div', class_=lambda value: f"{tag3}" in value if value else False)
 
                     if value_div:
                         key_text = clean_html(
@@ -168,6 +180,10 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out):
 
 
 def book_infoReader(address_book_info, fileName, DebugMode, Out):
+    global tag1
+    global tag2
+    global tag3
+
     if address_book_info is not None:
 
         if DebugMode:
@@ -180,7 +196,7 @@ def book_infoReader(address_book_info, fileName, DebugMode, Out):
         allRegistros = []
 
         # Encontrar todos os blocos de mensagem
-        contact_blocks = address_book_info.find_all("div", class_="div_table outer")
+        contact_blocks = address_book_info.find_all("div", class_=f"{tag1}")
 
         # Iterar sobre cada bloco de mensagem
         for block in contact_blocks:
@@ -188,14 +204,14 @@ def book_infoReader(address_book_info, fileName, DebugMode, Out):
             data = {}
 
             # Encontrar todos os campos dentro de um bloco
-            fields = block.find_all("div", class_="div_table outer")
+            fields = block.find_all("div", class_=f"{tag1}")
 
             # Iterar sobre cada campo e extrair informações
             for field in fields:
-                field_name_div = field.find("div", class_="div_table inner")
+                field_name_div = field.find("div", class_=f"{tag2}")
                 field_name_text = field_name_div.text.strip() if field_name_div else ""
 
-                field_value_div = field.find("div", class_="most_inner")
+                field_value_div = field.find("div", class_=f"{tag3}")
 
                 # Obter o texto dentro da tag <div>
                 phone_text = field_value_div.get_text(separator='\n')
@@ -300,6 +316,10 @@ def book_infoReader(address_book_info, fileName, DebugMode, Out):
 
 
 def groups_infoReader(groups_info, fileName, DebugMode, Out):
+    global tag1
+    global tag2
+    global tag3
+
     if groups_info is not None:
 
         if DebugMode:
@@ -318,11 +338,11 @@ def groups_infoReader(groups_info, fileName, DebugMode, Out):
         data = {}
 
         # Encontrar todos os campos dentro de um bloco
-        fields = groups_info.find_all("div", class_="div_table outer")
+        fields = groups_info.find_all("div", class_=f"{tag1}")
 
         # Iterar sobre cada campo e extrair informações
         for field in fields:
-            field_name_div = field.find("div", class_="div_table inner")
+            field_name_div = field.find("div", class_=f"{tag2}")
             field_name_text = field_name_div.text.strip() if field_name_div else ""
 
             if 'Owned' in field_name_text:
@@ -333,7 +353,7 @@ def groups_infoReader(groups_info, fileName, DebugMode, Out):
                 GroupOwned = False
                 GroupParticipating = True
 
-            field_value_div = field.find("div", class_="most_inner")
+            field_value_div = field.find("div", class_=f"{tag3}")
 
             if field_value_div:
                 field_value = field_value_div.text.strip()
@@ -480,6 +500,10 @@ def groups_infoReader(groups_info, fileName, DebugMode, Out):
 
 
 def ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
+    global tag1
+    global tag2
+    global tag3
+
     if ncmec_reports is not None:
 
         if DebugMode:
@@ -487,14 +511,14 @@ def ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out):  # SEM AMOSTRA
 
         data = {}
 
-        fields = ncmec_reports.find_all("div", class_="div_table outer")
+        fields = ncmec_reports.find_all("div", class_=f"{tag1}")
 
         for field in fields:
             # Tenta encontrar o nome do campo de uma maneira que exclua o valor
-            field_name_div = field.find("div", class_="div_table inner")
+            field_name_div = field.find("div", class_=f"{tag2}")
             field_name_text = field_name_div.text.strip() if field_name_div else ""
             # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
-            field_value_div = field.find("div", class_="most_inner")
+            field_value_div = field.find("div", class_=f"{tag3}")
             if field_value_div:
                 field_value = field_value_div.text.strip()
                 # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
@@ -551,6 +575,10 @@ def ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out):  # SEM AMOSTRA
 
 
 def connection_infoReader(connection_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
+    global tag1
+    global tag2
+    global tag3
+
     if connection_info is not None:
 
         if DebugMode:
@@ -558,14 +586,14 @@ def connection_infoReader(connection_info, fileName, DebugMode, Out):  # SEM AMO
 
         data = {}
 
-        fields = connection_info.find_all("div", class_="div_table outer")
+        fields = connection_info.find_all("div", class_=f"{tag1}")
 
         for field in fields:
             # Tenta encontrar o nome do campo de uma maneira que exclua o valor
-            field_name_div = field.find("div", class_="div_table inner")
+            field_name_div = field.find("div", class_=f"{tag2}")
             field_name_text = field_name_div.text.strip() if field_name_div else ""
             # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
-            field_value_div = field.find("div", class_="most_inner")
+            field_value_div = field.find("div", class_=f"{tag3}")
             if field_value_div:
                 field_value = field_value_div.text.strip()
                 # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
@@ -626,6 +654,10 @@ def connection_infoReader(connection_info, fileName, DebugMode, Out):  # SEM AMO
 
 
 def web_infoReader(web_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
+    global tag1
+    global tag2
+    global tag3
+
     if web_info is not None:
 
         if DebugMode:
@@ -633,14 +665,14 @@ def web_infoReader(web_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TEST
 
         data = {}
 
-        fields = web_info.find_all("div", class_="div_table outer")[1:]  # Pula a descrição
+        fields = web_info.find_all("div", class_=f"{tag1}")[1:]  # Pula a descrição
 
         for field in fields:
             # Tenta encontrar o nome do campo de uma maneira que exclua o valor
-            field_name_div = field.find("div", class_="div_table inner")
+            field_name_div = field.find("div", class_=f"{tag2}")
             field_name_text = field_name_div.text.strip() if field_name_div else ""
             # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
-            field_value_div = field.find("div", class_="most_inner")
+            field_value_div = field.find("div", class_=f"{tag3}")
             if field_value_div:
                 field_value = field_value_div.text.strip()
                 # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
@@ -701,6 +733,10 @@ def web_infoReader(web_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TEST
 
 
 def small_medium_business_infoReader(small_medium_business_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
+    global tag1
+    global tag2
+    global tag3
+
     if small_medium_business_info is not None:
 
         if DebugMode:
@@ -708,14 +744,14 @@ def small_medium_business_infoReader(small_medium_business_info, fileName, Debug
 
         data = {}
 
-        fields = small_medium_business_info.find_all("div", class_="div_table outer")[1:]  # Pula a descrição
+        fields = small_medium_business_info.find_all("div", class_=f"{tag1}")[1:]  # Pula a descrição
 
         for field in fields:
             # Tenta encontrar o nome do campo de uma maneira que exclua o valor
-            field_name_div = field.find("div", class_="div_table inner")
+            field_name_div = field.find("div", class_=f"{tag2}")
             field_name_text = field_name_div.text.strip() if field_name_div else ""
             # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
-            field_value_div = field.find("div", class_="most_inner")
+            field_value_div = field.find("div", class_=f"{tag3}")
             if field_value_div:
                 field_value = field_value_div.text.strip()
                 # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
@@ -779,6 +815,10 @@ def small_medium_business_infoReader(small_medium_business_info, fileName, Debug
 
 
 def device_infoReader(device_info, fileName, DebugMode, Out):
+    global tag1
+    global tag2
+    global tag3
+
     if device_info is not None:
 
         if DebugMode:
@@ -786,14 +826,14 @@ def device_infoReader(device_info, fileName, DebugMode, Out):
 
         data = {}
 
-        fields = device_info.find_all("div", class_="div_table outer")
+        fields = device_info.find_all("div", class_=f"{tag1}")
 
         for field in fields:
             # Tenta encontrar o nome do campo de uma maneira que exclua o valor
-            field_name_div = field.find("div", class_="div_table inner")
+            field_name_div = field.find("div", class_=f"{tag2}")
             field_name_text = field_name_div.text.strip() if field_name_div else ""
             # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
-            field_value_div = field.find("div", class_="most_inner")
+            field_value_div = field.find("div", class_=f"{tag3}")
             if field_value_div:
                 field_value = field_value_div.text.strip()
                 # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo
@@ -813,7 +853,6 @@ def device_infoReader(device_info, fileName, DebugMode, Out):
             return None
     else:
         return None
-
 
 # def device_infoReader(device_info, fileName, DebugMode, Out):
 #     if device_info is not None:

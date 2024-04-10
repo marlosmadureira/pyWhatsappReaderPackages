@@ -2,6 +2,9 @@ import re
 
 from pyBiblioteca import print_color, clean_html, remover_espacos_regex, tipoHtml
 
+tag1 = 't o'    # div_table outer
+tag2 = 't i'    # div_table inner
+tag3 = 'm'      # most_inner
 
 def getEvents(value_text):
     # Padrao regex para extrair informações
@@ -69,6 +72,10 @@ def getParticipants(value_text):
 
 
 def message_logReader(message_log, fileName, DebugMode, Out):
+    global tag1
+    global tag2
+    global tag3
+
     if message_log is not None:
 
         if DebugMode:
@@ -77,16 +84,16 @@ def message_logReader(message_log, fileName, DebugMode, Out):
         messages = []
 
         # Ignora a definição do log de mensagem e foca nos registros de mensagens
-        message_blocks = message_log.find_all('div', class_='div_table outer')[1:]  # Pula a descrição
+        message_blocks = message_log.find_all('div', class_=f"{tag1}")[1:]  # Pula a descrição
 
         for block in message_blocks:
             message_info = {}
-            detail_blocks = block.find_all('div', class_='div_table outer', recursive=True)
+            detail_blocks = block.find_all('div', class_=f"{tag1}", recursive=True)
 
             for detail_block in detail_blocks:
-                key_div = detail_block.find('div', class_='div_table inner')
+                key_div = detail_block.find('div', class_=f"{tag2}")
                 if key_div:
-                    value_div = key_div.find_next('div', class_=lambda value: 'most_inner' in value if value else False)
+                    value_div = key_div.find_next('div', class_=lambda value: f"{tag3}" in value if value else False)
                     if value_div:
                         key_text = clean_html(
                             key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
@@ -159,6 +166,10 @@ def message_logReader(message_log, fileName, DebugMode, Out):
 
 
 def call_logsReader(call_log_div, fileName, DebugMode, Out):
+    global tag1
+    global tag2
+    global tag3
+    
     if call_log_div is not None:
 
         if DebugMode:
@@ -166,17 +177,17 @@ def call_logsReader(call_log_div, fileName, DebugMode, Out):
 
         call_logs = []
 
-        call_blocks = call_log_div.find_all('div', class_='div_table outer')[1:]  # Pula a descrição dos logs de chamada
+        call_blocks = call_log_div.find_all('div', class_=f"{tag1}")[1:]  # Pula a descrição dos logs de chamada
 
         for block in call_blocks:
             call_info = {}
-            detail_blocks = block.find_all('div', class_='div_table outer', recursive=True)
+            detail_blocks = block.find_all('div', class_=f"{tag1}", recursive=True)
 
             for detail_block in detail_blocks:
-                key_div = detail_block.find('div', class_='div_table inner')
+                key_div = detail_block.find('div', class_=f"{tag2}")
                 if key_div:
                     # Procura pelo próximo div que corresponde ao valor, considerando qualquer estilo após "display:table-cell;"
-                    value_div = key_div.find_next('div', class_=lambda value: 'most_inner' in value if value else False)
+                    value_div = key_div.find_next('div', class_=lambda value: f"{tag3}" in value if value else False)
                     if value_div:
                         key_text = clean_html(
                             key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())

@@ -1,10 +1,14 @@
 from pyBiblioteca import print_color, remover_espacos_regex, tipoHtml
 
+tag1 = 't o'  # div_table outer
+tag2 = 't i'  # div_table inner
+tag3 = 'm'  # most_inner
+
 
 def requestReaderParameter(parameters, DebugMode, Out):
-    tag1 = 't o'
-    tag2 = 't i'
-    tag3 = 'm'
+    global tag1
+    global tag2
+    global tag3
 
     if DebugMode:
         print(f"{parameters}")

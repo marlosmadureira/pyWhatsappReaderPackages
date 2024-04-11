@@ -204,6 +204,11 @@ class MyHandler(PatternMatchingEventHandler):
                                         if Jsondata['ExibirTotalPacotesFila']:
                                             contar_arquivos_zip(DIRNOVOS)
 
+                                        if Jsondata['GravaBanco']:
+                                            print_color(f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",31)
+                                        else:
+                                            print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",32)
+
                                     print(f"\n{retornoJson}")
 
                             else:

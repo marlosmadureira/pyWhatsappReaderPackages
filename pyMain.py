@@ -81,7 +81,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                     tag1, tag2, tag3, tag4 = tipoHtml(request_parameters)
 
-                    parameter = requestReaderParameter(request_parameters, DebugMode, Out)
+                    parameter = requestReaderParameter(request_parameters, DebugMode, Out, tag1, tag2, tag3, tag4)
 
                     if parameter is not None:
 

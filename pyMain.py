@@ -37,8 +37,6 @@ class MyHandler(PatternMatchingEventHandler):
 
     def process(self, event):
 
-        contar_arquivos_zip(DIRNOVOS)
-
         if DebugMode:
             print("\nLog Evento:" + str(event))
 
@@ -202,6 +200,9 @@ class MyHandler(PatternMatchingEventHandler):
 
                                         if Jsondata['MostraJsonPython']:
                                             openJsonEstruturado(fileProcess)
+
+                                        if Jsondata['ExibirTotalPacotesFila']:
+                                            contar_arquivos_zip(DIRNOVOS)
 
                                     print(f"\n{retornoJson}")
 

@@ -1,16 +1,7 @@
 from pyBiblioteca import print_color, remover_espacos_regex, clean_html
 
-tag1 = 't o'  # div_table                                                                                                                   div_table outer
-tag2 = 't i'  # style="font-weight: bold; display:table;"                                                                                   div_table inner
-tag3 = 'm'    # style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;"    most_inner
 
-
-
-def emails_infoReader(emails_info, fileName, DebugMode, Out):
-    global tag1
-    global tag2
-    global tag3
-
+def emails_infoReader(emails_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4):
     if emails_info is not None:
 
         if DebugMode:
@@ -81,10 +72,7 @@ def emails_infoReader(emails_info, fileName, DebugMode, Out):
 #         return None
 
 
-def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out):
-    global tag1
-    global tag2
-    global tag3
+def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out,  tag1, tag2, tag3, tag4):
 
     if ip_addresses_info is not None:
 
@@ -180,10 +168,7 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out):
 #         return None
 
 
-def book_infoReader(address_book_info, fileName, DebugMode, Out):
-    global tag1
-    global tag2
-    global tag3
+def book_infoReader(address_book_info, fileName, DebugMode, Out,  tag1, tag2, tag3, tag4):
 
     if address_book_info is not None:
 
@@ -316,10 +301,7 @@ def book_infoReader(address_book_info, fileName, DebugMode, Out):
 #         return None
 
 
-def groups_infoReader(groups_info, fileName, DebugMode, Out):
-    global tag1
-    global tag2
-    global tag3
+def groups_infoReader(groups_info, fileName, DebugMode, Out,  tag1, tag2, tag3, tag4):
 
     if groups_info is not None:
 
@@ -500,10 +482,7 @@ def groups_infoReader(groups_info, fileName, DebugMode, Out):
 #         return None
 
 
-def ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
-    global tag1
-    global tag2
-    global tag3
+def ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out,  tag1, tag2, tag3, tag4):  # SEM AMOSTRA PARA TESTAR
 
     if ncmec_reports is not None:
 
@@ -575,11 +554,7 @@ def ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out):  # SEM AMOSTRA
 #         return None
 
 
-def connection_infoReader(connection_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
-    global tag1
-    global tag2
-    global tag3
-
+def connection_infoReader(connection_info, fileName, DebugMode, Out,  tag1, tag2, tag3, tag4):  # SEM AMOSTRA PARA TESTAR
     if connection_info is not None:
 
         if DebugMode:
@@ -654,10 +629,7 @@ def connection_infoReader(connection_info, fileName, DebugMode, Out):  # SEM AMO
 #         return None
 
 
-def web_infoReader(web_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
-    global tag1
-    global tag2
-    global tag3
+def web_infoReader(web_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4):  # SEM AMOSTRA PARA TESTAR
 
     if web_info is not None:
 
@@ -733,10 +705,7 @@ def web_infoReader(web_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TEST
 #         return None
 
 
-def small_medium_business_infoReader(small_medium_business_info, fileName, DebugMode, Out):  # SEM AMOSTRA PARA TESTAR
-    global tag1
-    global tag2
-    global tag3
+def small_medium_business_infoReader(small_medium_business_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4):  # SEM AMOSTRA PARA TESTAR
 
     if small_medium_business_info is not None:
 
@@ -815,10 +784,7 @@ def small_medium_business_infoReader(small_medium_business_info, fileName, Debug
 #         return None
 
 
-def device_infoReader(device_info, fileName, DebugMode, Out):
-    global tag1
-    global tag2
-    global tag3
+def device_infoReader(device_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4):
 
     if device_info is not None:
 

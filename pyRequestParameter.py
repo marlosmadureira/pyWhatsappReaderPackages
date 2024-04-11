@@ -9,8 +9,6 @@ def requestReaderParameter(parameters, DebugMode, Out, tag1, tag2, tag3, tag4):
 
     fields = parameters.find_all("div", class_=f"{tag1}")
 
-    print(fields)
-
     for field in fields:
         # Tenta encontrar o nome do campo de uma maneira que exclua o valor
         field_name_div = field.find("div", class_=f"{tag2}")

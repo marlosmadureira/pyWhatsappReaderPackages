@@ -2,10 +2,6 @@ import re
 
 from pyBiblioteca import print_color, clean_html, remover_espacos_regex
 
-tag1 = 't o'  # div_table                                                                                                                   div_table outer
-tag2 = 't i'  # style="font-weight: bold; display:table;"                                                                                   div_table inner
-tag3 = 'm'    # style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;"    most_inner
-
 
 def getEvents(value_text):
     # Padrao regex para extrair informações
@@ -72,10 +68,7 @@ def getParticipants(value_text):
     return informacoes_separadas
 
 
-def message_logReader(message_log, fileName, DebugMode, Out):
-    global tag1
-    global tag2
-    global tag3
+def message_logReader(message_log, fileName, DebugMode, Out, tag1, tag2, tag3, tag4):
 
     if message_log is not None:
 
@@ -166,10 +159,7 @@ def message_logReader(message_log, fileName, DebugMode, Out):
 #
 
 
-def call_logsReader(call_log_div, fileName, DebugMode, Out):
-    global tag1
-    global tag2
-    global tag3
+def call_logsReader(call_log_div, fileName, DebugMode, Out, tag1, tag2, tag3, tag4):
 
     if call_log_div is not None:
 

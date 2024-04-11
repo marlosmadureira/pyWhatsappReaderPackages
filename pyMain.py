@@ -29,7 +29,7 @@ DIREXTRACAO = os.getenv("DIREXTRACAO")
 
 DebugMode = False
 Out = True
-Executar = True
+Executar = False
 
 
 class MyHandler(PatternMatchingEventHandler):
@@ -110,8 +110,8 @@ class MyHandler(PatternMatchingEventHandler):
                             if message_log is not None:
                                 dataType = "PRTT"
 
-                                messages = message_logReader(message_log, fileName, DebugMode, Out)
-                                calls = call_logsReader(call_logs, fileName, DebugMode, Out)
+                                messages = message_logReader(message_log, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
+                                calls = call_logsReader(call_logs, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
 
                                 if messages is not None:
                                     fileDados['msgLogs'] = messages
@@ -136,40 +136,40 @@ class MyHandler(PatternMatchingEventHandler):
                             if address_book_info is not None:
                                 dataType = "DADOS"
 
-                                emailsinfo = emails_infoReader(emails_info, fileName, DebugMode, Out)
+                                emailsinfo = emails_infoReader(emails_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if emailsinfo is not None:
                                     fileDados['EmailAddresses'] = emailsinfo
 
-                                ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out)
+                                ipaddresses = ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if ipaddresses is not None:
                                     fileDados['ipAddresses'] = ipaddresses
 
-                                bookinfo = book_infoReader(address_book_info, fileName, DebugMode, Out)
+                                bookinfo = book_infoReader(address_book_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if address_book_info is not None:
                                     fileDados['addressBookInfo'] = bookinfo
 
-                                groupsinfo = groups_infoReader(groups_info, fileName, DebugMode, Out)
+                                groupsinfo = groups_infoReader(groups_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if groups_info is not None:
                                     fileDados['groupsInfo'] = groupsinfo
 
-                                ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out)
+                                ncmecreports = ncmec_reportsReader(ncmec_reports, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if ncmecreports is not None:
                                     fileDados['ncmecReportsInfo'] = ncmecreports
 
-                                connectioninfo = connection_infoReader(connection_info, fileName, DebugMode, Out)
+                                connectioninfo = connection_infoReader(connection_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if connection_info is not None:
                                     fileDados['connectionInfo'] = connectioninfo
 
-                                webinfo = web_infoReader(web_info, fileName, DebugMode, Out)
+                                webinfo = web_infoReader(web_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if web_info is not None:
                                     fileDados['webInfo'] = webinfo
 
                                 smallmediumbusinessinfo = small_medium_business_infoReader(small_medium_business_info,
-                                                                                           fileName, DebugMode, Out)
+                                                                                           fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if smallmediumbusinessinfo is not None:
                                     fileDados['smallmediumbusinessinfo'] = smallmediumbusinessinfo
 
-                                deviceinfo = device_infoReader(device_info, fileName, DebugMode, Out)
+                                deviceinfo = device_infoReader(device_info, fileName, DebugMode, Out, tag1, tag2, tag3, tag4)
                                 if deviceinfo is not None:
                                     fileDados['deviceinfo'] = deviceinfo
 

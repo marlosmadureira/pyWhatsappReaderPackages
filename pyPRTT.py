@@ -87,7 +87,7 @@ def message_logReader(message_log, fileName, DebugMode, Out, tag1, tag2, tag3, t
             for detail_block in detail_blocks:
                 key_div = detail_block.find('div', class_=f"{tag2}")
                 if key_div:
-                    value_div = key_div.find_next('div', class_=lambda value: f"{tag3}" in value if value else False)
+                    value_div = key_div.find_next('div', class_=lambda value: f"{tag4}" in value if value else False)
                     if value_div:
                         key_text = clean_html(
                             key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
@@ -178,7 +178,7 @@ def call_logsReader(call_log_div, fileName, DebugMode, Out, tag1, tag2, tag3, ta
                 key_div = detail_block.find('div', class_=f"{tag2}")
                 if key_div:
                     # Procura pelo próximo div que corresponde ao valor, considerando qualquer estilo após "display:table-cell;"
-                    value_div = key_div.find_next('div', class_=lambda value: f"{tag3}" in value if value else False)
+                    value_div = key_div.find_next('div', class_=lambda value: f"{tag4}" in value if value else False)
                     if value_div:
                         key_text = clean_html(
                             key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())

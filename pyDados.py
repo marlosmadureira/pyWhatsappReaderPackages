@@ -93,7 +93,7 @@ def ip_addresses_infoReader(ip_addresses_info, fileName, DebugMode, Out,  tag1, 
                 key_div = detail_block.find('div', class_=f"{tag2}")
 
                 if key_div:
-                    value_div = key_div.find_next('div', class_=lambda value: f"{tag3}" in value if value else False)
+                    value_div = key_div.find_next('div', class_=lambda value: f"{tag4}" in value if value else False)
 
                     if value_div:
                         key_text = clean_html(

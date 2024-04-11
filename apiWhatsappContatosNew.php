@@ -911,7 +911,7 @@
 															$estadosEncontrados = array();
 
 															// Verifique se cada estado específico está presente na prttEtimestamp
-															$estadosEspecíficos = array("Stateinvited", "Statereceipt", "Stateconnected", "Stateoutgoing");
+															$estadosEspecíficos = array("Stateinvited", "Statereceipt", "Stateconnected", "Stateoutgoing", "StateconnectedPlatformandro", "ParticipantsPhone");
 															foreach ($estadosEspecíficos as $estado) {
 															    if (strpos($prttEtimestamp, $estado) !== false) {
 															        $estadosEncontrados[] = $estado;
@@ -940,17 +940,26 @@
 									                }
 
 							                	}else{		
+							                		// Verifique se cada estado específico está presente na prttEtimestamp
+													$estadosEspecíficos = array("Stateinvited", "Statereceipt", "Stateconnected", "Stateoutgoing", "StateconnectedPlatformandro", "ParticipantsPhone");
+													foreach ($estadosEspecíficos as $estado) {
+													    if (strpos($prttEtimestamp, $estado) !== false) {
+													        $estadosEncontrados[] = $estado;
+													    }
+													}
 
-								                    //INSERT DE CHAMADAS TROCADAS EM ALVO/INTERLOCUTOR 
-								                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES ('".$prttcallID."', '".$prttcallCreator."', '".$prttEtype."', '".$prttEtimestamp."', '".$prttEsolicitante."', '".$prttEatendente."', '".$prttEsolIP."', '".$prttEsolPort."', '".$prttEmediaType."', '".$prttPhoneNumber."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.", '".$TipoDirecaoCall."');";
-								                    
-								                    if ($executaSql){
-								                    	inserirRegistro($db,$sqlInsert);
+													if (empty($estadosEncontrados)) {
+									                    //INSERT DE CHAMADAS TROCADAS EM ALVO/INTERLOCUTOR 
+									                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES ('".$prttcallID."', '".$prttcallCreator."', '".$prttEtype."', '".$prttEtimestamp."', '".$prttEsolicitante."', '".$prttEatendente."', '".$prttEsolIP."', '".$prttEsolPort."', '".$prttEmediaType."', '".$prttPhoneNumber."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.", '".$TipoDirecaoCall."');";
+									                    
+									                    if ($executaSql){
+									                    	inserirRegistro($db,$sqlInsert);
 
-							                    		if($printLogJson){
-															$jsonRetorno['17'] = 'OK';
-														}
-								                    }
+								                    		if($printLogJson){
+																$jsonRetorno['17'] = 'OK';
+															}
+									                    }
+									                }
 
 								                    if($logGrava){
 									                    gravalog($FileName, "17");

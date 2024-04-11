@@ -79,7 +79,7 @@ class MyHandler(PatternMatchingEventHandler):
                     # Cabeçalho de Todos os Arquivos HTML
                     request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
 
-                    tag1, tag2, tag3 = tipoHtml(request_parameters)
+                    tag1, tag2, tag3, tag4 = tipoHtml(request_parameters)
 
                     parameter = requestReaderParameter(request_parameters, DebugMode, Out)
 

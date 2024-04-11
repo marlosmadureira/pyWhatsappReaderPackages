@@ -245,8 +245,9 @@ def tipoHtml(parameters):
         tag1 = 'class_="div_table", style="font-weight: bold;"'
         tag2 = 'style="font-weight: bold; display:table;"'
         tag3 = 'style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;'
+        tag4 = 'display:table-cell'
 
-        return tag1, tag2, tag3
+        return tag1, tag2, tag3, tag4
 
     elif 'div_table outer' in str(parameters):
         print_color(f"\nULTIMO PADRÃO HTML div_table outer", 36)
@@ -254,8 +255,9 @@ def tipoHtml(parameters):
         tag1 = 'class_="div_table outer"'
         tag2 = 'class_="div_table inner"'
         tag3 = 'class_="most_inner"'
+        tag4 = "most_inner"
 
-        return tag1, tag2, tag3
+        return tag1, tag2, tag3, tag4
 
     elif 't o' in str(parameters):
         print_color(f"\nULTIMO PADRÃO HTML t o", 36)
@@ -263,9 +265,10 @@ def tipoHtml(parameters):
         tag1 = 'class_="t o"'
         tag2 = 'class_="t i"'
         tag3 = 'class_="m"'
+        tag4 = "m"
 
-        return tag1, tag2, tag3
+        return tag1, tag2, tag3, tag4
 
     else:
         print_color(f"\nPADRÃO NÃO IDENTIFICADO", 31)
-        return None, None, None
+        return None, None, None, None

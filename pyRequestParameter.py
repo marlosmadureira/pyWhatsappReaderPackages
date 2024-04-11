@@ -7,14 +7,16 @@ def requestReaderParameter(parameters, DebugMode, Out, tag1, tag2, tag3, tag4):
 
     data = {}
 
-    fields = parameters.find_all("div", f"{tag1}")
+    fields = parameters.find_all("div", class_=f"{tag1}")
+
+    print(fields)
 
     for field in fields:
         # Tenta encontrar o nome do campo de uma maneira que exclua o valor
-        field_name_div = field.find("div", f"{tag2}")
+        field_name_div = field.find("div", class_=f"{tag2}")
         field_name_text = field_name_div.text.strip() if field_name_div else ""
         # Se houver um valor associado diretamente, vamos removê-lo do nome do campo
-        field_value_div = field.find("div", f"{tag3}")
+        field_value_div = field.find("div", class_=f"{tag3}")
         if field_value_div:
             field_value = field_value_div.text.strip()
             # Supondo que o valor sempre segue o nome do campo na mesma linha, podemos substituir o valor por '' para obter apenas o nome do campo

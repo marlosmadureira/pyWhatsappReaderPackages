@@ -242,31 +242,31 @@ def openErrorJson():
 def tipoHtml(parameters):
     if 'display:table-cell' in str(parameters):
         print_color(f"\nPENULTIMO PADRÃO HTML display:table-cell", 36)
-        tag1 = 'class_="div_table", style="font-weight: bold;"'
-        tag2 = 'style="font-weight: bold; display:table;"'
-        tag3 = 'style="font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;'
-        tag4 = 'display:table-cell'
-
+        tag1 = "div_table"
+        tag2 = "font-weight: bold; display:table;"
+        tag3 = "font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;"
+        tag4 = "display:table-cell"
+        print(tag1, tag2, tag3, tag4)
         return tag1, tag2, tag3, tag4
 
     elif 'div_table outer' in str(parameters):
         print_color(f"\nULTIMO PADRÃO HTML div_table outer", 36)
 
-        tag1 = 'class_="div_table outer"'
-        tag2 = 'class_="div_table inner"'
-        tag3 = 'class_="most_inner"'
+        tag1 = "div_table outer"
+        tag2 = "div_table inner"
+        tag3 = "most_inner"
         tag4 = "most_inner"
-
+        print(tag1, tag2, tag3, tag4)
         return tag1, tag2, tag3, tag4
 
     elif 't o' in str(parameters):
         print_color(f"\nULTIMO PADRÃO HTML t o", 36)
 
-        tag1 = 'class_="t o"'
-        tag2 = 'class_="t i"'
-        tag3 = 'class_="m"'
+        tag1 = "t o"
+        tag2 = "t i"
+        tag3 = "m"
         tag4 = "m"
-
+        print(tag1, tag2, tag3, tag4)
         return tag1, tag2, tag3, tag4
 
     else:

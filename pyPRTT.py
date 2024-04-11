@@ -1,6 +1,6 @@
 import re
 
-from pyBiblioteca import print_color, clean_html, remover_espacos_regex, tipoHtml
+from pyBiblioteca import print_color, clean_html, remover_espacos_regex
 
 tag1 = 't o'  # div_table                                                                                                                   div_table outer
 tag2 = 't i'  # style="font-weight: bold; display:table;"                                                                                   div_table inner
@@ -170,7 +170,7 @@ def call_logsReader(call_log_div, fileName, DebugMode, Out):
     global tag1
     global tag2
     global tag3
-    
+
     if call_log_div is not None:
 
         if DebugMode:

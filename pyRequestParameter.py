@@ -1,4 +1,4 @@
-from pyBiblioteca import print_color, remover_espacos_regex, tipoHtml
+from pyBiblioteca import print_color, remover_espacos_regex
 
 tag1 = 't o'  # div_table                                                                                                                   div_table outer
 tag2 = 't i'  # style="font-weight: bold; display:table;"                                                                                   div_table inner
@@ -14,8 +14,6 @@ def requestReaderParameter(parameters, DebugMode, Out):
         print(f"{parameters}")
 
     data = {}
-
-    tipoHtml(parameters)
 
     fields = parameters.find_all("div", class_=f"{tag1}")
 

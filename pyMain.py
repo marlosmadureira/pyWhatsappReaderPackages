@@ -11,7 +11,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
     removeFolderFiles, print_color, somentenumero, grava_log, delete_log, openJsonEstruturado, contar_arquivos_zip, \
-    get_size, getUnidadeFileName
+    get_size, getUnidadeFileName, tipoHtml
 from pyGetSendApi import sendDataJsonServer, setDateObjetoProrrogue
 from pyPostgresql import sendDataPostgres
 from pyRequestParameter import requestReaderParameter
@@ -78,6 +78,9 @@ class MyHandler(PatternMatchingEventHandler):
 
                     # Cabeçalho de Todos os Arquivos HTML
                     request_parameters = bsHtml.find('div', attrs={"id": "property-request_parameters"})
+
+                    tag1, tag2, tag3 = tipoHtml(request_parameters)
+
                     parameter = requestReaderParameter(request_parameters, DebugMode, Out)
 
                     if parameter is not None:

@@ -1,4 +1,4 @@
-from pyBiblioteca import print_color, remover_espacos_regex, clean_html, tipoHtml
+from pyBiblioteca import print_color, remover_espacos_regex, clean_html
 
 tag1 = 't o'  # div_table                                                                                                                   div_table outer
 tag2 = 't i'  # style="font-weight: bold; display:table;"                                                                                   div_table inner

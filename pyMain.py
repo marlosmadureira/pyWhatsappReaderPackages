@@ -29,7 +29,7 @@ DIREXTRACAO = os.getenv("DIREXTRACAO")
 
 DebugMode = False
 Out = True
-Executar = False
+Executar = True
 
 
 class MyHandler(PatternMatchingEventHandler):

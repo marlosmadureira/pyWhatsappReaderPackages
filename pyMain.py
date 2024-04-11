@@ -29,7 +29,7 @@ DIREXTRACAO = os.getenv("DIREXTRACAO")
 
 DebugMode = False
 Out = True
-Executar = True
+Executar = False
 
 
 class MyHandler(PatternMatchingEventHandler):
@@ -205,7 +205,7 @@ class MyHandler(PatternMatchingEventHandler):
                                             contar_arquivos_zip(DIRNOVOS)
 
                                         if Jsondata['GravaBanco']:
-                                            print_color(f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",31)
+                                            print_color(f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",32)
                                         else:
                                             print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",32)
 

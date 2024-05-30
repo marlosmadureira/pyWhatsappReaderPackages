@@ -264,10 +264,9 @@ def readCallLogs(bsHtml):
             # Percorrer os eventos dentro do bloco de chamada
             current = parent.find_next(text='Events').find_next()
 
-            print(current)
-
             while current and current.text.strip() not in ['Call Id', 'Events']:
-                if current.text.strip() == 'Type':
+
+                if 'Type' in current.text.strip():
                     event_data = {}
                     event_data['Type'] = current.find_next().text.strip()
                     event_data['Timestamp'] = current.find_next(text='Timestamp').find_next().text.strip()

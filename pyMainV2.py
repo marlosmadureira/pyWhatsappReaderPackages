@@ -103,6 +103,7 @@ class MyHandler(PatternMatchingEventHandler):
 
 def readHeader(bsHtml):
     print("\nHeader Info")
+    header = {}
 
     service = bsHtml.find(text="Service")
     internal_ticket_number = bsHtml.find(text="Internal Ticket Number")
@@ -122,14 +123,16 @@ def readHeader(bsHtml):
     ncmec_reports_definition_info = ncmec_reports_definition.find_next().text
     ncmec_cybertip_numbers_info = ncmec_cybertip_numbers.find_next().text
 
-    print(f"Service: {service_info}")
-    print(f"Internal Ticket Number: {internal_ticket_number_info}")
-    print(f"Account Identifier: {account_identifier_info}")
-    print(f"Account Type: {account_type_info}")
-    print(f"Generated: {generated_info}")
-    print(f"Date Range: {date_range_info}")
-    print(f"Ncmec Reports Definition: {ncmec_reports_definition_info}")
-    print(f"NCMEC CyberTip Numbers: {ncmec_cybertip_numbers_info}")
+    header['service_info'] = service_info
+    header['internal_ticket_number_info'] = internal_ticket_number_info
+    header['account_identifier_info'] = account_identifier_info
+    header['account_type_info'] = account_type_info
+    header['generated_info'] = generated_info
+    header['date_range_info'] = date_range_info
+    header['ncmec_reports_definition_info'] = ncmec_reports_definition_info
+    header['ncmec_cybertip_numbers_info'] = ncmec_cybertip_numbers_info
+
+    print(f"{header}")
 
 
 def readGroup(bsHtml):

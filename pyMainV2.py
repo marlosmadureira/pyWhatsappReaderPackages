@@ -218,9 +218,7 @@ def readGroup(bsHtml):
 
 def readBook(bsHtml):
     print("\nBook Info")
-
-    # Função para extrair números de uma seção específica
-    contacts = []
+    data = {}
     sectionsSymmetric = bsHtml.find_all(text='Symmetric contacts')
     if sectionsSymmetric:
         for section in sectionsSymmetric:
@@ -232,7 +230,7 @@ def readBook(bsHtml):
                 # Dividir o texto em uma lista usando quebras de linha
                 phone_list = phone_text.split('\n')
 
-                print(f"{phone_list}")
+                data['Symmetric'] = phone_list[1:]
 
     sectionsAsymmetric = bsHtml.find_all(text='Asymmetric contacts')
     if sectionsAsymmetric:
@@ -245,8 +243,9 @@ def readBook(bsHtml):
                 # Dividir o texto em uma lista usando quebras de linha
                 phone_list = phone_text.split('\n')
 
-                print(f"{phone_list}")
+                data['Asymmetric'] = phone_list[1:]
 
+    print(f"{data}")
 
 def readMessageLogs(bsHtml):
     # Encontrar todos os blocos que contêm a informação "Timestamp"

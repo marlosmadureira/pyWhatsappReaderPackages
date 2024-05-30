@@ -247,6 +247,7 @@ def readBook(bsHtml):
 
     print(f"{data}")
 
+
 def readMessageLogs(bsHtml):
     # Encontrar todos os blocos que contêm a informação "Timestamp"
     print("\nMessage Log")

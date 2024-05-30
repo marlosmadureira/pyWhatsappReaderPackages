@@ -188,13 +188,25 @@ def readBook(bsHtml):
     if sectionsSymmetric:
         for section in sectionsSymmetric:
             currentSymmetric = section.find_next()
-            print(f"{currentSymmetric}")
+
+            # Obter o texto dentro da tag <div>
+            phone_text = currentSymmetric.get_text(separator='\n')
+            # Dividir o texto em uma lista usando quebras de linha
+            phone_list = phone_text.split('\n')
+
+            print(f"{phone_list}")
 
     sectionsAsymmetric = bsHtml.find_all(text='Asymmetric contacts')
     if sectionsAsymmetric:
         for section in sectionsAsymmetric:
             currentAsymmetric = section.find_next()
-            print(f"{currentAsymmetric}")
+
+            # Obter o texto dentro da tag <div>
+            phone_text = currentAsymmetric.get_text(separator='\n')
+            # Dividir o texto em uma lista usando quebras de linha
+            phone_list = phone_text.split('\n')
+
+            print(f"{phone_list}")
 
 
 def readMessageLogs(bsHtml):

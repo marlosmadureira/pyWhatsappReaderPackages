@@ -165,20 +165,16 @@ def readBook(bsHtml):
     print("\nBook Info")
 
     # Função para extrair números de uma seção específica
-    def extract_contacts(bsHtml, section_name):
-        contacts = []
-        sections = bsHtml.find_all(text=section_name)
+    contacts = []
+    sectionsSymmetric = bsHtml.find_all(text='Symmetric contacts')
+    for section in sectionsSymmetric:
+        currentSymmetric = section.find_next()
+        print(f"{currentSymmetric}")
 
-        for section in sections:
-            current = section.find_next().text.strip()
-
-            print(current)
-
-
-
-    # Extrair números das seções "Symmetric contacts" e "Asymmetric contacts"
-    symmetric_contacts = extract_contacts(bsHtml, 'Symmetric contacts')
-    asymmetric_contacts = extract_contacts(bsHtml, 'Asymmetric contacts')
+    sectionsAsymmetric = bsHtml.find_all(text='Asymmetric contacts')
+    for section in sectionsAsymmetric:
+        currentAsymmetric = section.find_next()
+        print(f"{currentAsymmetric}")
 
 
 def readMessageLogs(bsHtml):

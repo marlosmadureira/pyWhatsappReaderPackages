@@ -201,7 +201,7 @@ def readMessageLogs(bsHtml):
     # Encontrar todos os blocos que contêm a informação "Timestamp"
     print("\nMessage Log")
     message_blocks = bsHtml.find_all(text="Timestamp")
-    menssages = []
+
     if message_blocks:
         # Iterar sobre cada bloco e extrair as informações
         for block in message_blocks:
@@ -217,32 +217,18 @@ def readMessageLogs(bsHtml):
             message_style = block.find_next(text="Message Style").find_next().text.strip()
             message_size = block.find_next(text="Message Size").find_next().text.strip()
 
-            # Imprimir as informações extraídas
-            print(f"Timestamp: {timestamp}")
-            print(f"Message Id: {message_id}")
-            print(f"Sender: {sender}")
-            print(f"Recipients: {recipients}")
-            print(f"Sender Ip: {sender_ip}")
-            print(f"Sender Port: {sender_port}")
-            print(f"Sender Device: {sender_device}")
-            print(f"Type: {msg_type}")
-            print(f"Message Style: {message_style}")
-            print(f"Message Size: {message_size}")
-            print("\n---\n")
+            menssage_data['timestamp'] = timestamp
+            menssage_data['message_id'] = message_id
+            menssage_data['sender'] = sender
+            menssage_data['recipients'] = recipients
+            menssage_data['sender_ip'] = sender_ip
+            menssage_data['sender_port'] = sender_port
+            menssage_data['sender_device'] = sender_device
+            menssage_data['msg_type'] = msg_type
+            menssage_data['message_style'] = message_style
+            menssage_data['message_size'] = message_size
 
-            # menssage_data['timestamp'] = timestamp
-            # menssage_data['message_id'] = message_id
-            # menssage_data['sender'] = sender
-            # menssage_data['recipients'] = recipients
-            # menssage_data['sender_ip'] = sender_ip
-            # menssage_data['sender_port'] = sender_port
-            # menssage_data['sender_device'] = sender_device
-            # menssage_data['msg_type'] = msg_type
-            # menssage_data['message_style'] = message_style
-            # menssage_data['message_size'] = message_size
-            #
-            # menssages.append(menssage_data)
-
+            print(f"{menssage_data}")
 
 
 def readCallLogs(bsHtml):

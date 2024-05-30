@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
-import json
 import os
-import time
-import shutil
 
 from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
-    print_color, somentenumero, grava_log, getUnidadeFileName, removeFolderFiles
+    print_color, somentenumero, grava_log, getUnidadeFileName, removeFolderFiles, delete_log
 from pyPostgresql import find_unidade_postgres
 
 # Configs
@@ -113,9 +110,7 @@ class MyHandler(PatternMatchingEventHandler):
                     # Encontrar todos os blocos que contêm a informação "Call"
                     print("\nCall Logs")
                     call_blocks = bsHtml.find_all(text='Call Id')
-
                     calls = []
-
                     for call_block in call_blocks:
                         call_data = {}
 
@@ -174,6 +169,9 @@ class MyHandler(PatternMatchingEventHandler):
 
             if os.path.exists(pathDeleteExtracao):
                 removeFolderFiles(pathDeleteExtracao)
+
+            if os.path.exists(source):
+                delete_log(source)
 
             if DebugMode:
                 print("\nMovendo de: ", source)

@@ -59,7 +59,7 @@ class MyHandler(PatternMatchingEventHandler):
                 readGroup(bsHtml)
                 readBook(bsHtml)
                 # PRTT
-                #readMessageLogs(bsHtml)
+                readMessageLogs(bsHtml)
                 readCallLogs(bsHtml)
 
             else:
@@ -117,34 +117,50 @@ def readHeader(bsHtml):
     if service:
         service_info = service.find_next().text.strip()
         header['service_info'] = service_info
+    else:
+        header['service_info'] = None
 
     if internal_ticket_number:
         internal_ticket_number_info = somentenumero(internal_ticket_number.find_next().text)
         header['internal_ticket_number_info'] = internal_ticket_number_info
+    else:
+        header['internal_ticket_number_info'] = None
 
     if account_identifier:
         account_identifier_info = somentenumero(account_identifier.find_next().text)
         header['account_identifier_info'] = account_identifier_info
+    else:
+        header['account_identifier_info'] = None
 
     if account_type:
         account_type_info = account_type.find_next().text.strip()
         header['account_type_info'] = account_type_info
+    else:
+        header['account_type_info'] = None
 
     if generated:
         generated_info = generated.find_next().text.strip()
         header['generated_info'] = generated_info
+    else:
+        header['generated_info'] = None
 
     if date_range:
         date_range_info = date_range.find_next().text
         header['date_range_info'] = date_range_info
+    else:
+        header['date_range_info'] = None
 
     if ncmec_reports_definition:
         ncmec_reports_definition_info = ncmec_reports_definition.find_next().text
         header['ncmec_reports_definition_info'] = ncmec_reports_definition_info
+    else:
+        header['ncmec_reports_definition_info'] = None
 
     if ncmec_cybertip_numbers:
         ncmec_cybertip_numbers_info = ncmec_cybertip_numbers.find_next().text.strip()
         header['ncmec_cybertip_numbers_info'] = ncmec_cybertip_numbers_info
+    else:
+        header['ncmec_cybertip_numbers_info'] = None
 
     print(f"{header}")
 
@@ -160,17 +176,36 @@ def readGroup(bsHtml):
             picture_data = {}
 
             # Navegar para os próximos elementos para extrair os dados
-            linked_media_file = section.find_next(text='Linked Media File:').find_next().text.strip()
-            thumbnail = section.find_next(text='Thumbnail').find_next().text.strip()
-            picture_id = section.find_next(text='ID').find_next().text.strip()
-            creation_date = section.find_next(text='Creation').find_next().text.strip()
-            size = section.find_next(text='Size').find_next().text.strip()
+            linked_media_file = section.find_next(text='Linked Media File:').find_next()
+            thumbnail = section.find_next(text='Thumbnail').find_next()
+            picture_id = section.find_next(text='ID').find_next()
+            creation_date = section.find_next(text='Creation').find_next()
+            size = section.find_next(text='Size').find_next()
 
-            picture_data['Linked Media File'] = linked_media_file
-            picture_data['Thumbnail'] = thumbnail
-            picture_data['ID'] = picture_id
-            picture_data['Creation'] = creation_date
-            picture_data['Size'] = size
+            if linked_media_file:
+                picture_data['Linked Media File'] = linked_media_file.text.strip()
+            else:
+                picture_data['Linked Media File'] = None
+
+            if thumbnail:
+                picture_data['Thumbnail'] = thumbnail.text.strip()
+            else:
+                picture_data['Thumbnail'] = None
+
+            if picture_id:
+                picture_data['ID'] = picture_id.text.strip()
+            else:
+                picture_data['ID'] = None
+
+            if creation_date:
+                picture_data['Creation'] = creation_date.text.strip()
+            else:
+                picture_data['Creation'] = None
+
+            if size:
+                picture_data['Size'] = size.text.strip()
+            else:
+                picture_data['Size'] = None
 
             pictures.append(picture_data)
 
@@ -189,24 +224,26 @@ def readBook(bsHtml):
         for section in sectionsSymmetric:
             currentSymmetric = section.find_next()
 
-            # Obter o texto dentro da tag <div>
-            phone_text = currentSymmetric.get_text(separator='\n')
-            # Dividir o texto em uma lista usando quebras de linha
-            phone_list = phone_text.split('\n')
+            if currentSymmetric:
+                # Obter o texto dentro da tag <div>
+                phone_text = currentSymmetric.get_text(separator='\n')
+                # Dividir o texto em uma lista usando quebras de linha
+                phone_list = phone_text.split('\n')
 
-            print(f"{phone_list}")
+                print(f"{phone_list}")
 
     sectionsAsymmetric = bsHtml.find_all(text='Asymmetric contacts')
     if sectionsAsymmetric:
         for section in sectionsAsymmetric:
             currentAsymmetric = section.find_next()
 
-            # Obter o texto dentro da tag <div>
-            phone_text = currentAsymmetric.get_text(separator='\n')
-            # Dividir o texto em uma lista usando quebras de linha
-            phone_list = phone_text.split('\n')
+            if currentAsymmetric:
+                # Obter o texto dentro da tag <div>
+                phone_text = currentAsymmetric.get_text(separator='\n')
+                # Dividir o texto em uma lista usando quebras de linha
+                phone_list = phone_text.split('\n')
 
-            print(f"{phone_list}")
+                print(f"{phone_list}")
 
 
 def readMessageLogs(bsHtml):
@@ -218,27 +255,66 @@ def readMessageLogs(bsHtml):
         # Iterar sobre cada bloco e extrair as informações
         for block in message_blocks:
             menssage_data = {}
-            timestamp = block.find_next().text.strip()
-            message_id = block.find_next(text="Message Id").find_next().text.strip()
-            sender = block.find_next(text="Sender").find_next().text.strip()
-            recipients = block.find_next(text="Recipients").find_next().text.strip()
-            sender_ip = block.find_next(text="Sender Ip").find_next().text.strip()
-            sender_port = block.find_next(text="Sender Port").find_next().text.strip()
-            sender_device = block.find_next(text="Sender Device").find_next().text.strip()
-            msg_type = block.find_next(text="Type").find_next().text.strip()
-            message_style = block.find_next(text="Message Style").find_next().text.strip()
-            message_size = block.find_next(text="Message Size").find_next().text.strip()
+            timestamp = block.find_next()
+            message_id = block.find_next(text="Message Id").find_next()
+            sender = block.find_next(text="Sender").find_next()
+            recipients = block.find_next(text="Recipients").find_next()
+            sender_ip = block.find_next(text="Sender Ip").find_next()
+            sender_port = block.find_next(text="Sender Port").find_next()
+            sender_device = block.find_next(text="Sender Device").find_next()
+            msg_type = block.find_next(text="Type").find_next()
+            message_style = block.find_next(text="Message Style").find_next()
+            message_size = block.find_next(text="Message Size").find_next()
 
-            menssage_data['timestamp'] = timestamp
-            menssage_data['message_id'] = message_id
-            menssage_data['sender'] = sender
-            menssage_data['recipients'] = recipients
-            menssage_data['sender_ip'] = sender_ip
-            menssage_data['sender_port'] = sender_port
-            menssage_data['sender_device'] = sender_device
-            menssage_data['msg_type'] = msg_type
-            menssage_data['message_style'] = message_style
-            menssage_data['message_size'] = message_size
+            if timestamp:
+                menssage_data['timestamp'] = timestamp.text.strip()
+            else:
+                menssage_data['timestamp'] = None
+
+            if message_id:
+                menssage_data['message_id'] = message_id.text.strip()
+            else:
+                menssage_data['message_id'] = None
+
+            if sender:
+                menssage_data['sender'] = sender.text.strip()
+            else:
+                menssage_data['sender'] = None
+
+            if recipients:
+                menssage_data['recipients'] = recipients.text.strip()
+            else:
+                menssage_data['recipients'] = None
+
+            if sender_ip:
+                menssage_data['sender_ip'] = sender_ip.text.strip()
+            else:
+                menssage_data['sender_ip'] = None
+
+            if sender_port:
+                menssage_data['sender_port'] = sender_port.text.strip()
+            else:
+                menssage_data['sender_port'] = None
+
+            if sender_device:
+                menssage_data['sender_device'] = sender_device.text.strip()
+            else:
+                menssage_data['sender_device'] = None
+
+            if msg_type:
+                menssage_data['msg_type'] = msg_type.text.strip()
+            else:
+                menssage_data['msg_type'] = None
+
+            if message_style:
+                menssage_data['message_style'] = message_style.text.strip()
+            else:
+                menssage_data['message_style'] = None
+
+            if message_size:
+                menssage_data['message_size'] = message_size.text.strip()
+            else:
+                menssage_data['message_size'] = None
 
             print(f"{menssage_data}")
 
@@ -297,7 +373,6 @@ def readCallLogs(bsHtml):
                 print(f"  From Ip: {event['From Ip']}")
                 print(f"  From Port: {event['From Port']}")
                 print(f"  Media Type: {event['Media Type']}")
-            print()
 
 
 if __name__ == '__main__':

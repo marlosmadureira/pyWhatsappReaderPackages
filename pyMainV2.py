@@ -55,6 +55,9 @@ class MyHandler(PatternMatchingEventHandler):
                 NomeUnidade = find_unidade_postgres(Unidade)
 
                 readHeader(bsHtml)
+                # DADOS
+                readGroup(bsHtml)
+                # PRTT
                 readMessageLogs(bsHtml)
                 readCallLogs(bsHtml)
 
@@ -98,26 +101,56 @@ class MyHandler(PatternMatchingEventHandler):
 
 
 def readHeader(bsHtml):
+    print("\nHeader Info")
+    header = []
     service = bsHtml.find(text="Service")
     internal_ticket_number = bsHtml.find(text="Internal Ticket Number")
     account_identifier = bsHtml.find(text="Account Identifier")
     account_type = bsHtml.find(text="Account Type")
     generated = bsHtml.find(text="Generated")
     date_range = bsHtml.find(text="Date Range")
+    ncmec_reports_definition = bsHtml.find(text="Ncmec Reports Definition")
+    ncmec_cybertip_numbers = bsHtml.find(text="NCMEC CyberTip Numbers")
 
-    service_info = service.find_next().text
-    internal_ticket_number_info = somentenumero(internal_ticket_number.find_next().text)
-    account_identifier_info = somentenumero(account_identifier.find_next().text)
-    account_type_info = account_type.find_next().text
-    generated_info = generated.find_next().text
-    date_range_info = date_range.find_next().text
+    header['service'] = service.find_next().text
+    header['internal_ticket_number'] = somentenumero(internal_ticket_number.find_next().text)
+    header['account_identifier'] = somentenumero(account_identifier.find_next().text)
+    header['account_type'] = account_type.find_next().text
+    header['generated'] = generated.find_next().text
+    header['date_range'] = date_range.find_next().text
+    header['ncmec_reports_definition'] = ncmec_reports_definition.find_next().text
+    header['ncmec_cybertip_numbers'] = ncmec_cybertip_numbers.find_next().text
 
-    print(f"Service: {service_info}")
-    print(f"Internal Ticket Number: {internal_ticket_number_info}")
-    print(f"Account Identifier: {account_identifier_info}")
-    print(f"Account Type: {account_type_info}")
-    print(f"Generated: {generated_info}")
-    print(f"Date Range: {date_range_info}")
+    print(f"{header}")
+
+
+def readGroup(bsHtml):
+    # Encontrar a seção correspondente às imagens ("Picture")
+    print("\nGroup Info")
+    pictures = []
+    picture_sections = bsHtml.find_all(text='Picture')
+
+    for section in picture_sections:
+        picture_data = {}
+
+        # Navegar para os próximos elementos para extrair os dados
+        linked_media_file = section.find_next(text='Linked Media File:').find_next().text.strip()
+        thumbnail = section.find_next(text='Thumbnail').find_next().text.strip()
+        picture_id = section.find_next(text='ID').find_next().text.strip()
+        creation_date = section.find_next(text='Creation').find_next().text.strip()
+        size = section.find_next(text='Size').find_next().text.strip()
+
+        picture_data['Linked Media File'] = linked_media_file
+        picture_data['Thumbnail'] = thumbnail
+        picture_data['ID'] = picture_id
+        picture_data['Creation'] = creation_date
+        picture_data['Size'] = size
+
+        pictures.append(picture_data)
+
+    # Exibir os dados extraídos
+    for picture in pictures:
+        print(picture)
 
 
 def readMessageLogs(bsHtml):

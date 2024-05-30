@@ -17,6 +17,26 @@ executaSql = True
 logSql = False
 
 
+def find_unidade_postgres(Unidade):
+    with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
+        db = con.cursor()
+
+        sqlFind = f"SELECT unid_nome FROM sistema.tbunidade WHERE tbunidade.unid_id = {Unidade};"
+
+        db.execute(sqlFind)
+        queryFind = db.fetchone()
+
+        if queryFind is not None:
+            Unidade = queryFind[0].replace("-", "")
+        else:
+            Unidade = None
+
+    db.close()
+    con.close()
+
+    return Unidade
+
+
 def roolBackPostgres(ar_id):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
@@ -32,7 +52,7 @@ def roolBackPostgres(ar_id):
 
         if logSql:
             print(f"Delete 1 ", sqlDelete)
-            
+
         sqlDelete = f"DELETE FROM leitores.tb_whatszap_conexaoinfo WHERE ar_id = %s"
         if executaSql:
             try:
@@ -319,7 +339,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert, (dadoIPAddress, dadoTime, AccountIdentifier, ar_id, linh_id))
+                                                    db.execute(sqlInsert, (
+                                                    dadoIPAddress, dadoTime, AccountIdentifier, ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -384,7 +405,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 if executaSql:
                                     try:
                                         db.execute(sqlInsert,
-                                                   (dadoServiceStart, dadoDeviceType, dadoAppVersion, dadoDeviceOSBuildNumber, dadoConnectionState, dadoOnlineSince, dadoPushName, dadoLastSeen, AccountIdentifier, ar_id, linh_id, dadoServiceStart, dadoDeviceType, dadoAppVersion, dadoDeviceOSBuildNumber, AccountIdentifier))
+                                                   (dadoServiceStart, dadoDeviceType, dadoAppVersion,
+                                                    dadoDeviceOSBuildNumber, dadoConnectionState, dadoOnlineSince,
+                                                    dadoPushName, dadoLastSeen, AccountIdentifier, ar_id, linh_id,
+                                                    dadoServiceStart, dadoDeviceType, dadoAppVersion,
+                                                    dadoDeviceOSBuildNumber, AccountIdentifier))
                                         con.commit()
                                     except:
                                         db.execute("rollback")
@@ -426,7 +451,10 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                 if executaSql:
                                     try:
-                                        db.execute(sqlInsert,(dadoVersion, dadoPlatform, dadoOnlineSince, dadoInactiveSince, AccountIdentifier, ar_id, linh_id, dadoVersion, dadoPlatform, AccountIdentifier))
+                                        db.execute(sqlInsert, (
+                                        dadoVersion, dadoPlatform, dadoOnlineSince, dadoInactiveSince,
+                                        AccountIdentifier, ar_id, linh_id, dadoVersion, dadoPlatform,
+                                        AccountIdentifier))
                                         con.commit()
                                     except:
                                         db.execute("rollback")
@@ -575,7 +603,9 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert, (contacts, 'S', AccountIdentifier, ar_id, linh_id, contacts, 'S', AccountIdentifier))
+                                                    db.execute(sqlInsert, (
+                                                    contacts, 'S', AccountIdentifier, ar_id, linh_id, contacts, 'S',
+                                                    AccountIdentifier))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -597,8 +627,8 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                             if executaSql:
                                                 try:
                                                     db.execute(sqlInsert, (
-                                                    contacts, 'A', AccountIdentifier, ar_id, linh_id, contacts, 'A',
-                                                    AccountIdentifier))
+                                                        contacts, 'A', AccountIdentifier, ar_id, linh_id, contacts, 'A',
+                                                        AccountIdentifier))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -760,7 +790,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert, (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender, prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice, prttMessageSize, prttType, prttMessageStyle, AccountIdentifier, ar_id, linh_id))
+                                                    db.execute(sqlInsert, (
+                                                    prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                                    prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                                    prttMessageSize, prttType, prttMessageStyle, AccountIdentifier,
+                                                    ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -776,7 +810,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert, (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients, prttSender, prttSenderIp, prttSenderPort, prttSenderDevice, prttMessageSize, prttType, prttMessageStyle, AccountIdentifier, ar_id, linh_id))
+                                                    db.execute(sqlInsert, (
+                                                    prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients,
+                                                    prttSender, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                                    prttMessageSize, prttType, prttMessageStyle, AccountIdentifier,
+                                                    ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -792,7 +830,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert, (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender, prttRecipients, prttGroupId, prttSenderIp, prttSenderPort, prttSenderDevice, prttMessageSize, prttType, prttMessageStyle, AccountIdentifier, ar_id, linh_id))
+                                                    db.execute(sqlInsert, (
+                                                    prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                                    prttRecipients, prttGroupId, prttSenderIp, prttSenderPort,
+                                                    prttSenderDevice, prttMessageSize, prttType, prttMessageStyle,
+                                                    AccountIdentifier, ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -808,7 +850,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                             if executaSql:
                                                 try:
-                                                    db.execute(sqlInsert, (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients, prttSender, prttGroupId, prttSenderIp, prttSenderPort, prttSenderDevice, prttMessageSize, prttType, prttMessageStyle, AccountIdentifier, ar_id, linh_id))
+                                                    db.execute(sqlInsert, (
+                                                    prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients,
+                                                    prttSender, prttGroupId, prttSenderIp, prttSenderPort,
+                                                    prttSenderDevice, prttMessageSize, prttType, prttMessageStyle,
+                                                    AccountIdentifier, ar_id, linh_id))
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -896,7 +942,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                     if executaSql:
                                                         try:
-                                                            db.execute(sqlInsert, (prttcallID, prttcallCreator, prttEtype, prttEtimestamp, prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort, prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id, linh_id, TipoDirecaoCall))
+                                                            db.execute(sqlInsert, (
+                                                            prttcallID, prttcallCreator, prttEtype, prttEtimestamp,
+                                                            prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort,
+                                                            prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id,
+                                                            linh_id, TipoDirecaoCall))
                                                             con.commit()
                                                         except:
                                                             db.execute("rollback")
@@ -911,7 +961,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                                 if executaSql:
                                                     try:
-                                                        db.execute(sqlInsert, (prttcallID, prttcallCreator, prttEtype, prttEtimestamp, prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort, prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id, linh_id, TipoDirecaoCall))
+                                                        db.execute(sqlInsert, (
+                                                        prttcallID, prttcallCreator, prttEtype, prttEtimestamp,
+                                                        prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort,
+                                                        prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id,
+                                                        linh_id, TipoDirecaoCall))
                                                         con.commit()
                                                     except:
                                                         db.execute("rollback")

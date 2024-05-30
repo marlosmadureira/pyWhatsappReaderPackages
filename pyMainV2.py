@@ -57,6 +57,7 @@ class MyHandler(PatternMatchingEventHandler):
                 readHeader(bsHtml)
                 # DADOS
                 readGroup(bsHtml)
+                readBook(bsHtml)
                 # PRTT
                 readMessageLogs(bsHtml)
                 readCallLogs(bsHtml)
@@ -102,7 +103,7 @@ class MyHandler(PatternMatchingEventHandler):
 
 def readHeader(bsHtml):
     print("\nHeader Info")
-    header = []
+
     service = bsHtml.find(text="Service")
     internal_ticket_number = bsHtml.find(text="Internal Ticket Number")
     account_identifier = bsHtml.find(text="Account Identifier")
@@ -112,16 +113,23 @@ def readHeader(bsHtml):
     ncmec_reports_definition = bsHtml.find(text="Ncmec Reports Definition")
     ncmec_cybertip_numbers = bsHtml.find(text="NCMEC CyberTip Numbers")
 
-    header['service'] = service.find_next().text
-    header['internal_ticket_number'] = somentenumero(internal_ticket_number.find_next().text)
-    header['account_identifier'] = somentenumero(account_identifier.find_next().text)
-    header['account_type'] = account_type.find_next().text
-    header['generated'] = generated.find_next().text
-    header['date_range'] = date_range.find_next().text
-    header['ncmec_reports_definition'] = ncmec_reports_definition.find_next().text
-    header['ncmec_cybertip_numbers'] = ncmec_cybertip_numbers.find_next().text
+    service_info = service.find_next().text
+    internal_ticket_number_info = somentenumero(internal_ticket_number.find_next().text)
+    account_identifier_info = somentenumero(account_identifier.find_next().text)
+    account_type_info = account_type.find_next().text
+    generated_info = generated.find_next().text
+    date_range_info = date_range.find_next().text
+    ncmec_reports_definition_info = ncmec_reports_definition.find_next().text
+    ncmec_cybertip_numbers_info = ncmec_cybertip_numbers.find_next().text
 
-    print(f"{header}")
+    print(f"Service: {service_info}")
+    print(f"Internal Ticket Number: {internal_ticket_number_info}")
+    print(f"Account Identifier: {account_identifier_info}")
+    print(f"Account Type: {account_type_info}")
+    print(f"Generated: {generated_info}")
+    print(f"Date Range: {date_range_info}")
+    print(f"Ncmec Reports Definition: {ncmec_reports_definition_info}")
+    print(f"NCMEC CyberTip Numbers: {ncmec_cybertip_numbers_info}")
 
 
 def readGroup(bsHtml):
@@ -151,6 +159,26 @@ def readGroup(bsHtml):
     # Exibir os dados extraídos
     for picture in pictures:
         print(picture)
+
+
+def readBook(bsHtml):
+    print("\nBook Info")
+
+    # Função para extrair números de uma seção específica
+    def extract_contacts(bsHtml, section_name):
+        contacts = []
+        sections = bsHtml.find_all(text=section_name)
+
+        for section in sections:
+            current = section.find_next().text.strip()
+
+            print(current)
+
+
+
+    # Extrair números das seções "Symmetric contacts" e "Asymmetric contacts"
+    symmetric_contacts = extract_contacts(bsHtml, 'Symmetric contacts')
+    asymmetric_contacts = extract_contacts(bsHtml, 'Asymmetric contacts')
 
 
 def readMessageLogs(bsHtml):

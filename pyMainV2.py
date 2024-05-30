@@ -59,7 +59,7 @@ class MyHandler(PatternMatchingEventHandler):
                 readGroup(bsHtml)
                 readBook(bsHtml)
                 # PRTT
-                readMessageLogs(bsHtml)
+                #readMessageLogs(bsHtml)
                 readCallLogs(bsHtml)
 
             else:
@@ -115,7 +115,7 @@ def readHeader(bsHtml):
     ncmec_cybertip_numbers = bsHtml.find(text="NCMEC CyberTip Numbers")
 
     if service:
-        service_info = service.find_next().text
+        service_info = service.find_next().text.strip()
         header['service_info'] = service_info
 
     if internal_ticket_number:
@@ -127,11 +127,11 @@ def readHeader(bsHtml):
         header['account_identifier_info'] = account_identifier_info
 
     if account_type:
-        account_type_info = account_type.find_next().text
+        account_type_info = account_type.find_next().text.strip()
         header['account_type_info'] = account_type_info
 
     if generated:
-        generated_info = generated.find_next().text
+        generated_info = generated.find_next().text.strip()
         header['generated_info'] = generated_info
 
     if date_range:
@@ -143,7 +143,7 @@ def readHeader(bsHtml):
         header['ncmec_reports_definition_info'] = ncmec_reports_definition_info
 
     if ncmec_cybertip_numbers:
-        ncmec_cybertip_numbers_info = ncmec_cybertip_numbers.find_next().text
+        ncmec_cybertip_numbers_info = ncmec_cybertip_numbers.find_next().text.strip()
         header['ncmec_cybertip_numbers_info'] = ncmec_cybertip_numbers_info
 
     print(f"{header}")
@@ -263,6 +263,8 @@ def readCallLogs(bsHtml):
 
             # Percorrer os eventos dentro do bloco de chamada
             current = parent.find_next(text='Events').find_next()
+
+            print(current)
 
             while current and current.text.strip() not in ['Call Id', 'Events']:
                 if current.text.strip() == 'Type':

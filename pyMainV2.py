@@ -55,9 +55,11 @@ class MyHandler(PatternMatchingEventHandler):
                 NomeUnidade = find_unidade_postgres(Unidade)
 
                 readHeader(bsHtml)
+
                 # DADOS
                 readGroup(bsHtml)
                 readBook(bsHtml)
+
                 # PRTT
                 readMessageLogs(bsHtml)
                 readCallLogs(bsHtml)

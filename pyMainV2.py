@@ -94,14 +94,22 @@ class MyHandler(PatternMatchingEventHandler):
         print_color(f"\n{event.src_path} foi criado!", 36)
 
     def on_deleted(self, event):
-        print_color(f"\n{event.src_path} foi deletado!", 36)
+        try:
+            print_color(f"\n{event.src_path} foi deletado!", 36)
+        except Exception as inst:
+            pass
 
     def on_modified(self, event):
-        print_color(f"\n{event.src_path} foi modificado!", 36)
+        try:
+            print_color(f"\n{event.src_path} foi modificado!", 36)
+        except Exception as inst:
+            pass
 
     def on_moved(self, event):
-        print_color(f"\n{event.src_path} foi movido/renomeado para {event.dest_path}!", 36)
-
+        try:
+            print_color(f"\n{event.src_path} foi movido/renomeado para {event.dest_path}!", 36)
+        except Exception as inst:
+            pass
 
 def readHeader(bsHtml):
     print("\nHeader Info")

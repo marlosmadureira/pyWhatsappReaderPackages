@@ -111,6 +111,7 @@ class MyHandler(PatternMatchingEventHandler):
         except Exception as inst:
             pass
 
+
 def readHeader(bsHtml):
     print("\nHeader Info")
     header = {}

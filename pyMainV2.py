@@ -60,6 +60,10 @@ class MyHandler(PatternMatchingEventHandler):
                 parameter = readHeader(bsHtml)
 
                 # DADOS
+                ipaddresses = readipAddresses(bsHtml)
+                if ipaddresses is not None:
+                    fileDados['ipAddresses'] = ipaddresses
+
                 groupsinfo = readGroup(bsHtml)
                 if groupsinfo is not None:
                     fileDados['groupsInfo'] = groupsinfo
@@ -137,6 +141,7 @@ def readHeader(bsHtml):
     date_range = bsHtml.find(text="Date Range")
     ncmec_reports_definition = bsHtml.find(text="Ncmec Reports Definition")
     ncmec_cybertip_numbers = bsHtml.find(text="NCMEC CyberTip Numbers")
+    registered_email_addresses = bsHtml.find(text="Registered Email Addresses")
 
     if service:
         service_info = service.find_next().text.strip()
@@ -186,10 +191,52 @@ def readHeader(bsHtml):
     else:
         header['NCMECCyberTipNumbers'] = None
 
+    if registered_email_addresses:
+        registered_email_addresses_info = registered_email_addresses.find_next().text.strip()
+        header['EmailAddresses'] = registered_email_addresses
+    else:
+        header['EmailAddresses'] = None
+
     print(f"{header}")
 
     if len(header) > 0:
         return header
+    else:
+        return None
+
+
+def readipAddresses(bsHtml):
+    # Encontrar a seção correspondente às imagens ("logsip")
+    print("\nIp Addresses")
+    logsips = []
+    logsip_sections = bsHtml.find_all(text='Ip Addresses')
+
+    if logsip_sections:
+        for section in logsip_sections:
+            logsip_data = {}
+
+            # Navegar para os próximos elementos para extrair os dados
+            IPAddress = section.find_next(text='IP Address').find_next()
+            Time = section.find_next(text='Time').find_next()
+
+            if IPAddress:
+                logsip_data['IPAddress'] = IPAddress.text.strip()
+            else:
+                logsip_data['IPAddress'] = None
+
+            if Time:
+                logsip_data['Time'] = Time.text.strip()
+            else:
+                logsip_data['Time'] = None
+
+            logsips.append(logsip_data)
+
+    # Exibir os dados extraídos
+    for logsip in logsips:
+        print(logsip)
+
+    if len(logsips) > 0:
+        return logsips
     else:
         return None
 

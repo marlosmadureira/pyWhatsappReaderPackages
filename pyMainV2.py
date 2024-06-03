@@ -57,7 +57,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
-                parameter = readHeader(bsHtml)
+                fileDados = readHeader(bsHtml)
 
                 # DADOS
                 ipaddresses = readipAddresses(bsHtml)

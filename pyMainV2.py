@@ -33,6 +33,9 @@ class MyHandler(PatternMatchingEventHandler):
 
         if event.event_type == "created":
 
+            fileProcess = {}
+            fileDados = {}
+
             datamovimento = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
             source = event.src_path
 
@@ -54,15 +57,25 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
-                readHeader(bsHtml)
+                parameter = readHeader(bsHtml)
 
                 # DADOS
-                readGroup(bsHtml)
-                readBook(bsHtml)
+                groupsinfo = readGroup(bsHtml)
+                if groupsinfo is not None:
+                    fileDados['groupsInfo'] = groupsinfo
+
+                bookinfo = readBook(bsHtml)
+                if bookinfo is not None:
+                    fileDados['addressBookInfo'] = bookinfo
 
                 # PRTT
-                readMessageLogs(bsHtml)
-                readCallLogs(bsHtml)
+                messages = readMessageLogs(bsHtml)
+                if messages is not None:
+                    fileDados['msgLogs'] = messages
+
+                calls = readCallLogs(bsHtml)
+                if calls is not None:
+                    fileDados['callLogs'] = calls
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
@@ -175,6 +188,11 @@ def readHeader(bsHtml):
 
     print(f"{header}")
 
+    if len(header) > 0:
+        return header
+    else:
+        return None
+
 
 def readGroup(bsHtml):
     # Encontrar a seção correspondente às imagens ("Picture")
@@ -182,8 +200,22 @@ def readGroup(bsHtml):
     pictures = []
     picture_sections = bsHtml.find_all(text='Picture')
 
+    # Lista para armazenar todos os registros
+    allRegistros = {}
+
+    ownedRegistros = []
+    participatingRegistros = []
+
     if picture_sections:
         for section in picture_sections:
+            if 'Owned' in section.find_next(text='Linked Media File:'):
+                GroupOwned = True
+                GroupParticipating = False
+
+            if 'Participating' in section.find_next(text='Linked Media File:'):
+                GroupOwned = False
+                GroupParticipating = True
+
             picture_data = {}
 
             # Navegar para os próximos elementos para extrair os dados
@@ -230,15 +262,32 @@ def readGroup(bsHtml):
             else:
                 picture_data['Subject'] = None
 
+            if GroupOwned and picture_data not in ownedRegistros:
+                ownedRegistros.append(picture_data)
+
+            if GroupParticipating and picture_data not in participatingRegistros:
+                participatingRegistros.append(picture_data)
+
             pictures.append(picture_data)
+
+    allRegistros['ownedGroups'] = ownedRegistros
+    allRegistros['ParticipatingGroups'] = participatingRegistros
 
     # Exibir os dados extraídos
     for picture in pictures:
         print(picture)
 
+    if len(allRegistros) > 0:
+        return allRegistros
+    else:
+        return None
+
 
 def readBook(bsHtml):
     print("\nBook Info")
+    # Lista para armazenar todos os registros
+    allRegistros = []
+
     data = {}
     sectionsSymmetric = bsHtml.find_all(text='Symmetric contacts')
     if sectionsSymmetric:
@@ -266,14 +315,21 @@ def readBook(bsHtml):
 
                 data['Asymmetric'] = phone_list[1:]
 
+    allRegistros.append(data)
+
     print(f"{data}")
+
+    if len(allRegistros) > 0:
+        return allRegistros
+    else:
+        return None
 
 
 def readMessageLogs(bsHtml):
     # Encontrar todos os blocos que contêm a informação "Timestamp"
     print("\nMessage Log")
     message_blocks = bsHtml.find_all(text="Timestamp")
-
+    messages = []
     if message_blocks:
         # Iterar sobre cada bloco e extrair as informações
         for block in message_blocks:
@@ -345,7 +401,15 @@ def readMessageLogs(bsHtml):
             else:
                 menssage_data['MessageSize'] = None
 
+            if menssage_data and menssage_data not in messages:
+                messages.append(menssage_data)
+
             print(f"{menssage_data}")
+
+    if len(messages) > 0:
+        return messages
+    else:
+        return None
 
 
 def readCallLogs(bsHtml):
@@ -388,7 +452,9 @@ def readCallLogs(bsHtml):
                     current = current.find_next()
 
             call_data['Events'] = events
-            calls.append(call_data)
+
+            if call_data and call_data not in calls:
+                calls.append(call_data)
 
         # Exibir os resultados
         for call in calls:
@@ -402,6 +468,11 @@ def readCallLogs(bsHtml):
                 print(f"  From Ip: {event['solIP']}")
                 print(f"  From Port: {event['solPort']}")
                 print(f"  Media Type: {event['mediaType']}")
+
+    if len(calls) > 0:
+        return calls
+    else:
+        return None
 
 
 if __name__ == '__main__':

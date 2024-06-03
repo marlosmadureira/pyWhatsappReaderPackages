@@ -72,6 +72,14 @@ class MyHandler(PatternMatchingEventHandler):
                 if bookinfo is not None:
                     fileDados['addressBookInfo'] = bookinfo
 
+                deviveinfo = readDevice(bsHtml)
+                if deviveinfo is not None:
+                    fileDados['deviceinfo'] = deviveinfo
+
+                webinfo = readWebInfo(bsHtml)
+                if webinfo is not None:
+                    fileDados['deviceinfo'] = webinfo
+
                 # PRTT
                 messages = readMessageLogs(bsHtml)
                 if messages is not None:
@@ -141,59 +149,56 @@ def readHeader(bsHtml):
     date_range = bsHtml.find(text="Date Range")
     ncmec_reports_definition = bsHtml.find(text="Ncmec Reports Definition")
     ncmec_cybertip_numbers = bsHtml.find(text="NCMEC CyberTip Numbers")
+    emails_definition = bsHtml.find(text="Emails Definition")
     registered_email_addresses = bsHtml.find(text="Registered Email Addresses")
 
     if service:
-        service_info = service.find_next().text.strip()
-        header['Service'] = service_info
+        header['Service'] = service.find_next().text.strip()
     else:
         header['Service'] = None
 
     if internal_ticket_number:
-        internal_ticket_number_info = somentenumero(internal_ticket_number.find_next().text)
-        header['InternalTicketNumber'] = internal_ticket_number_info
+        header['InternalTicketNumber'] = somentenumero(internal_ticket_number.find_next().text)
     else:
         header['InternalTicketNumber'] = None
 
     if account_identifier:
-        account_identifier_info = somentenumero(account_identifier.find_next().text)
-        header['AccountIdentifier'] = account_identifier_info
+        header['AccountIdentifier'] = somentenumero(account_identifier.find_next().text)
     else:
         header['AccountIdentifier'] = None
 
     if account_type:
-        account_type_info = account_type.find_next().text.strip()
-        header['AccountType'] = account_type_info
+        header['AccountType'] = account_type.find_next().text.strip()
     else:
         header['AccountType'] = None
 
     if generated:
-        generated_info = generated.find_next().text.strip()
-        header['Generated'] = generated_info
+        header['Generated'] = generated.find_next().text.strip()
     else:
         header['Generated'] = None
 
     if date_range:
-        date_range_info = date_range.find_next().text
-        header['DateRange'] = date_range_info
+        header['DateRange'] = date_range.find_next().text
     else:
         header['DateRange'] = None
 
     if ncmec_reports_definition:
-        ncmec_reports_definition_info = ncmec_reports_definition.find_next().text
-        header['NcmecReportsDefinition'] = ncmec_reports_definition_info
+        header['NcmecReportsDefinition'] = ncmec_reports_definition.find_next().text
     else:
         header['NcmecReportsDefinition'] = None
 
     if ncmec_cybertip_numbers:
-        ncmec_cybertip_numbers_info = ncmec_cybertip_numbers.find_next().text.strip()
-        header['NCMECCyberTipNumbers'] = ncmec_cybertip_numbers_info
+        header['NCMECCyberTipNumbers'] = ncmec_cybertip_numbers.find_next().text.strip()
     else:
         header['NCMECCyberTipNumbers'] = None
 
+    if emails_definition:
+        header['EmailEmailsDefinition'] = emails_definition.find_next().text.strip()
+    else:
+        header['EmailEmailsDefinition'] = None
+
     if registered_email_addresses:
-        registered_email_addresses_info = registered_email_addresses.find_next().text.strip()
-        header['EmailAddresses'] = registered_email_addresses
+        header['EmailAddresses'] = registered_email_addresses.find_next().text.strip()
     else:
         header['EmailAddresses'] = None
 
@@ -368,6 +373,94 @@ def readBook(bsHtml):
 
     if len(allRegistros) > 0:
         return allRegistros
+    else:
+        return None
+
+
+def readWebInfo(bsHtml):
+    print("\nWeb Info")
+    Web = {}
+
+    WebInfo = bsHtml.find(text="Web Info")
+    Availability = bsHtml.find(text="Availability")
+    OnlineSince = bsHtml.find(text="Online Since")
+    Platform = bsHtml.find(text="Platform")
+    Version = bsHtml.find(text="Version")
+
+    if WebInfo:
+        Web['WebInfo'] = WebInfo.find_next().text.strip()
+    else:
+        Web['WebInfo'] = None
+
+    if Availability:
+        Web['Availability'] = Availability.find_next().text.strip()
+    else:
+        Web['Availability'] = None
+
+    if OnlineSince:
+        Web['OnlineSince'] = OnlineSince.find_next().text.strip()
+    else:
+        Web['OnlineSince'] = None
+
+    if Platform:
+        Web['Platform'] = Platform.find_next().text.strip()
+    else:
+        Web['Platform'] = None
+
+    if Version:
+        Web['Version'] = Version.find_next().text.strip()
+    else:
+        Web['Version'] = None
+
+    if len(Web) > 0:
+        return Web
+    else:
+        return None
+
+
+def readDevice(bsHtml):
+    print("\nDevice Info")
+    Device = {}
+
+    DeviceId = bsHtml.find(text="Device Id")
+    AppVersion = bsHtml.find(text="App Version")
+    OSVersion = bsHtml.find(text="OS Version")
+    OSBuildNumber = bsHtml.find(text="OS Build Number")
+    DeviceManufacturer = bsHtml.find(text="Device Manufacturer")
+    DeviceModel = bsHtml.find(text="Device Model")
+
+    if DeviceId:
+        Device['DeviceId'] = DeviceId.find_next().text.strip()
+    else:
+        Device['DeviceId'] = None
+
+    if AppVersion:
+        Device['AppVersion'] = AppVersion.find_next().text.strip()
+    else:
+        Device['AppVersion'] = None
+
+    if OSVersion:
+        Device['OSVersion'] = OSVersion.find_next().text.strip()
+    else:
+        Device['OSVersion'] = None
+
+    if OSBuildNumber:
+        Device['OSBuildNumber'] = OSBuildNumber.find_next().text.strip()
+    else:
+        Device['OSBuildNumber'] = None
+
+    if DeviceManufacturer:
+        Device['DeviceManufacturer'] = DeviceManufacturer.find_next().text.strip()
+    else:
+        Device['DeviceManufacturer'] = None
+
+    if DeviceModel:
+        Device['DeviceModel'] = DeviceModel.find_next().text.strip()
+    else:
+        Device['DeviceModel'] = None
+
+    if len(Device) > 0:
+        return Device
     else:
         return None
 

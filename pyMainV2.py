@@ -281,6 +281,7 @@ def readMessageLogs(bsHtml):
             timestamp = block.find_next()
             message_id = block.find_next(text="Message Id").find_next()
             sender = block.find_next(text="Sender").find_next()
+            group_id = block.find_next(text="Group Id").find_next()
             recipients = block.find_next(text="Recipients").find_next()
             sender_ip = block.find_next(text="Sender Ip").find_next()
             sender_port = block.find_next(text="Sender Port").find_next()
@@ -290,54 +291,59 @@ def readMessageLogs(bsHtml):
             message_size = block.find_next(text="Message Size").find_next()
 
             if timestamp:
-                menssage_data['timestamp'] = timestamp.text.strip()
+                menssage_data['Timestamp'] = timestamp.text.strip()
             else:
-                menssage_data['timestamp'] = None
+                menssage_data['Timestamp'] = None
 
             if message_id:
-                menssage_data['message_id'] = message_id.text.strip()
+                menssage_data['MessageId'] = message_id.text.strip()
             else:
-                menssage_data['message_id'] = None
+                menssage_data['MessageId'] = None
 
             if sender:
-                menssage_data['sender'] = sender.text.strip()
+                menssage_data['Sender'] = sender.text.strip()
             else:
-                menssage_data['sender'] = None
+                menssage_data['Sender'] = None
+
+            if group_id:
+                menssage_data['GroupId'] = group_id.text.strip()
+            else:
+                menssage_data['GroupId'] = None
 
             if recipients:
-                menssage_data['recipients'] = recipients.text.strip()
+                menssage_data['Recipients'] = recipients.text.strip()
             else:
-                menssage_data['recipients'] = None
+                menssage_data['Recipients'] = None
 
             if sender_ip:
-                menssage_data['sender_ip'] = sender_ip.text.strip()
+                menssage_data['SenderIp'] = sender_ip.text.strip()
             else:
-                menssage_data['sender_ip'] = None
+                menssage_data['SenderIp'] = None
 
             if sender_port:
-                menssage_data['sender_port'] = sender_port.text.strip()
+                menssage_data['SenderPort'] = sender_port.text.strip()
             else:
-                menssage_data['sender_port'] = None
+                menssage_data['SenderPort'] = None
 
             if sender_device:
-                menssage_data['sender_device'] = sender_device.text.strip()
+                menssage_data['SenderDevice'] = sender_device.text.strip()
             else:
-                menssage_data['sender_device'] = None
+                menssage_data['SenderDevice'] = None
 
             if msg_type:
-                menssage_data['msg_type'] = msg_type.text.strip()
+                menssage_data['Type'] = msg_type.text.strip()
             else:
-                menssage_data['msg_type'] = None
+                menssage_data['Type'] = None
 
             if message_style:
-                menssage_data['message_style'] = message_style.text.strip()
+                menssage_data['MessageStyle'] = message_style.text.strip()
             else:
-                menssage_data['message_style'] = None
+                menssage_data['MessageStyle'] = None
 
             if message_size:
-                menssage_data['message_size'] = message_size.text.strip()
+                menssage_data['MessageSize'] = message_size.text.strip()
             else:
-                menssage_data['message_size'] = None
+                menssage_data['MessageSize'] = None
 
             print(f"{menssage_data}")
 

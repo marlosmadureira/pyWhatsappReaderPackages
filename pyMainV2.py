@@ -208,11 +208,11 @@ def readGroup(bsHtml):
 
     if picture_sections:
         for section in picture_sections:
-            if 'Owned' in section.find_next(text='Linked Media File:'):
+            if 'Owned' in section.find_next(text='Owned'):
                 GroupOwned = True
                 GroupParticipating = False
 
-            if 'Participating' in section.find_next(text='Linked Media File:'):
+            if 'Participating' in section.find_next(text='Participating'):
                 GroupOwned = False
                 GroupParticipating = True
 

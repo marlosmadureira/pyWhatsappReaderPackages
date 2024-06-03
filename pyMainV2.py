@@ -80,6 +80,10 @@ class MyHandler(PatternMatchingEventHandler):
                 if webinfo is not None:
                     fileDados['deviceinfo'] = webinfo
 
+                profileinfo = readProfileInfo(bsHtml)
+                if profileinfo is not None:
+                    fileDados['profile'] = profileinfo
+
                 # PRTT
                 messages = readMessageLogs(bsHtml)
                 if messages is not None:
@@ -461,6 +465,24 @@ def readDevice(bsHtml):
 
     if len(Device) > 0:
         return Device
+    else:
+        return None
+
+
+def readProfileInfo(bsHtml):
+    # Encontrar a seção correspondente às imagens ("logsip")
+    print("\nProfile Picture")
+    Profile = {}
+
+    profile_sections = bsHtml.find(text='Profile Picture')
+
+    if profile_sections:
+        Profile['LinkedMediaFile'] = profile_sections.find_next(text='Linked Media File:').find_next()
+    else:
+        Profile['LinkedMediaFile'] = None
+
+    if len(Profile) > 0:
+        return Profile
     else:
         return None
 

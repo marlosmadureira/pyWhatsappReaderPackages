@@ -192,6 +192,8 @@ def readGroup(bsHtml):
             picture_id = section.find_next(text='ID').find_next()
             creation_date = section.find_next(text='Creation').find_next()
             size = section.find_next(text='Size').find_next()
+            description = section.find_next(text='Description').find_next()
+            subject = section.find_next(text='Subject').find_next()
 
             if linked_media_file:
                 picture_data['Linked Media File'] = linked_media_file.text.strip()
@@ -217,6 +219,16 @@ def readGroup(bsHtml):
                 picture_data['Size'] = size.text.strip()
             else:
                 picture_data['Size'] = None
+
+            if description:
+                picture_data['Description'] = description.text.strip()
+            else:
+                picture_data['Description'] = None
+
+            if subject:
+                picture_data['Subject'] = subject.text.strip()
+            else:
+                picture_data['Subject'] = None
 
             pictures.append(picture_data)
 

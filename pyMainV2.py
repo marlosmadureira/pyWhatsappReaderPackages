@@ -127,51 +127,51 @@ def readHeader(bsHtml):
 
     if service:
         service_info = service.find_next().text.strip()
-        header['service_info'] = service_info
+        header['Service'] = service_info
     else:
-        header['service_info'] = None
+        header['Service'] = None
 
     if internal_ticket_number:
         internal_ticket_number_info = somentenumero(internal_ticket_number.find_next().text)
-        header['internal_ticket_number_info'] = internal_ticket_number_info
+        header['InternalTicketNumber'] = internal_ticket_number_info
     else:
-        header['internal_ticket_number_info'] = None
+        header['InternalTicketNumber'] = None
 
     if account_identifier:
         account_identifier_info = somentenumero(account_identifier.find_next().text)
-        header['account_identifier_info'] = account_identifier_info
+        header['AccountIdentifier'] = account_identifier_info
     else:
-        header['account_identifier_info'] = None
+        header['AccountIdentifier'] = None
 
     if account_type:
         account_type_info = account_type.find_next().text.strip()
-        header['account_type_info'] = account_type_info
+        header['AccountType'] = account_type_info
     else:
-        header['account_type_info'] = None
+        header['AccountType'] = None
 
     if generated:
         generated_info = generated.find_next().text.strip()
-        header['generated_info'] = generated_info
+        header['Generated'] = generated_info
     else:
-        header['generated_info'] = None
+        header['Generated'] = None
 
     if date_range:
         date_range_info = date_range.find_next().text
-        header['date_range_info'] = date_range_info
+        header['DateRange'] = date_range_info
     else:
-        header['date_range_info'] = None
+        header['DateRange'] = None
 
     if ncmec_reports_definition:
         ncmec_reports_definition_info = ncmec_reports_definition.find_next().text
-        header['ncmec_reports_definition_info'] = ncmec_reports_definition_info
+        header['NcmecReportsDefinition'] = ncmec_reports_definition_info
     else:
-        header['ncmec_reports_definition_info'] = None
+        header['NcmecReportsDefinition'] = None
 
     if ncmec_cybertip_numbers:
         ncmec_cybertip_numbers_info = ncmec_cybertip_numbers.find_next().text.strip()
-        header['ncmec_cybertip_numbers_info'] = ncmec_cybertip_numbers_info
+        header['NCMECCyberTipNumbers'] = ncmec_cybertip_numbers_info
     else:
-        header['ncmec_cybertip_numbers_info'] = None
+        header['NCMECCyberTipNumbers'] = None
 
     print(f"{header}")
 

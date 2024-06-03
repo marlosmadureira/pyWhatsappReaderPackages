@@ -498,7 +498,6 @@ def readMessageLogs(bsHtml):
     # Encontrar todos os blocos que contêm a informação "Timestamp"
     print("\nMessage Log")
     message_blocks = bsHtml.find_all(text="Timestamp")
-    messages = []
 
     if message_blocks:
         # Iterar sobre cada bloco e extrair as informações
@@ -529,70 +528,6 @@ def readMessageLogs(bsHtml):
             print(f"Message Style: {message_style}")
             print(f"Message Size: {message_size}")
             print("\n---\n")
-
-            # if timestamp:
-            #     menssage_data['Timestamp'] = timestamp
-            # else:
-            #     menssage_data['Timestamp'] = None
-            #
-            # if message_id:
-            #     menssage_data['MessageId'] = message_id
-            # else:
-            #     menssage_data['MessageId'] = None
-            #
-            # if sender:
-            #     menssage_data['Sender'] = sender
-            # else:
-            #     menssage_data['Sender'] = None
-            #
-            # if group_id:
-            #     menssage_data['GroupId'] = group_id
-            # else:
-            #     menssage_data['GroupId'] = None
-            #
-            # if recipients:
-            #     menssage_data['Recipients'] = recipients
-            # else:
-            #     menssage_data['Recipients'] = None
-            #
-            # if sender_ip:
-            #     menssage_data['SenderIp'] = sender_ip
-            # else:
-            #     menssage_data['SenderIp'] = None
-            #
-            # if sender_port:
-            #     menssage_data['SenderPort'] = sender_port
-            # else:
-            #     menssage_data['SenderPort'] = None
-            #
-            # if sender_device:
-            #     menssage_data['SenderDevice'] = sender_device
-            # else:
-            #     menssage_data['SenderDevice'] = None
-            #
-            # if msg_type:
-            #     menssage_data['Type'] = msg_type
-            # else:
-            #     menssage_data['Type'] = None
-            #
-            # if message_style:
-            #     menssage_data['MessageStyle'] = message_style
-            # else:
-            #     menssage_data['MessageStyle'] = None
-            #
-            # if message_size:
-            #     menssage_data['MessageSize'] = message_size
-            # else:
-            #     menssage_data['MessageSize'] = None
-
-            #messages.append(menssage_data)
-
-    if len(messages) > 0:
-        print(f"{messages}")
-
-        return messages
-    else:
-        return None
 
 
 def readCallLogs(bsHtml):

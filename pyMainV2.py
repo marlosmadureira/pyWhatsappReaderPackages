@@ -196,9 +196,9 @@ def readGroup(bsHtml):
             subject = section.find_next(text='Subject').find_next()
 
             if linked_media_file:
-                picture_data['Linked Media File'] = linked_media_file.text.strip()
+                picture_data['Picture'] = linked_media_file.text.strip()
             else:
-                picture_data['Linked Media File'] = None
+                picture_data['Picture'] = None
 
             if thumbnail:
                 picture_data['Thumbnail'] = thumbnail.text.strip()

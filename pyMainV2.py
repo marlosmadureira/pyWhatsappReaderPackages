@@ -59,39 +59,39 @@ class MyHandler(PatternMatchingEventHandler):
 
                 fileDados = readHeader(bsHtml)
 
-                # DADOS
-                ipaddresses = readipAddresses(bsHtml)
-                if ipaddresses is not None:
-                    fileDados['ipAddresses'] = ipaddresses
-
-                groupsinfo = readGroup(bsHtml)
-                if groupsinfo is not None:
-                    fileDados['groupsInfo'] = groupsinfo
-
-                bookinfo = readBook(bsHtml)
-                if bookinfo is not None:
-                    fileDados['addressBookInfo'] = bookinfo
-
-                deviveinfo = readDevice(bsHtml)
-                if deviveinfo is not None:
-                    fileDados['deviceinfo'] = deviveinfo
-
-                webinfo = readWebInfo(bsHtml)
-                if webinfo is not None:
-                    fileDados['deviceinfo'] = webinfo
-
-                profileinfo = readProfileInfo(bsHtml)
-                if profileinfo is not None:
-                    fileDados['profile'] = profileinfo
+                # # DADOS
+                # ipaddresses = readipAddresses(bsHtml)
+                # if ipaddresses is not None:
+                #     fileDados['ipAddresses'] = ipaddresses
+                #
+                # groupsinfo = readGroup(bsHtml)
+                # if groupsinfo is not None:
+                #     fileDados['groupsInfo'] = groupsinfo
+                #
+                # bookinfo = readBook(bsHtml)
+                # if bookinfo is not None:
+                #     fileDados['addressBookInfo'] = bookinfo
+                #
+                # deviveinfo = readDevice(bsHtml)
+                # if deviveinfo is not None:
+                #     fileDados['deviceinfo'] = deviveinfo
+                #
+                # webinfo = readWebInfo(bsHtml)
+                # if webinfo is not None:
+                #     fileDados['deviceinfo'] = webinfo
+                #
+                # profileinfo = readProfileInfo(bsHtml)
+                # if profileinfo is not None:
+                #     fileDados['profile'] = profileinfo
 
                 # PRTT
                 messages = readMessageLogs(bsHtml)
                 if messages is not None:
                     fileDados['msgLogs'] = messages
 
-                calls = readCallLogs(bsHtml)
-                if calls is not None:
-                    fileDados['callLogs'] = calls
+                # calls = readCallLogs(bsHtml)
+                # if calls is not None:
+                #     fileDados['callLogs'] = calls
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
@@ -206,9 +206,9 @@ def readHeader(bsHtml):
     else:
         header['EmailAddresses'] = None
 
-    print(f"{header}")
-
     if len(header) > 0:
+        print(f"{header}")
+
         return header
     else:
         return None
@@ -240,11 +240,9 @@ def readipAddresses(bsHtml):
 
             logsips.append(logsip_data)
 
-    # Exibir os dados extraídos
-    for logsip in logsips:
-        print(logsip)
-
     if len(logsips) > 0:
+        print(f"{logsips}")
+
         return logsips
     else:
         return None
@@ -334,6 +332,8 @@ def readGroup(bsHtml):
         print(picture)
 
     if len(allRegistros) > 0:
+        print(f"{allRegistros}")
+
         return allRegistros
     else:
         return None
@@ -346,6 +346,7 @@ def readBook(bsHtml):
 
     data = {}
     sectionsSymmetric = bsHtml.find_all(text='Symmetric contacts')
+
     if sectionsSymmetric:
         for section in sectionsSymmetric:
             currentSymmetric = section.find_next()
@@ -373,9 +374,9 @@ def readBook(bsHtml):
 
     allRegistros.append(data)
 
-    print(f"{data}")
+    if len(allRegistros) > 0 and len(data) > 0:
+        print(f"{allRegistros}")
 
-    if len(allRegistros) > 0:
         return allRegistros
     else:
         return None
@@ -417,6 +418,8 @@ def readWebInfo(bsHtml):
         Web['Version'] = None
 
     if len(Web) > 0:
+        print(f"{Web}")
+
         return Web
     else:
         return None
@@ -464,6 +467,8 @@ def readDevice(bsHtml):
         Device['DeviceModel'] = None
 
     if len(Device) > 0:
+        print(f"{Device}")
+
         return Device
     else:
         return None
@@ -482,6 +487,8 @@ def readProfileInfo(bsHtml):
         Profile['LinkedMediaFile'] = None
 
     if len(Profile) > 0:
+        print(f"{Profile}")
+
         return Profile
     else:
         return None
@@ -492,83 +499,97 @@ def readMessageLogs(bsHtml):
     print("\nMessage Log")
     message_blocks = bsHtml.find_all(text="Timestamp")
     messages = []
+
     if message_blocks:
         # Iterar sobre cada bloco e extrair as informações
         for block in message_blocks:
             menssage_data = {}
-            timestamp = block.find_next()
-            message_id = block.find_next(text="Message Id").find_next()
-            sender = block.find_next(text="Sender").find_next()
-            group_id = block.find_next(text="Group Id").find_next()
-            recipients = block.find_next(text="Recipients").find_next()
-            sender_ip = block.find_next(text="Sender Ip").find_next()
-            sender_port = block.find_next(text="Sender Port").find_next()
-            sender_device = block.find_next(text="Sender Device").find_next()
-            msg_type = block.find_next(text="Type").find_next()
-            message_style = block.find_next(text="Message Style").find_next()
-            message_size = block.find_next(text="Message Size").find_next()
 
-            if timestamp:
-                menssage_data['Timestamp'] = timestamp.text.strip()
-            else:
-                menssage_data['Timestamp'] = None
+            timestamp = block.find_next().text.strip()
+            message_id = block.find_next(text="Message Id").find_next().text.strip()
+            sender = block.find_next(text="Sender").find_next().text.strip()
+            #group_id = block.find_next(text="Group Id").find_next()
+            recipients = block.find_next(text="Recipients").find_next().text.strip()
+            sender_ip = block.find_next(text="Sender Ip").find_next().text.strip()
+            sender_port = block.find_next(text="Sender Port").find_next().text.strip()
+            sender_device = block.find_next(text="Sender Device").find_next().text.strip()
+            msg_type = block.find_next(text="Type").find_next().text.strip()
+            message_style = block.find_next(text="Message Style").find_next().text.strip()
+            message_size = block.find_next(text="Message Size").find_next().text.strip()
 
-            if message_id:
-                menssage_data['MessageId'] = message_id.text.strip()
-            else:
-                menssage_data['MessageId'] = None
+            #Imprimir as informações extraídas
+            print(f"Timestamp: {timestamp}")
+            print(f"Message Id: {message_id}")
+            print(f"Sender: {sender}")
+            print(f"Recipients: {recipients}")
+            print(f"Sender Ip: {sender_ip}")
+            print(f"Sender Port: {sender_port}")
+            print(f"Sender Device: {sender_device}")
+            print(f"Type: {msg_type}")
+            print(f"Message Style: {message_style}")
+            print(f"Message Size: {message_size}")
+            print("\n---\n")
 
-            if sender:
-                menssage_data['Sender'] = sender.text.strip()
-            else:
-                menssage_data['Sender'] = None
+            # if timestamp:
+            #     menssage_data['Timestamp'] = timestamp
+            # else:
+            #     menssage_data['Timestamp'] = None
+            #
+            # if message_id:
+            #     menssage_data['MessageId'] = message_id
+            # else:
+            #     menssage_data['MessageId'] = None
+            #
+            # if sender:
+            #     menssage_data['Sender'] = sender
+            # else:
+            #     menssage_data['Sender'] = None
+            #
+            # if group_id:
+            #     menssage_data['GroupId'] = group_id
+            # else:
+            #     menssage_data['GroupId'] = None
+            #
+            # if recipients:
+            #     menssage_data['Recipients'] = recipients
+            # else:
+            #     menssage_data['Recipients'] = None
+            #
+            # if sender_ip:
+            #     menssage_data['SenderIp'] = sender_ip
+            # else:
+            #     menssage_data['SenderIp'] = None
+            #
+            # if sender_port:
+            #     menssage_data['SenderPort'] = sender_port
+            # else:
+            #     menssage_data['SenderPort'] = None
+            #
+            # if sender_device:
+            #     menssage_data['SenderDevice'] = sender_device
+            # else:
+            #     menssage_data['SenderDevice'] = None
+            #
+            # if msg_type:
+            #     menssage_data['Type'] = msg_type
+            # else:
+            #     menssage_data['Type'] = None
+            #
+            # if message_style:
+            #     menssage_data['MessageStyle'] = message_style
+            # else:
+            #     menssage_data['MessageStyle'] = None
+            #
+            # if message_size:
+            #     menssage_data['MessageSize'] = message_size
+            # else:
+            #     menssage_data['MessageSize'] = None
 
-            if group_id:
-                menssage_data['GroupId'] = group_id.text.strip()
-            else:
-                menssage_data['GroupId'] = None
-
-            if recipients:
-                menssage_data['Recipients'] = recipients.text.strip()
-            else:
-                menssage_data['Recipients'] = None
-
-            if sender_ip:
-                menssage_data['SenderIp'] = sender_ip.text.strip()
-            else:
-                menssage_data['SenderIp'] = None
-
-            if sender_port:
-                menssage_data['SenderPort'] = sender_port.text.strip()
-            else:
-                menssage_data['SenderPort'] = None
-
-            if sender_device:
-                menssage_data['SenderDevice'] = sender_device.text.strip()
-            else:
-                menssage_data['SenderDevice'] = None
-
-            if msg_type:
-                menssage_data['Type'] = msg_type.text.strip()
-            else:
-                menssage_data['Type'] = None
-
-            if message_style:
-                menssage_data['MessageStyle'] = message_style.text.strip()
-            else:
-                menssage_data['MessageStyle'] = None
-
-            if message_size:
-                menssage_data['MessageSize'] = message_size.text.strip()
-            else:
-                menssage_data['MessageSize'] = None
-
-            if menssage_data and menssage_data not in messages:
-                messages.append(menssage_data)
-
-            print(f"{menssage_data}")
+            #messages.append(menssage_data)
 
     if len(messages) > 0:
+        print(f"{messages}")
+
         return messages
     else:
         return None
@@ -618,20 +639,8 @@ def readCallLogs(bsHtml):
             if call_data and call_data not in calls:
                 calls.append(call_data)
 
-        # Exibir os resultados
-        for call in calls:
-            print(f"Call Id: {call['callID']}")
-            print(f"Call Creator: {call['callCreator']}")
-            for event in call['Events']:
-                print(f"  Event Type: {event['type']}")
-                print(f"  Timestamp: {event['timestamp']}")
-                print(f"  From: {event['solicitante']}")
-                print(f"  To: {event['atendente']}")
-                print(f"  From Ip: {event['solIP']}")
-                print(f"  From Port: {event['solPort']}")
-                print(f"  Media Type: {event['mediaType']}")
-
     if len(calls) > 0:
+        print(f"{calls}")
         return calls
     else:
         return None

@@ -361,8 +361,8 @@ def readCallLogs(bsHtml):
             # Encontrar o bloco pai que contém as informações da chamada
             parent = call_block.find_parent()
 
-            call_data['Call Id'] = parent.find_next(text='Call Id').find_next().text.strip()
-            call_data['Call Creator'] = parent.find_next(text='Call Creator').find_next().text.strip()
+            call_data['callID'] = parent.find_next(text='Call Id').find_next().text.strip()
+            call_data['callCreator'] = parent.find_next(text='Call Creator').find_next().text.strip()
 
             events = []
 
@@ -373,13 +373,13 @@ def readCallLogs(bsHtml):
 
                 if 'Type' in current.text.strip():
                     event_data = {}
-                    event_data['Type'] = current.find_next().text.strip()
-                    event_data['Timestamp'] = current.find_next(text='Timestamp').find_next().text.strip()
-                    event_data['From'] = current.find_next(text='From').find_next().text.strip()
-                    event_data['To'] = current.find_next(text='To').find_next().text.strip()
-                    event_data['From Ip'] = current.find_next(text='From Ip').find_next().text.strip()
-                    event_data['From Port'] = current.find_next(text='From Port').find_next().text.strip()
-                    event_data['Media Type'] = current.find_next(
+                    event_data['type'] = current.find_next().text.strip()
+                    event_data['timestamp'] = current.find_next(text='Timestamp').find_next().text.strip()
+                    event_data['solicitante'] = current.find_next(text='From').find_next().text.strip()
+                    event_data['atendente'] = current.find_next(text='To').find_next().text.strip()
+                    event_data['solIP'] = current.find_next(text='From Ip').find_next().text.strip()
+                    event_data['solPort'] = current.find_next(text='From Port').find_next().text.strip()
+                    event_data['mediaType'] = current.find_next(
                         text='Media Type').find_next().text.strip() if current.find_next(
                         text='Media Type') else 'N/A'
                     events.append(event_data)
@@ -392,16 +392,16 @@ def readCallLogs(bsHtml):
 
         # Exibir os resultados
         for call in calls:
-            print(f"Call Id: {call['Call Id']}")
-            print(f"Call Creator: {call['Call Creator']}")
+            print(f"Call Id: {call['callID']}")
+            print(f"Call Creator: {call['callCreator']}")
             for event in call['Events']:
-                print(f"  Event Type: {event['Type']}")
-                print(f"  Timestamp: {event['Timestamp']}")
-                print(f"  From: {event['From']}")
-                print(f"  To: {event['To']}")
-                print(f"  From Ip: {event['From Ip']}")
-                print(f"  From Port: {event['From Port']}")
-                print(f"  Media Type: {event['Media Type']}")
+                print(f"  Event Type: {event['type']}")
+                print(f"  Timestamp: {event['timestamp']}")
+                print(f"  From: {event['solicitante']}")
+                print(f"  To: {event['atendente']}")
+                print(f"  From Ip: {event['solIP']}")
+                print(f"  From Port: {event['solPort']}")
+                print(f"  Media Type: {event['mediaType']}")
 
 
 if __name__ == '__main__':

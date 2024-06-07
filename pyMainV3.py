@@ -59,11 +59,16 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
+                # print(bsHtml)
+
                 parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
                 print(f"\n{parsed_json_parameters}")
 
-                parsed_array_books = parse_dynamic_sentence_books(bsHtml)
-                print(f"\n{parsed_array_books}")
+                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                print(f"\n{parsed_json_books}")
+
+                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                print(f"\n{parsed_json_ip_addresses}")
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
@@ -120,8 +125,12 @@ def parse_dynamic_sentence_parameters(sentence):
         "Internal Ticket Number": r"Internal Ticket Number(\d+)",
         "Account Identifier": r"Account Identifier(\+\d+)",
         "Account Type": r"Account Type(\w+)",
-        "User Generated": r"User Generated(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
-        "Date Range": r"Date Range(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)"
+        "User Generated": r"Generated(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Date Range": r"Date Range(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC to \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Ncmec Reports Definition": r"Ncmec Reports Definition(NCMEC Reports: [\w\s\(\)]+)",
+        "NCMEC CyberTip Numbers": r"NCMEC CyberTip Numbers([\w\s]+)",
+        "Emails Definition": r"Emails Definition(Emails: [\w\s':]+)",
+        "Registered Email Addresses": r"Registered Email Addresses([\w\s]+)"
     }
 
     # Dicionário para armazenar os resultados
@@ -131,7 +140,7 @@ def parse_dynamic_sentence_parameters(sentence):
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)
         if match:
-            result[key] = match.group(1)
+            result[key] = match.group(1).strip()
 
     if len(result) > 0:
         print("\nRequest Parameters")
@@ -171,6 +180,24 @@ def parse_dynamic_sentence_books(sentence):
     if len(data['Symmetric']) > 0 or len(data['Asymmetric']) > 0:
         print("\nAddress Book Info")
         return allRegistros
+    else:
+        return None
+
+
+def parse_dynamic_sentence_ip_addresses(sentence):
+    # Expressão regular para capturar os pares de "Time" e "IP Address"
+    time_ip_pattern = re.compile(r"Time(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s+IP Address([0-9a-fA-F\.:]+)")
+
+    # Capturar todos os pares de "Time" e "IP Address" da frase
+    time_ip_matches = time_ip_pattern.findall(sentence)
+
+    # Criar uma lista de dicionários para as conexões
+    connections = [{"Time": time, "IP Address": ip} for time, ip in time_ip_matches]
+
+    if len(connections) > 0:
+        print("\nIp Addresses")
+        connections_json = json.dumps(connections, indent=4)
+        return connections_json
     else:
         return None
 

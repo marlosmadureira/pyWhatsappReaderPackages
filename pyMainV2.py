@@ -370,8 +370,6 @@ def readBook(bsHtml):
     data = {}
     sectionsSymmetric = bsHtml.find_all(text='Symmetric contacts')
 
-    print(f"{sectionsSymmetric}")
-
     if sectionsSymmetric:
         for section in sectionsSymmetric:
             currentSymmetric = section.find_next()

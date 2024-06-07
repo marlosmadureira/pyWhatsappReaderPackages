@@ -7,6 +7,7 @@ import requests
 import time
 import shutil
 import zipfile
+from markdownify import markdownify as md
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from datetime import datetime
@@ -18,6 +19,49 @@ APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
 DebugMode = False
+
+
+def parse_dynamic_sentence_parameters(sentence):
+    # Expressões regulares para capturar os diferentes campos
+    patterns = {
+        "Service": r"Service(\w+)",
+        "Internal Ticket Number": r"Internal Ticket Number(\d+)",
+        "Account Identifier": r"Account Identifier(\+\d+)",
+        "Account Type": r"Account Type(\w+)",
+        "User Generated": r"User Generated(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Date Range": r"Date Range(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)"
+    }
+
+    # Dicionário para armazenar os resultados
+    result = {}
+
+    # Iterar sobre os padrões e encontrar as correspondências
+    for key, pattern in patterns.items():
+        match = re.search(pattern, sentence)
+        if match:
+            result[key] = match.group(1)
+
+    return json.dumps(result, indent=4)
+
+
+def replace_divs(html):
+    html = str
+
+    return html
+
+
+def html_to_markdown(html):
+    # Substituir a <div class="p"> por um espaço em branco
+    pattern = r'<div class="[a-z]"></div>'
+    html = re.sub(pattern, ' ', html)
+
+    # Usar BeautifulSoup para manipular o HTML
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Converter o HTML modificado para Markdown
+    markdown = md(str(soup), strip=['div'])
+
+    return markdown
 
 
 def getUnidadeFileName(nome_original):
@@ -178,18 +222,17 @@ def removeFolderFiles(FolderPath):
         shutil.rmtree(FolderPath)
 
 
-def parseHTMLFile(folderZip):
+def parsetHTLMFileString(folderZip):
     htmlFile = folderZip + "/records.html"
 
-    soupHtml = None
+    markdown_content = None
 
     if os.path.exists(htmlFile):
-        with open(htmlFile, 'r', encoding='utf-8') as f:
-            contents = f.read()
-            soupHtml = BeautifulSoup(contents, 'html.parser')
-            soupHtml.prettify()
+        with open(htmlFile, 'r', encoding='utf-8') as file:
+            content = file.read()
+            markdown_content = html_to_markdown(content)
 
-    return soupHtml
+    return markdown_content
 
 
 def contar_arquivos_zip(diretorio):
@@ -214,66 +257,3 @@ def get_size(path):
     #     return round(size / (1024 * 1024), 2)  # f"{round(size / (1024 * 1024), 2)} MB"
     # elif size < 1024 * 1024 * 1024 * 1024:
     #     return round(size / (1024 * 1024 * 1024), 2)  # f"{round(size / (1024 * 1024 * 1024), 2)} GB"
-
-
-def listar_arquivos_json(path):
-    # Utiliza o módulo glob para encontrar todos os arquivos com a extensão .json na pasta especificada
-    padrao = os.path.join(path, '*.json')
-    arquivos_json = glob.glob(padrao)
-
-    return arquivos_json
-
-
-def openErrorJson():
-    path = f"{os.getcwd()}/log"
-
-    arquivos_json = listar_arquivos_json(path)
-
-    for dados_json in arquivos_json:
-        if 'Log_Error' in dados_json:
-            listNameFile = dados_json.split("_")
-            dataType = listNameFile[2]
-            fileName = listNameFile[3]
-
-            openJsonEstruturado(dados_json)
-
-
-def tipoHtml(parameters):
-    if 'display:table-cell' in str(parameters):
-        print_color(f"\nPENULTIMO PADRÃO HTML display:table-cell", 36)
-        tag1 = "div_table"
-        tag2 = "font-weight: bold; display:table;"
-        tag3 = "font-weight: normal; display:table-cell; padding: 2px; word-break: break-word; word-wrap: break-word !important;"
-        tag4 = "display:table-cell"
-
-        print(f"\nTag = {tag1}, {tag2}, {tag3}, {tag4}")
-
-        return tag1, tag2, tag3, tag4
-
-    elif 'div_table outer' in str(parameters):
-        print_color(f"\nULTIMO PADRÃO HTML div_table outer", 36)
-
-        tag1 = "div_table outer"
-        tag2 = "div_table inner"
-        tag3 = "most_inner"
-        tag4 = "most_inner"
-
-        print(f"\nTag = {tag1}, {tag2}, {tag3}, {tag4}")
-
-        return tag1, tag2, tag3, tag4
-
-    elif 't o' in str(parameters):
-        print_color(f"\nULTIMO PADRÃO HTML t o", 36)
-
-        tag1 = "t o"
-        tag2 = "t i"
-        tag3 = "m"
-        tag4 = "m"
-
-        print(f"\nTag = {tag1}, {tag2}, {tag3}, {tag4}")
-
-        return tag1, tag2, tag3, tag4
-
-    else:
-        print_color(f"\nPADRÃO NÃO IDENTIFICADO", 31)
-        return None, None, None, None

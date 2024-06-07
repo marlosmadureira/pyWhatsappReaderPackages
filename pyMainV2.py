@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
+from pyBibliotecaV2 import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
     print_color, somentenumero, grava_log, getUnidadeFileName, removeFolderFiles, delete_log
 from pyPostgresql import find_unidade_postgres
 

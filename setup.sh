@@ -18,7 +18,7 @@ mkdir -p $SCRIPT_DIR
 sudo apt install python3-pip python3-psycopg2 python3-requests -y
 
 # Instala Bibliotecas
-sudo pip3 install requests
+sudo pip3 install requests markdownify
 
 # Dá permissão de execução ao script Python
 chmod +x $SCRIPT_DIR/$SCRIPT_NAME

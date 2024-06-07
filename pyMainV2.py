@@ -255,28 +255,29 @@ def readGroup(bsHtml):
         for section in picture_section:
             picture_data = {}
 
-            LinkedMediaFile = section.find_next(text='Linked Media File:').find_next().text.strip()
+            # LinkedMediaFile = section.find_next(text='Linked Media File:').find_next().text.strip()
             Thumbnail = section.find_next(text='Thumbnail').find_next().text.strip()
             ID = section.find_next(text='ID').find_next().text.strip()
             Creation = section.find_next(text='Creation').find_next().text.strip()
+            # # Description = section.find_next(text='Description').find_next().text.strip()
             Size = section.find_next(text='Size').find_next().text.strip()
             Subject = section.find_next(text='Size').find_next().text.strip()
 
-            if LinkedMediaFile is not None and Thumbnail is not None and ID is not None and Creation is not None and Size is not None and Subject is not None:
-                picture_data['LinkedMediaFile'] = LinkedMediaFile
-                picture_data['Thumbnail'] = Thumbnail
-                picture_data['ID'] = ID
-                picture_data['Creation'] = Creation
-                picture_data['Size'] = Size
-                picture_data['Subject'] = Subject
+            #picture_data['LinkedMediaFile'] = LinkedMediaFile
+            picture_data['Thumbnail'] = Thumbnail
+            picture_data['ID'] = ID
+            picture_data['Creation'] = Creation
+            # picture_data['Description'] = Description
+            picture_data['Size'] = Size
+            picture_data['Subject'] = Subject
 
-                allRegistros.append(picture_data)
+            allRegistros.append(picture_data)
 
-                # if GroupOwned and picture_data not in ownedRegistros:
-                #     ownedRegistros.append(picture_data)
-                #
-                # if GroupParticipating and picture_data not in participatingRegistros:
-                #     participatingRegistros.append(picture_data)
+            # if GroupOwned and picture_data not in ownedRegistros:
+            #     ownedRegistros.append(picture_data)
+            #
+            # if GroupParticipating and picture_data not in participatingRegistros:
+            #     participatingRegistros.append(picture_data)
 
     # allRegistros['ownedGroups'] = ownedRegistros
     # allRegistros['ParticipatingGroups'] = participatingRegistros

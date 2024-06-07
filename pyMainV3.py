@@ -61,14 +61,14 @@ class MyHandler(PatternMatchingEventHandler):
 
                 # print(bsHtml)
 
-                # parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
-                # print(f"\n{parsed_json_parameters}")
+                parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
+                print(f"\n{parsed_json_parameters}")
 
-                # parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-                # print(f"\n{parsed_json_books}")
+                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                print(f"\n{parsed_json_books}")
 
-                # parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-                # print(f"\n{parsed_json_ip_addresses}")
+                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                print(f"\n{parsed_json_ip_addresses}")
 
                 parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
                 print(f"\n{parsed_json_connection}")

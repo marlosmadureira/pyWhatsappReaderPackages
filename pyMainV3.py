@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parseHTMLFile, \
+from pyBiblioteca import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, parse_dynamic_sentence, \
     print_color, parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log
 from pyPostgresql import find_unidade_postgres
 
@@ -57,7 +57,11 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
-                print(bsHtml)
+                print(f"\n{bsHtml}")
+
+                parsed_json = parse_dynamic_sentence(bsHtml)
+
+                print(f"\n{parsed_json}")
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)

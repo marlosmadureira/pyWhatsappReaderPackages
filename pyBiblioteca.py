@@ -21,6 +21,29 @@ APITOKEN = os.getenv("APITOKEN")
 DebugMode = False
 
 
+def parse_dynamic_sentence(sentence):
+    # Expressões regulares para capturar os diferentes campos
+    patterns = {
+        "Service": r"Service(\w+)",
+        "Internal Ticket Number": r"Internal Ticket Number(\d+)",
+        "Account Identifier": r"Account Identifier(\+\d+)",
+        "Account Type": r"Account Type(\w+)",
+        "User Generated": r"User Generated(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Date Range": r"Date Range(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)"
+    }
+
+    # Dicionário para armazenar os resultados
+    result = {}
+
+    # Iterar sobre os padrões e encontrar as correspondências
+    for key, pattern in patterns.items():
+        match = re.search(pattern, sentence)
+        if match:
+            result[key] = match.group(1)
+
+    return json.dumps(result, indent=4)
+
+
 def replace_divs(html):
     html = str
 

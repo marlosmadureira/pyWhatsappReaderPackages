@@ -61,14 +61,17 @@ class MyHandler(PatternMatchingEventHandler):
 
                 # print(bsHtml)
 
-                parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
-                print(f"\n{parsed_json_parameters}")
+                # parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
+                # print(f"\n{parsed_json_parameters}")
 
-                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-                print(f"\n{parsed_json_books}")
+                # parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                # print(f"\n{parsed_json_books}")
 
-                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-                print(f"\n{parsed_json_ip_addresses}")
+                # parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                # print(f"\n{parsed_json_ip_addresses}")
+
+                parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
+                print(f"\n{parsed_json_connection}")
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
@@ -198,6 +201,38 @@ def parse_dynamic_sentence_ip_addresses(sentence):
         print("\nIp Addresses")
         connections_json = json.dumps(connections, indent=4)
         return connections_json
+    else:
+        return None
+
+
+def parse_dynamic_sentence_connection(sentence):
+    # Expressões regulares para capturar os campos da conexão
+    patterns = {
+        "Device Id": r"Device Id(\d+)",
+        "Service start": r"Service start(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Device Type": r"Device Type(\w+)",
+        "App Version": r"App Version([\d\.]+)",
+        "Device OS Build Numberos": r"Device OS Build Number([\w\s:]+)",
+        "Connection State": r"Connection State(\w+)",
+        "Online Since": r"Online Since(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Connected from": r"Connected from([\w\.:]+)",
+        "Push Name": r"Push Name(.*)"
+    }
+
+    # Dicionário para armazenar os resultados
+    result = {}
+
+    # Iterar sobre os padrões e encontrar as correspondências
+    for key, pattern in patterns.items():
+        match = re.search(pattern, sentence)
+        if match:
+            result[key] = match.group(1).strip() if key != "Push Name" else match.group(1).strip()
+
+
+    if len(result) > 0:
+        print("\nC")
+        connection_info_json = json.dumps(result, indent=4)
+        return connection_info_json
     else:
         return None
 

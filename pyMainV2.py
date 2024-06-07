@@ -60,10 +60,10 @@ class MyHandler(PatternMatchingEventHandler):
                 fileDados = readHeader(bsHtml)
 
                 # # DADOS
-                # ipaddresses = readipAddresses(bsHtml)
-                # if ipaddresses is not None:
-                #     fileDados['ipAddresses'] = ipaddresses
-                #
+                ipaddresses = readipAddresses(bsHtml)
+                if ipaddresses is not None:
+                    fileDados['ipAddresses'] = ipaddresses
+
                 # groupsinfo = readGroup(bsHtml)
                 # if groupsinfo is not None:
                 #     fileDados['groupsInfo'] = groupsinfo
@@ -218,27 +218,22 @@ def readipAddresses(bsHtml):
     # Encontrar a seção correspondente às imagens ("logsip")
     print("\nIp Addresses")
     logsips = []
-    logsip_sections = bsHtml.find_all(text='Ip Addresses')
+
+    logsip_sections = bsHtml.find_all(text='Time')
 
     if logsip_sections:
+
         for section in logsip_sections:
             logsip_data = {}
 
-            # Navegar para os próximos elementos para extrair os dados
-            IPAddress = section.find_next(text='IP Address').find_next()
-            Time = section.find_next(text='Time').find_next()
+            Time = section.find_next().find_next().text.strip()
+            IPAddress = section.find_next(text='IP Address').find_next().text.strip()
 
-            if IPAddress:
-                logsip_data['IPAddress'] = IPAddress.text.strip()
-            else:
-                logsip_data['IPAddress'] = None
+            if Time is not None and IPAddress is not None:
+                logsip_data['Time'] = Time
+                logsip_data['IPAddress'] = IPAddress
 
-            if Time:
-                logsip_data['Time'] = Time.text.strip()
-            else:
-                logsip_data['Time'] = None
-
-            logsips.append(logsip_data)
+                logsips.append(logsip_data)
 
     if len(logsips) > 0:
         print(f"{logsips}")

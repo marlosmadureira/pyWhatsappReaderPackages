@@ -64,10 +64,10 @@ class MyHandler(PatternMatchingEventHandler):
                 if ipaddresses is not None:
                     fileDados['ipAddresses'] = ipaddresses
 
-                # groupsinfo = readGroup(bsHtml)
-                # if groupsinfo is not None:
-                #     fileDados['groupsInfo'] = groupsinfo
-                #
+                groupsinfo = readGroup(bsHtml)
+                if groupsinfo is not None:
+                    fileDados['groupsInfo'] = groupsinfo
+
                 # bookinfo = readBook(bsHtml)
                 # if bookinfo is not None:
                 #     fileDados['addressBookInfo'] = bookinfo
@@ -142,7 +142,6 @@ class MyHandler(PatternMatchingEventHandler):
 
 
 def readHeader(bsHtml):
-    print("\nHeader Info")
     header = {}
 
     service = bsHtml.find(text="Service")
@@ -207,6 +206,7 @@ def readHeader(bsHtml):
         header['EmailAddresses'] = None
 
     if len(header) > 0:
+        print("\nHeader Info")
         print(f"{header}")
 
         return header
@@ -215,8 +215,6 @@ def readHeader(bsHtml):
 
 
 def readipAddresses(bsHtml):
-    # Encontrar a seção correspondente às imagens ("logsip")
-    print("\nIp Addresses")
     logsips = []
 
     logsip_sections = bsHtml.find_all(text='Time')
@@ -236,6 +234,7 @@ def readipAddresses(bsHtml):
                 logsips.append(logsip_data)
 
     if len(logsips) > 0:
+        print("\nIp Addresses")
         print(f"{logsips}")
 
         return logsips
@@ -244,8 +243,6 @@ def readipAddresses(bsHtml):
 
 
 def readGroup(bsHtml):
-    # Encontrar a seção correspondente às imagens ("Picture")
-    print("\nGroup Info")
     pictures = []
     picture_sections = bsHtml.find_all(text='Picture')
 
@@ -324,9 +321,10 @@ def readGroup(bsHtml):
 
     # Exibir os dados extraídos
     for picture in pictures:
+        print("\nGroup Info")
         print(picture)
 
-    if len(allRegistros) > 0:
+    if len(allRegistros['ownedGroups']) > 0 or len(allRegistros['ParticipatingGroups']):
         print(f"{allRegistros}")
 
         return allRegistros
@@ -335,8 +333,6 @@ def readGroup(bsHtml):
 
 
 def readBook(bsHtml):
-    print("\nBook Info")
-    # Lista para armazenar todos os registros
     allRegistros = []
 
     data = {}
@@ -370,6 +366,7 @@ def readBook(bsHtml):
     allRegistros.append(data)
 
     if len(allRegistros) > 0 and len(data) > 0:
+        print("\nBook Info")
         print(f"{allRegistros}")
 
         return allRegistros
@@ -378,7 +375,6 @@ def readBook(bsHtml):
 
 
 def readWebInfo(bsHtml):
-    print("\nWeb Info")
     Web = {}
 
     WebInfo = bsHtml.find(text="Web Info")
@@ -413,6 +409,7 @@ def readWebInfo(bsHtml):
         Web['Version'] = None
 
     if len(Web) > 0:
+        print("\nWeb Info")
         print(f"{Web}")
 
         return Web
@@ -421,7 +418,6 @@ def readWebInfo(bsHtml):
 
 
 def readDevice(bsHtml):
-    print("\nDevice Info")
     Device = {}
 
     DeviceId = bsHtml.find(text="Device Id")
@@ -462,6 +458,7 @@ def readDevice(bsHtml):
         Device['DeviceModel'] = None
 
     if len(Device) > 0:
+        print("\nDevice Info")
         print(f"{Device}")
 
         return Device
@@ -470,8 +467,6 @@ def readDevice(bsHtml):
 
 
 def readProfileInfo(bsHtml):
-    # Encontrar a seção correspondente às imagens ("logsip")
-    print("\nProfile Picture")
     Profile = {}
 
     profile_sections = bsHtml.find(text='Profile Picture')
@@ -482,6 +477,7 @@ def readProfileInfo(bsHtml):
         Profile['LinkedMediaFile'] = None
 
     if len(Profile) > 0:
+        print("\nProfile Picture")
         print(f"{Profile}")
 
         return Profile
@@ -490,7 +486,6 @@ def readProfileInfo(bsHtml):
 
 
 def readMessageLogs(bsHtml):
-    # Encontrar todos os blocos que contêm a informação "Timestamp"
     print("\nMessage Log")
     message_blocks = bsHtml.find_all(text="Timestamp")
 

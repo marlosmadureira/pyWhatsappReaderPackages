@@ -37,6 +37,7 @@ def html_to_markdown(html):
 
     # Converter o HTML modificado para Markdown
     markdown = md(str(soup), strip=['div'])
+
     return markdown
 
 

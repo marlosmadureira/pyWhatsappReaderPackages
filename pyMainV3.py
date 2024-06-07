@@ -56,6 +56,7 @@ class MyHandler(PatternMatchingEventHandler):
             if bsHtml is not None and bsHtml != "" and Unidade is not None:
 
                 NomeUnidade = find_unidade_postgres(Unidade)
+
                 print(bsHtml)
 
             else:

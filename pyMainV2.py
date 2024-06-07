@@ -59,7 +59,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                 fileDados = readHeader(bsHtml)
 
-                # # DADOS
+                # DADOS
                 ipaddresses = readipAddresses(bsHtml)
                 if ipaddresses is not None:
                     fileDados['ipAddresses'] = ipaddresses
@@ -68,27 +68,27 @@ class MyHandler(PatternMatchingEventHandler):
                 if groupsinfo is not None:
                     fileDados['groupsInfo'] = groupsinfo
 
-                # bookinfo = readBook(bsHtml)
-                # if bookinfo is not None:
-                #     fileDados['addressBookInfo'] = bookinfo
-                #
-                # deviveinfo = readDevice(bsHtml)
-                # if deviveinfo is not None:
-                #     fileDados['deviceinfo'] = deviveinfo
-                #
-                # webinfo = readWebInfo(bsHtml)
-                # if webinfo is not None:
-                #     fileDados['deviceinfo'] = webinfo
-                #
-                # profileinfo = readProfileInfo(bsHtml)
-                # if profileinfo is not None:
-                #     fileDados['profile'] = profileinfo
+                bookinfo = readBook(bsHtml)
+                if bookinfo is not None:
+                    fileDados['addressBookInfo'] = bookinfo
+
+                deviveinfo = readDevice(bsHtml)
+                if deviveinfo is not None:
+                    fileDados['deviceinfo'] = deviveinfo
+
+                webinfo = readWebInfo(bsHtml)
+                if webinfo is not None:
+                    fileDados['deviceinfo'] = webinfo
+
+                profileinfo = readProfileInfo(bsHtml)
+                if profileinfo is not None:
+                    fileDados['profile'] = profileinfo
 
                 # PRTT
-                messages = readMessageLogs(bsHtml)
-                if messages is not None:
-                    fileDados['msgLogs'] = messages
-
+                # messages = readMessageLogs(bsHtml)
+                # if messages is not None:
+                #     fileDados['msgLogs'] = messages
+                #
                 # calls = readCallLogs(bsHtml)
                 # if calls is not None:
                 #     fileDados['callLogs'] = calls
@@ -338,6 +338,8 @@ def readBook(bsHtml):
     data = {}
     sectionsSymmetric = bsHtml.find_all(text='Symmetric contacts')
 
+    print(f"{sectionsSymmetric}")
+
     if sectionsSymmetric:
         for section in sectionsSymmetric:
             currentSymmetric = section.find_next()
@@ -365,7 +367,7 @@ def readBook(bsHtml):
 
     allRegistros.append(data)
 
-    if len(allRegistros) > 0 and len(data) > 0:
+    if len(data['Symmetric']) > 0 and len(data['Asymmetric']) > 0:
         print("\nBook Info")
         print(f"{allRegistros}")
 

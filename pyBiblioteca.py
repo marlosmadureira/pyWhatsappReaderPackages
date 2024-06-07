@@ -7,7 +7,7 @@ import requests
 import time
 import shutil
 import zipfile
-
+from markdownify import markdownify as md
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from datetime import datetime
@@ -19,6 +19,25 @@ APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
 DebugMode = False
+
+
+def replace_divs(html):
+    html = str
+
+    return html
+
+
+def html_to_markdown(html):
+    # Substituir a <div class="p"> por um espaço em branco
+    pattern = r'<div class="[a-z]"></div>'
+    html = re.sub(pattern, ' ', html)
+
+    # Usar BeautifulSoup para manipular o HTML
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Converter o HTML modificado para Markdown
+    markdown = md(str(soup), strip=['div'])
+    return markdown
 
 
 def getUnidadeFileName(nome_original):
@@ -177,6 +196,19 @@ def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
 def removeFolderFiles(FolderPath):
     if os.path.exists(FolderPath):
         shutil.rmtree(FolderPath)
+
+
+def parsetHTLMFileString(folderZip):
+    htmlFile = folderZip + "/records.html"
+
+    markdown_content = None
+
+    if os.path.exists(htmlFile):
+        with open(htmlFile, 'r', encoding='utf-8') as file:
+            content = file.read()
+            markdown_content = html_to_markdown(content)
+
+    return markdown_content
 
 
 def parseHTMLFile(folderZip):

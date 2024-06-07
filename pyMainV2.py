@@ -244,92 +244,124 @@ def readipAddresses(bsHtml):
 
 def readGroup(bsHtml):
     pictures = []
-    picture_sections = bsHtml.find_all(text='Picture')
 
-    # Lista para armazenar todos os registros
-    allRegistros = {}
+    # ownedRegistros = []
+    # participatingRegistros = []
 
-    ownedRegistros = []
-    participatingRegistros = []
+    picture_section = bsHtml.find_all(text='Picture')
 
-    if picture_sections:
-        for section in picture_sections:
-            if 'Owned' in section.find_next(text='Owned'):
-                GroupOwned = True
-                GroupParticipating = False
+    if picture_section:
 
-            if 'Participating' in section.find_next(text='Participating'):
-                GroupOwned = False
-                GroupParticipating = True
-
+        for section in picture_section:
             picture_data = {}
 
-            # Navegar para os próximos elementos para extrair os dados
-            linked_media_file = section.find_next(text='Linked Media File:').find_next()
-            thumbnail = section.find_next(text='Thumbnail').find_next()
-            picture_id = section.find_next(text='ID').find_next()
-            creation_date = section.find_next(text='Creation').find_next()
-            size = section.find_next(text='Size').find_next()
-            description = section.find_next(text='Description').find_next()
-            subject = section.find_next(text='Subject').find_next()
+            LinkedMediaFile = section.find_next(text='Linked Media File:').find_next().text.strip()
+            Thumbnail = section.find_next(text='Thumbnail').find_next().text.strip()
+            ID = section.find_next(text='ID').find_next().text.strip()
+            Creation = section.find_next(text='Creation').find_next().text.strip()
+            Size = section.find_next(text='Size').find_next().text.strip()
+            Subject = section.find_next(text='Size').find_next().text.strip()
 
-            if linked_media_file:
-                picture_data['Picture'] = linked_media_file.text.strip()
-            else:
-                picture_data['Picture'] = None
+            if LinkedMediaFile is not None and Thumbnail is not None and ID is not None and Creation is not None and Size is not None and Subject is not None:
+                picture_data['LinkedMediaFile'] = LinkedMediaFile
+                picture_data['Thumbnail'] = Thumbnail
+                picture_data['ID'] = ID
+                picture_data['Creation'] = Creation
+                picture_data['Size'] = Size
+                picture_data['Subject'] = Subject
 
-            if thumbnail:
-                picture_data['Thumbnail'] = thumbnail.text.strip()
-            else:
-                picture_data['Thumbnail'] = None
+                pictures.append(picture_data)
 
-            if picture_id:
-                picture_data['ID'] = picture_id.text.strip()
-            else:
-                picture_data['ID'] = None
+    # allRegistros['ownedGroups'] = ownedRegistros
+    # allRegistros['ParticipatingGroups'] = participatingRegistros
 
-            if creation_date:
-                picture_data['Creation'] = creation_date.text.strip()
-            else:
-                picture_data['Creation'] = None
-
-            if size:
-                picture_data['Size'] = size.text.strip()
-            else:
-                picture_data['Size'] = None
-
-            if description:
-                picture_data['Description'] = description.text.strip()
-            else:
-                picture_data['Description'] = None
-
-            if subject:
-                picture_data['Subject'] = subject.text.strip()
-            else:
-                picture_data['Subject'] = None
-
-            if GroupOwned and picture_data not in ownedRegistros:
-                ownedRegistros.append(picture_data)
-
-            if GroupParticipating and picture_data not in participatingRegistros:
-                participatingRegistros.append(picture_data)
-
-            pictures.append(picture_data)
-
-    allRegistros['ownedGroups'] = ownedRegistros
-    allRegistros['ParticipatingGroups'] = participatingRegistros
-
-    # Exibir os dados extraídos
-    for picture in pictures:
+    if len(pictures) > 0:
         print("\nGroup Info")
-        print(picture)
+        print(f"{pictures}")
 
-    if len(allRegistros['ownedGroups']) > 0 or len(allRegistros['ParticipatingGroups']):
-        print(f"{allRegistros}")
-
-        return allRegistros
+        return pictures
     else:
         return None
+
+    # # Lista para armazenar todos os registros
+    # allRegistros = {}
+    #
+    # ownedRegistros = []
+    # participatingRegistros = []
+    #
+    # if picture_sections:
+    #     for section in picture_sections:
+    #         if 'Owned' in section.find_next(text='Owned'):
+    #             GroupOwned = True
+    #             GroupParticipating = False
+    #
+    #         if 'Participating' in section.find_next(text='Participating'):
+    #             GroupOwned = False
+    #             GroupParticipating = True
+    #
+    #         picture_data = {}
+    #
+    #         # Navegar para os próximos elementos para extrair os dados
+    #         linked_media_file = section.find_next(text='Linked Media File:').find_next()
+    #         thumbnail = section.find_next(text='Thumbnail').find_next()
+    #         picture_id = section.find_next(text='ID').find_next()
+    #         creation_date = section.find_next(text='Creation').find_next()
+    #         size = section.find_next(text='Size').find_next()
+    #         description = section.find_next(text='Description').find_next()
+    #         subject = section.find_next(text='Subject').find_next()
+    #
+    #         if linked_media_file:
+    #             picture_data['Picture'] = linked_media_file.text.strip()
+    #         else:
+    #             picture_data['Picture'] = None
+    #
+    #         if thumbnail:
+    #             picture_data['Thumbnail'] = thumbnail.text.strip()
+    #         else:
+    #             picture_data['Thumbnail'] = None
+    #
+    #         if picture_id:
+    #             picture_data['ID'] = picture_id.text.strip()
+    #         else:
+    #             picture_data['ID'] = None
+    #
+    #         if creation_date:
+    #             picture_data['Creation'] = creation_date.text.strip()
+    #         else:
+    #             picture_data['Creation'] = None
+    #
+    #         if size:
+    #             picture_data['Size'] = size.text.strip()
+    #         else:
+    #             picture_data['Size'] = None
+    #
+    #         if description:
+    #             picture_data['Description'] = description.text.strip()
+    #         else:
+    #             picture_data['Description'] = None
+    #
+    #         if subject:
+    #             picture_data['Subject'] = subject.text.strip()
+    #         else:
+    #             picture_data['Subject'] = None
+    #
+    #         if GroupOwned and picture_data not in ownedRegistros:
+    #             ownedRegistros.append(picture_data)
+    #
+    #         if GroupParticipating and picture_data not in participatingRegistros:
+    #             participatingRegistros.append(picture_data)
+    #
+    #         pictures.append(picture_data)
+    #
+    # allRegistros['ownedGroups'] = ownedRegistros
+    # allRegistros['ParticipatingGroups'] = participatingRegistros
+    #
+    # if len(allRegistros['ownedGroups']) > 0 or len(allRegistros['ParticipatingGroups']) > 0:
+    #     print(f"{allRegistros}")
+    #
+    #     return allRegistros
+    # else:
+    #     return None
 
 
 def readBook(bsHtml):

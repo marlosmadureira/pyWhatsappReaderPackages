@@ -21,7 +21,7 @@ APITOKEN = os.getenv("APITOKEN")
 DebugMode = False
 
 
-def parse_dynamic_sentence(sentence):
+def parse_dynamic_sentence_parameters(sentence):
     # Expressões regulares para capturar os diferentes campos
     patterns = {
         "Service": r"Service(\w+)",

@@ -1,0 +1,8 @@
+__pycache__
+.idea
+arquivos/Error/*
+arquivos/extracao/*
+arquivos/ziplidos/*
+arquivos/zipuploads/*
+log/*
+.env

@@ -59,19 +59,25 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
-                # print(bsHtml)
+                print(f"{bsHtml}")
 
-                parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
-                print(f"\n{parsed_json_parameters}")
+                # parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
+                # print(f"\n{parsed_json_parameters}")
+                #
+                # parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                # print(f"\n{parsed_json_books}")
+                #
+                # parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                # print(f"\n{parsed_json_ip_addresses}")
+                #
+                # parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
+                # print(f"\n{parsed_json_connection}")
+                #
+                # parsed_json_device = parse_dynamic_sentence_device(bsHtml)
+                # print(f"\n{parsed_json_device}")
 
-                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-                print(f"\n{parsed_json_books}")
-
-                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-                print(f"\n{parsed_json_ip_addresses}")
-
-                parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
-                print(f"\n{parsed_json_connection}")
+                parsed_json_group = parse_dynamic_sentence_group(bsHtml)
+                print(f"\n{parsed_json_group}")
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
@@ -228,13 +234,52 @@ def parse_dynamic_sentence_connection(sentence):
         if match:
             result[key] = match.group(1).strip() if key != "Push Name" else match.group(1).strip()
 
-
     if len(result) > 0:
-        print("\nC")
+        print("\nConnection")
         connection_info_json = json.dumps(result, indent=4)
         return connection_info_json
     else:
         return None
+
+
+def parse_dynamic_sentence_device(sentence):
+    # Expressões regulares para capturar os campos da informação do dispositivo
+    patterns = {
+        "Device Id": r"Device Id(\d+)",
+        "App Version": r"App Version([\w\-\.]+)",
+        "OS Version": r"OS Version([\w\.]+)",
+        "OS Build Number": r"OS Build Number\s*([\w\s]*)",
+        "Device Manufacturer": r"Device Manufacturer([\w\s]+)",
+        "Device Model": r"Device Model([\w\s]+)"
+    }
+
+    # Dicionário para armazenar os resultados
+    result = {}
+
+    # Iterar sobre os padrões e encontrar as correspondências
+    for key, pattern in patterns.items():
+        match = re.search(pattern, sentence)
+        if match:
+            result[key] = match.group(1).strip()
+
+    if len(result) > 0:
+        print("\nDevice")
+        device_info_json = json.dumps(result, indent=4)
+        return device_info_json
+    else:
+        return None
+
+
+def parse_dynamic_sentence_group(sentence):
+    print(f"FALTA FAZER")
+
+
+def parse_dynamic_sentence_web(sentence):
+    print(f"FALTA FAZER")
+
+
+def parse_dynamic_sentence_small(sentence):
+    print(f"FALTA FAZER")
 
 
 if __name__ == '__main__':

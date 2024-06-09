@@ -271,7 +271,60 @@ def parse_dynamic_sentence_device(sentence):
 
 
 def parse_dynamic_sentence_group(sentence):
-    print(f"FALTA FAZER")
+    # Expressões regulares para capturar os campos dos grupos
+    group_patterns = {
+        "Linked Media File": r"Linked Media File:([\w\\/_\.-]+)",
+        "Thumbnail": r"Thumbnail([\w\s]+)",
+        "ID": r"ID(\d+)",
+        "Creation": r"Creation(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Size": r"Size(\d+)",
+        "Subject": r"Subject([\w\s]+)"
+    }
+
+    # Estruturas para armazenar as informações dos grupos
+    owned_groups = []
+    participating_groups = []
+
+    # Capturar informações dos grupos Owned
+    owned_section = re.search(r"GroupsOwned.*$", sentence, re.DOTALL)
+
+    print(owned_section)
+
+    if owned_section:
+        owned_section_text = owned_section.group(0)
+        owned_group = {}
+        for key, pattern in group_patterns.items():
+            match = re.search(pattern, owned_section_text)
+            if match:
+                owned_group[key] = match.group(1).strip()
+        owned_groups.append(owned_group)
+
+    # Capturar informações dos grupos Participating
+    participating_section = re.search(r"GroupsParticipating.*$", sentence, re.DOTALL)
+
+    print(participating_section)
+
+    if participating_section:
+        participating_section_text = participating_section.group(0)
+        participating_group = {}
+        for key, pattern in group_patterns.items():
+            match = re.search(pattern, participating_section_text)
+            if match:
+                participating_group[key] = match.group(1).strip()
+        participating_groups.append(participating_group)
+
+    # Formatar os resultados como JSON
+    result = {
+        "Owned": owned_groups,
+        "Participating": participating_groups
+    }
+
+    if len(result) > 0 and (len(participating_groups) > 0 or len(owned_groups) > 0):
+        print("\nGroup")
+        groups_info_json = json.dumps(result, indent=4)
+        return groups_info_json
+    else:
+        return None
 
 
 def parse_dynamic_sentence_web(sentence):

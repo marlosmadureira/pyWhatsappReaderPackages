@@ -3,24 +3,29 @@
 import json
 import os
 import re
+import shutil
 
 from dotenv import load_dotenv
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBibliotecaV3 import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, print_color, \
-    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log
+    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, get_size, contar_arquivos_zip, openJsonEstruturado
+from pyPostgresql import sendDataPostgres
 from pyPostgresql import find_unidade_postgres
+from pyGetSendApi import sendDataJsonServer
 
 # Configs
 load_dotenv()
 
 DIRNOVOS = os.getenv("DIRNOVOS")
+DIRLIDOS = os.getenv("DIRLIDOS")
+DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
 DebugMode = False
 Out = True
-Executar = True
+Executar = False
 
 
 class MyHandler(PatternMatchingEventHandler):
@@ -52,69 +57,184 @@ class MyHandler(PatternMatchingEventHandler):
             folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
             bsHtml = parsetHTLMFileString(folderZip)
 
-            pathDeleteZipUploads = f"{os.getcwd()}/{DIRNOVOS}{os.path.splitext(fileName)[0]}"
-            pathDeleteExtracao = f"{os.getcwd()}/{DIREXTRACAO}{os.path.splitext(fileName)[0]}"
+            dataType = None
 
-            if bsHtml is not None and bsHtml != "" and Unidade is not None:
+            fileProcess['FileName'] = fileName
+            fileProcess['Unidade'] = Unidade
 
-                NomeUnidade = find_unidade_postgres(Unidade)
+            try:
+                if bsHtml is not None and bsHtml != "" and Unidade is not None:
 
-                parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
-                if parsed_json_parameters is not None:
-                    print(f"\n{parsed_json_parameters}")
+                    NomeUnidade = find_unidade_postgres(Unidade)
 
-                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-                if parsed_json_books is not None:
-                    print(f"\n{parsed_json_books}")
+                    flagDados = False
+                    flagPrtt = False
 
-                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-                if parsed_json_ip_addresses is not None:
-                    print(f"\n{parsed_json_ip_addresses}")
+                    parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
+                    if parsed_json_parameters is not None:
+                        fileProcess = parsed_json_parameters
+                        print(f"\n{parsed_json_parameters}")
 
-                parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
-                if parsed_json_connection is not None:
-                    print(f"\n{parsed_json_connection}")
+                    parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                    if parsed_json_books is not None:
+                        flagDados = True
+                        flagPrtt = False
+                        fileDados['addressBookInfo'] = parsed_json_books
+                        print(f"\n{parsed_json_books}")
 
-                parsed_json_device = parse_dynamic_sentence_device(bsHtml)
-                if parsed_json_device is not None:
-                    print(f"\n{parsed_json_device}")
+                    parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                    if parsed_json_ip_addresses is not None:
+                        flagDados = True
+                        flagPrtt = False
+                        fileDados['ipAddresses'] = parsed_json_ip_addresses
+                        print(f"\n{parsed_json_ip_addresses}")
 
-                parsed_json_group = parse_dynamic_sentence_group(bsHtml)
-                if parsed_json_group is not None:
-                    print(f"\n{parsed_json_group}")
+                    parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
+                    if parsed_json_connection is not None:
+                        flagDados = True
+                        flagPrtt = False
+                        fileDados['connectionInfo'] = parsed_json_connection
+                        print(f"\n{parsed_json_connection}")
 
-                parsed_json_web = parse_dynamic_sentence_web(bsHtml)
-                if parsed_json_web is not None:
-                    print(f"\n{parsed_json_web}")
-                #
-                # parsed_json_small = parse_dynamic_sentence_small(bsHtml)
-                # if parsed_json_small is not None:
-                    # print(f"\n{parsed_json_small}")
+                    parsed_json_device = parse_dynamic_sentence_device(bsHtml)
+                    if parsed_json_device is not None:
+                        flagDados = True
+                        flagPrtt = False
+                        fileDados['deviceinfo'] = parsed_json_device
+                        print(f"\n{parsed_json_device}")
 
-                parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
-                if parsed_json_messages is not None:
-                    print(f"\n{parsed_json_messages}")
+                    parsed_json_group = parse_dynamic_sentence_group(bsHtml)
+                    if parsed_json_group is not None:
+                        flagDados = True
+                        flagPrtt = False
+                        fileDados['groupsInfo'] = parsed_json_group
+                        print(f"\n{parsed_json_group}")
 
-                parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
-                if parsed_json_calls is not None:
-                    print(f"\n{parsed_json_calls}")
+                    parsed_json_web = parse_dynamic_sentence_web(bsHtml)
+                    if parsed_json_web is not None:
+                        flagDados = True
+                        flagPrtt = False
+                        fileDados['webInfo'] = parsed_json_web
+                        print(f"\n{parsed_json_web}")
 
-            else:
-                print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
+                    parsed_json_small = parse_dynamic_sentence_small(bsHtml)
+                    if parsed_json_small is not None:
+                        flagDados = True
+                        flagPrtt = False
+                        fileDados['smallmediumbusinessinfo'] = parsed_json_small
+                        print(f"\n{parsed_json_small}")
 
-                grava_log(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 'LogPadraoAntigo.txt')
+                    parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
+                    if parsed_json_messages is not None:
+                        flagDados = False
+                        flagPrtt = True
+                        fileDados['msgLogs'] = parsed_json_messages
+                        print(f"\n{parsed_json_messages}")
 
-            if os.path.exists(pathDeleteZipUploads):
-                removeFolderFiles(pathDeleteZipUploads)
+                    parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
+                    if parsed_json_calls is not None:
+                        flagDados = False
+                        flagPrtt = True
+                        fileDados['callLogs'] = parsed_json_calls
+                        print(f"\n{parsed_json_calls}")
 
-            if os.path.exists(pathDeleteExtracao):
-                removeFolderFiles(pathDeleteExtracao)
+                    if flagPrtt:
+                        dataType = "PRTT"
+                        fileProcess['Prtt'] = fileDados
 
-            if os.path.exists(source):
-                delete_log(source)
+                    if flagDados:
+                        dataType = "DADOS"
+                        fileProcess['Dados'] = fileDados
+
+                    print_color(f"\n{dataType}", 31)
+
+                    if Executar:
+                        sizeFile = get_size(source)
+
+                        print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
+
+                        if sizeFile > 400000:
+                            print_color(
+                                f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
+                                32)
+
+                            sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
+                        else:
+                            print_color(
+                                f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================",
+                                32)
+
+                            retornoJson = sendDataJsonServer(fileProcess, dataType)
+
+                            if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+
+                                Jsondata = json.loads(retornoJson['jsonRetorno'])
+
+                                if Jsondata['MostraJsonPython']:
+                                    openJsonEstruturado(fileProcess)
+
+                                if Jsondata['ExibirTotalPacotesFila']:
+                                    contar_arquivos_zip(DIRNOVOS)
+
+                                if Jsondata['GravaBanco']:
+                                    print_color(
+                                        f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}", 32)
+                                else:
+                                    print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",
+                                                32)
+
+                            print(f"\n{retornoJson}")
+
+                    else:
+                        print_color(
+                            f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================",
+                            31)
+
+                        grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
+
+                    removeFolderFiles(folderZip)
+
+                    filePath = DIRLIDOS + fileName
+
+                    if not os.path.exists(filePath):
+                        shutil.move(source, DIRLIDOS)
+                    else:
+                        delete_log(source)
+
+                    print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
+
+                else:
+                    print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
+
+                    grava_log(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 'LogPadraoAntigo.txt')
+
+                    # removeFolderFiles(folderZip)
+                    #
+                    # filePath = DIRLIDOS + fileName
+                    #
+                    # if not os.path.exists(filePath):
+                    #     shutil.move(source, DIRERROS)
+                    # else:
+                    #     delete_log(source)
+
+            except Exception as inst:
+
+                print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
+
+                # delete_log(f'log/Log_Error_{dataType}_Out_{fileName}.json')
+
+                # grava_log(fileProcess, f'Log_Error_{dataType}_Out_{fileName}.json')
+
+                filePath = DIRERROS + fileName
+
+                if not os.path.exists(filePath):
+                    shutil.move(source, DIRERROS)
+                else:
+                    os.remove(source)
 
             if DebugMode:
                 print("\nMovendo de: ", source)
+                print("Para: ", DIRLIDOS)
                 print("Arquivo Finalizado!\n")
                 print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads")
             else:
@@ -369,7 +489,29 @@ def parse_dynamic_sentence_web(sentence):
 
 
 def parse_dynamic_sentence_small(sentence):
-    print(f"FALTA FAZER NÃO ACHEI UM MODELO PARA ACERTA OS PADRÕES")
+    # Expressões regulares para capturar os campos da informação do dispositivo
+    patterns = {
+        "Small Medium Business": r"Small Medium Business([\w\.]+)",
+        "Address": r"Address([\w\.]+)",
+        "Email": r"Email([\w\.]+)",
+        "Name": r"Name([\w\.]+)",
+    }
+
+    # Dicionário para armazenar os resultados
+    result = {}
+
+    # Iterar sobre os padrões e encontrar as correspondências
+    for key, pattern in patterns.items():
+        match = re.search(pattern, sentence)
+        if match:
+            result[key] = match.group(1).strip()
+
+    if len(result) > 0:
+        print("\nSmall")
+        small_info_json = json.dumps(result, indent=4)
+        return small_info_json
+    else:
+        return None
 
 
 def parse_dynamic_sentence_messages(sentence):
@@ -451,6 +593,7 @@ def parse_dynamic_sentence_calls(sentence):
         return groups_info_json
     else:
         return None
+
 
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)

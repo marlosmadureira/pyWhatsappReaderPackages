@@ -85,8 +85,11 @@ class MyHandler(PatternMatchingEventHandler):
                 parsed_json_small = parse_dynamic_sentence_small(bsHtml)
                 print(f"\n{parsed_json_small}")
 
-                parsed_json_message = parse_dynamic_sentence_message(bsHtml)
-                print(f"\n{parsed_json_message}")
+                # parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
+                # print(f"\n{parsed_json_messages}")
+
+                parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
+                print(f"\n{parsed_json_calls}")
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
@@ -338,7 +341,7 @@ def parse_dynamic_sentence_small(sentence):
     print(f"FALTA FAZER")
 
 
-def parse_dynamic_sentence_message(sentence):
+def parse_dynamic_sentence_messages(sentence):
     # Expressões regulares para capturar os campos da mensagem
     message_patterns = {
         "Timestamp": r"Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
@@ -370,12 +373,53 @@ def parse_dynamic_sentence_message(sentence):
             results.append(result)
 
     if len(results) > 0:
-        print("\nMessage")
+        print("\nMessages")
         groups_info_json = json.dumps(results, indent=4)
         return groups_info_json
     else:
         return None
 
+
+def parse_dynamic_sentence_calls(sentence):
+    # Expressões regulares para capturar os campos da chamada e eventos
+    call_pattern = r'Call Id([\w\d]+).*?Call Creator([\d]+).*?(Events.*?)(?=Call|$)'
+    event_pattern = r'Type([\w]+).*?Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC).*?From([\d]+).*?To([\d]+).*?From Ip([\d\.:a-fA-F]+).*?From Port(\d+)(?:.*?Media Type([\w]+))?'
+
+    # Encontrar todas as chamadas
+    calls = re.findall(call_pattern, sentence, re.DOTALL)
+
+    results = []
+
+    for call in calls:
+        call_id, call_creator, events_section = call
+        result = {
+            "Call Id": call_id.strip(),
+            "Call Creator": call_creator.strip(),
+            "Events": []
+        }
+        # Encontrar todos os eventos dentro da seção de eventos
+        events = re.findall(event_pattern, events_section, re.DOTALL)
+        for event in events:
+            event_data = {
+                "Type": event[0].strip(),
+                "Timestamp": event[1].strip(),
+                "From": event[2].strip(),
+                "To": event[3].strip(),
+                "From Ip": event[4].strip(),
+                "From Port": event[5].strip()
+            }
+            if event[6]:  # Se o campo 'Media Type' existir
+                event_data["Media Type"] = event[6].strip()
+            result["Events"].append(event_data)
+
+        results.append(result)
+
+    if len(results) > 0:
+        print("\nCalls")
+        groups_info_json = json.dumps(results, indent=4)
+        return groups_info_json
+    else:
+        return None
 
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)

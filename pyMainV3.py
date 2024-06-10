@@ -62,34 +62,44 @@ class MyHandler(PatternMatchingEventHandler):
                 # print(f"{bsHtml}")
 
                 parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
-                print(f"\n{parsed_json_parameters}")
+                if parsed_json_parameters is not None:
+                    print(f"\n{parsed_json_parameters}")
 
                 parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-                print(f"\n{parsed_json_books}")
+                if parsed_json_books is not None:
+                    print(f"\n{parsed_json_books}")
 
                 parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-                print(f"\n{parsed_json_ip_addresses}")
+                if parsed_json_ip_addresses is not None:
+                    print(f"\n{parsed_json_ip_addresses}")
 
                 parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
-                print(f"\n{parsed_json_connection}")
+                if parsed_json_connection is not None:
+                    print(f"\n{parsed_json_connection}")
 
                 parsed_json_device = parse_dynamic_sentence_device(bsHtml)
-                print(f"\n{parsed_json_device}")
+                if parsed_json_device is not None:
+                    print(f"\n{parsed_json_device}")
 
                 parsed_json_group = parse_dynamic_sentence_group(bsHtml)
-                print(f"\n{parsed_json_group}")
+                if parsed_json_group is not None:
+                    print(f"\n{parsed_json_group}")
 
                 # parsed_json_web = parse_dynamic_sentence_web(bsHtml)
-                # print(f"\n{parsed_json_web}")
+                # if parsed_json_web is not None:
+                    # print(f"\n{parsed_json_web}")
                 #
                 # parsed_json_small = parse_dynamic_sentence_small(bsHtml)
-                # print(f"\n{parsed_json_small}")
+                # if parsed_json_small is not None:
+                    # print(f"\n{parsed_json_small}")
 
                 parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
-                print(f"\n{parsed_json_messages}")
+                if parsed_json_messages is not None:
+                    print(f"\n{parsed_json_messages}")
 
                 parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
-                print(f"\n{parsed_json_calls}")
+                if parsed_json_calls is not None:
+                    print(f"\n{parsed_json_calls}")
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)

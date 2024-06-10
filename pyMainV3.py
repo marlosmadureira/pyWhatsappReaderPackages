@@ -59,7 +59,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
-                # print(f"{bsHtml}")
+                print(f"{bsHtml}")
 
                 # parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
                 # print(f"\n{parsed_json_parameters}")
@@ -75,9 +75,15 @@ class MyHandler(PatternMatchingEventHandler):
                 #
                 # parsed_json_device = parse_dynamic_sentence_device(bsHtml)
                 # print(f"\n{parsed_json_device}")
+                #
+                # parsed_json_group = parse_dynamic_sentence_group(bsHtml)
+                # print(f"\n{parsed_json_group}")
 
-                parsed_json_group = parse_dynamic_sentence_group(bsHtml)
-                print(f"\n{parsed_json_group}")
+                parsed_json_web = parse_dynamic_sentence_web(bsHtml)
+                print(f"\n{parsed_json_web}")
+
+                parsed_json_small = parse_dynamic_sentence_small(bsHtml)
+                print(f"\n{parsed_json_small}")
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)

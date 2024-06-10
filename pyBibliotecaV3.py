@@ -208,6 +208,12 @@ def parsetHTLMFileString(folderZip):
         with open(htmlFile, 'r', encoding='utf-8') as file:
             content = file.read()
             markdown_content = html_to_markdown(content)
+    else: # ARQUIVO PADRÃO ANTIGO
+        htmlFile = folderZip + "/index.html"
+        if os.path.exists(htmlFile):
+            with open(htmlFile, 'r', encoding='utf-8') as file:
+                content = file.read()
+                markdown_content = html_to_markdown(content)
 
     return markdown_content
 

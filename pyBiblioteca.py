@@ -188,6 +188,13 @@ def parseHTMLFile(folderZip):
             contents = f.read()
             soupHtml = BeautifulSoup(contents, 'html.parser')
             soupHtml.prettify()
+    else: # ARQUIVO PADRÃO ANTIGO
+        htmlFile = folderZip + "/index.html"
+        if os.path.exists(htmlFile):
+            with open(htmlFile, 'r', encoding='utf-8') as f:
+                contents = f.read()
+                soupHtml = BeautifulSoup(contents, 'html.parser')
+                soupHtml.prettify()
 
     return soupHtml
 

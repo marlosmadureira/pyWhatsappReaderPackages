@@ -49,7 +49,7 @@ class MyHandler(PatternMatchingEventHandler):
             source, Unidade = getUnidadeFileName(source)
 
             if DebugMode:
-                print("Evento: " + event.src_path, event.event_type)  # print now only for degug
+                print("Evento: " + event.src_path, event.event_type)
 
                 printDebug(" Iniciando arquivo: " + str(source) + " - em: " + str(datamovimento) + "\n")
 
@@ -73,70 +73,60 @@ class MyHandler(PatternMatchingEventHandler):
                     parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
                     if parsed_json_parameters is not None:
                         fileProcess = parsed_json_parameters
-                        print(f"\n{parsed_json_parameters}")
 
                     parsed_json_books = parse_dynamic_sentence_books(bsHtml)
                     if parsed_json_books is not None:
                         flagDados = True
                         flagPrtt = False
                         fileDados['addressBookInfo'] = parsed_json_books
-                        print(f"\n{parsed_json_books}")
 
                     parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
                     if parsed_json_ip_addresses is not None:
                         flagDados = True
                         flagPrtt = False
                         fileDados['ipAddresses'] = parsed_json_ip_addresses
-                        print(f"\n{parsed_json_ip_addresses}")
 
                     parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
                     if parsed_json_connection is not None:
                         flagDados = True
                         flagPrtt = False
                         fileDados['connectionInfo'] = parsed_json_connection
-                        print(f"\n{parsed_json_connection}")
 
                     parsed_json_device = parse_dynamic_sentence_device(bsHtml)
                     if parsed_json_device is not None:
                         flagDados = True
                         flagPrtt = False
                         fileDados['deviceinfo'] = parsed_json_device
-                        print(f"\n{parsed_json_device}")
 
                     parsed_json_group = parse_dynamic_sentence_group(bsHtml)
                     if parsed_json_group is not None:
                         flagDados = True
                         flagPrtt = False
                         fileDados['groupsInfo'] = parsed_json_group
-                        print(f"\n{parsed_json_group}")
 
                     parsed_json_web = parse_dynamic_sentence_web(bsHtml)
                     if parsed_json_web is not None:
                         flagDados = True
                         flagPrtt = False
                         fileDados['webInfo'] = parsed_json_web
-                        print(f"\n{parsed_json_web}")
 
                     parsed_json_small = parse_dynamic_sentence_small(bsHtml)
                     if parsed_json_small is not None:
                         flagDados = True
                         flagPrtt = False
                         fileDados['smallmediumbusinessinfo'] = parsed_json_small
-                        print(f"\n{parsed_json_small}")
 
                     parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
                     if parsed_json_messages is not None:
                         flagDados = False
                         flagPrtt = True
                         fileDados['msgLogs'] = parsed_json_messages
-                        print(f"\n{parsed_json_messages}")
 
                     parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
                     if parsed_json_calls is not None:
                         flagDados = False
                         flagPrtt = True
                         fileDados['callLogs'] = parsed_json_calls
-                        print(f"\n{parsed_json_calls}")
 
                     if flagPrtt:
                         dataType = "PRTT"
@@ -207,15 +197,6 @@ class MyHandler(PatternMatchingEventHandler):
                     print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
 
                     grava_log(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 'LogPadraoAntigo.txt')
-
-                    # removeFolderFiles(folderZip)
-                    #
-                    # filePath = DIRLIDOS + fileName
-                    #
-                    # if not os.path.exists(filePath):
-                    #     shutil.move(source, DIRERROS)
-                    # else:
-                    #     delete_log(source)
 
             except Exception as inst:
 

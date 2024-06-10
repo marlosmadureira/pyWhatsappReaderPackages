@@ -59,8 +59,6 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
-                # print(f"{bsHtml}")
-
                 parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
                 if parsed_json_parameters is not None:
                     print(f"\n{parsed_json_parameters}")
@@ -85,9 +83,9 @@ class MyHandler(PatternMatchingEventHandler):
                 if parsed_json_group is not None:
                     print(f"\n{parsed_json_group}")
 
-                # parsed_json_web = parse_dynamic_sentence_web(bsHtml)
-                # if parsed_json_web is not None:
-                    # print(f"\n{parsed_json_web}")
+                parsed_json_web = parse_dynamic_sentence_web(bsHtml)
+                if parsed_json_web is not None:
+                    print(f"\n{parsed_json_web}")
                 #
                 # parsed_json_small = parse_dynamic_sentence_small(bsHtml)
                 # if parsed_json_small is not None:
@@ -344,7 +342,30 @@ def parse_dynamic_sentence_group(sentence):
 
 
 def parse_dynamic_sentence_web(sentence):
-    print(f"FALTA FAZER NÃO ACHEI UM MODELO PARA ACERTA OS PADRÕES")
+    # Expressões regulares para capturar os campos da informação do dispositivo
+    patterns = {
+        "Version": r"Version([\w\.]+)",
+        "Platform": r"Platform([\w\.]+)",
+        "Device Manufacturer": r"Device Manufacturer([\w\s]+)",
+        "Online Since": r"Online Since(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Inactive Since": r"Inactive Since(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)"
+    }
+
+    # Dicionário para armazenar os resultados
+    result = {}
+
+    # Iterar sobre os padrões e encontrar as correspondências
+    for key, pattern in patterns.items():
+        match = re.search(pattern, sentence)
+        if match:
+            result[key] = match.group(1).strip()
+
+    if len(result) > 0:
+        print("\nWeb")
+        web_info_json = json.dumps(result, indent=4)
+        return web_info_json
+    else:
+        return None
 
 
 def parse_dynamic_sentence_small(sentence):

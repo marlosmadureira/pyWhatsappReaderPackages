@@ -341,11 +341,11 @@ def parse_dynamic_sentence_small(sentence):
 def parse_dynamic_sentence_message(sentence):
     # Expressões regulares para capturar os campos da mensagem
     message_patterns = {
-        "MessageTimestamp": r"MessageTimestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Timestamp": r"Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
         "Message Id": r"Message Id([\w\d]+)",
         "Sender": r"Sender(\d+)",
         "Recipients": r"Recipients(\d+)",
-        "Sender Ip": r"Sender Ip([\w:.]+)",
+        "Sender Ip": r"Sender Ip([\d\.:a-fA-F]+)",
         "Sender Port": r"Sender Port(\d+)",
         "Sender Device": r"Sender Device([\w]+)",
         "Type": r"Type([\w]+)",
@@ -353,8 +353,8 @@ def parse_dynamic_sentence_message(sentence):
         "Message Size": r"Message Size(\d+)"
     }
 
-    # Dividir a string em blocos de mensagens individuais
-    messages = re.split(r'\n\s*\n', sentence.strip())
+    # Dividir a string em blocos de mensagens individuais usando a presença de 'Timestamp' e 'Message Size' como delimitadores
+    messages = re.findall(r'(Timestamp\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC.*?Message Size\d+)', sentence, re.DOTALL)
 
     results = []
 
@@ -365,11 +365,13 @@ def parse_dynamic_sentence_message(sentence):
             match = re.search(pattern, message)
             if match:
                 result[key] = match.group(1).strip()
-        results.append(result)
+        # Adicionar apenas se result não estiver vazio
+        if result:
+            results.append(result)
 
-    if len(result) > 0:
+    if len(results) > 0:
         print("\nMessage")
-        groups_info_json = json.dumps(result, indent=4)
+        groups_info_json = json.dumps(results, indent=4)
         return groups_info_json
     else:
         return None

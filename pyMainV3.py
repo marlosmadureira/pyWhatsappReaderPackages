@@ -344,11 +344,11 @@ def parse_dynamic_sentence_group(sentence):
 
 
 def parse_dynamic_sentence_web(sentence):
-    print(f"FALTA FAZER")
+    print(f"FALTA FAZER NÃO ACHEI UM MODELO PARA ACERTA OS PADRÕES")
 
 
 def parse_dynamic_sentence_small(sentence):
-    print(f"FALTA FAZER")
+    print(f"FALTA FAZER NÃO ACHEI UM MODELO PARA ACERTA OS PADRÕES")
 
 
 def parse_dynamic_sentence_messages(sentence):

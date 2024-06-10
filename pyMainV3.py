@@ -59,7 +59,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
-                print(f"{bsHtml}")
+                # print(f"{bsHtml}")
 
                 # parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
                 # print(f"\n{parsed_json_parameters}")
@@ -84,6 +84,9 @@ class MyHandler(PatternMatchingEventHandler):
 
                 parsed_json_small = parse_dynamic_sentence_small(bsHtml)
                 print(f"\n{parsed_json_small}")
+
+                parsed_json_message = parse_dynamic_sentence_message(bsHtml)
+                print(f"\n{parsed_json_message}")
 
             else:
                 print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
@@ -333,6 +336,43 @@ def parse_dynamic_sentence_web(sentence):
 
 def parse_dynamic_sentence_small(sentence):
     print(f"FALTA FAZER")
+
+
+def parse_dynamic_sentence_message(sentence):
+    # Expressões regulares para capturar os campos da mensagem
+    message_patterns = {
+        "MessageTimestamp": r"MessageTimestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Message Id": r"Message Id([\w\d]+)",
+        "Sender": r"Sender(\d+)",
+        "Recipients": r"Recipients(\d+)",
+        "Sender Ip": r"Sender Ip([\w:.]+)",
+        "Sender Port": r"Sender Port(\d+)",
+        "Sender Device": r"Sender Device([\w]+)",
+        "Type": r"Type([\w]+)",
+        "Message Style": r"Message Style([\w]+)",
+        "Message Size": r"Message Size(\d+)"
+    }
+
+    # Dividir a string em blocos de mensagens individuais
+    messages = re.split(r'\n\s*\n', sentence.strip())
+
+    results = []
+
+    for message in messages:
+        result = {}
+        # Iterar sobre os padrões e encontrar as correspondências
+        for key, pattern in message_patterns.items():
+            match = re.search(pattern, message)
+            if match:
+                result[key] = match.group(1).strip()
+        results.append(result)
+
+    if len(result) > 0:
+        print("\nMessage")
+        groups_info_json = json.dumps(result, indent=4)
+        return groups_info_json
+    else:
+        return None
 
 
 if __name__ == '__main__':

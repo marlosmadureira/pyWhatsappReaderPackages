@@ -270,15 +270,6 @@ def parse_dynamic_sentence_device(sentence):
         return None
 
 
-def parse_section(section_text, patterns):
-    result = {}
-    for key, pattern in patterns.items():
-        match = re.search(pattern, section_text)
-        if match:
-            result[key] = match.group(1).strip()
-    return result
-
-
 def parse_dynamic_sentence_group(sentence):
     # Expressões regulares para capturar os campos dos grupos
     group_patterns = {
@@ -322,8 +313,12 @@ def parse_dynamic_sentence_group(sentence):
         "Participating": participating_groups
     }
 
-    groups_info_json = json.dumps(result, indent=4)
-    return groups_info_json
+    if len(owned_groups) > 0 or len(participating_groups) > 0:
+        print("\nGroup")
+        groups_info_json = json.dumps(result, indent=4)
+        return groups_info_json
+    else:
+        return None
 
 
 def parse_dynamic_sentence_web(sentence):

@@ -59,7 +59,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                 NomeUnidade = find_unidade_postgres(Unidade)
 
-                print(f"{bsHtml}")
+                # print(f"{bsHtml}")
 
                 # parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
                 # print(f"\n{parsed_json_parameters}")
@@ -290,18 +290,31 @@ def parse_dynamic_sentence_group(sentence):
         "Subject": r"Subject([\w\s]+)"
     }
 
-    # Separar as seções "GroupsOwned" e "GroupsParticipating"
-    owned_section = re.search(r"GroupsOwned Groups(.*?)GroupsParticipating Groups", sentence, re.DOTALL)
-    participating_section = re.search(r"GroupsParticipating Groups(.*)", sentence, re.DOTALL)
-
+    # Estruturas para armazenar as informações dos grupos
     owned_groups = []
     participating_groups = []
 
+    # Capturar informações dos grupos Owned
+    owned_section = re.search(r"GroupsOwned.*$", sentence, re.DOTALL)
     if owned_section:
-        owned_groups.append(parse_section(owned_section.group(1), group_patterns))
+        owned_section_text = owned_section.group(0)
+        owned_group = {}
+        for key, pattern in group_patterns.items():
+            match = re.search(pattern, owned_section_text)
+            if match:
+                owned_group[key] = match.group(1).strip()
+        owned_groups.append(owned_group)
 
+    # Capturar informações dos grupos Participating
+    participating_section = re.search(r"GroupsParticipating.*$", sentence, re.DOTALL)
     if participating_section:
-        participating_groups.append(parse_section(participating_section.group(1), group_patterns))
+        participating_section_text = participating_section.group(0)
+        participating_group = {}
+        for key, pattern in group_patterns.items():
+            match = re.search(pattern, participating_section_text)
+            if match:
+                participating_group[key] = match.group(1).strip()
+        participating_groups.append(participating_group)
 
     # Formatar os resultados como JSON
     result = {

@@ -10,7 +10,8 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBibliotecaV3 import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, print_color, \
-    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, get_size, contar_arquivos_zip, openJsonEstruturado, remover_espacos_regex
+    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, get_size, contar_arquivos_zip, \
+    openJsonEstruturado, remover_espacos_regex
 from pyPostgresql import sendDataPostgres
 from pyPostgresql import find_unidade_postgres
 from pyGetSendApi import sendDataJsonServer
@@ -24,7 +25,7 @@ DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
 DebugMode = False
-Out = True
+Out = False
 Executar = True
 
 
@@ -59,9 +60,6 @@ class MyHandler(PatternMatchingEventHandler):
 
             dataType = None
 
-            fileProcess['FileName'] = fileName
-            fileProcess['Unidade'] = Unidade
-
             try:
                 if bsHtml is not None and bsHtml != "" and Unidade is not None:
 
@@ -72,122 +70,123 @@ class MyHandler(PatternMatchingEventHandler):
 
                     parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
                     if parsed_json_parameters is not None:
+                        fileProcess = parsed_json_parameters
+
                         if Out:
                             print("\nRequest Parameters")
                             print(f"{json.dumps(parsed_json_parameters, indent=4)}")
 
-                        fileProcess = parsed_json_parameters
+                    fileProcess['FileName'] = fileName
+                    fileProcess['Unidade'] = Unidade
 
                     parsed_json_books = parse_dynamic_sentence_books(bsHtml)
                     if parsed_json_books is not None:
                         flagDados = True
                         flagPrtt = False
 
+                        fileDados['addressBookInfo'] = parsed_json_books
+
                         if Out:
                             print("\nAddress Book Info")
                             print(f"{json.dumps(parsed_json_books, indent=4)}")
-
-                        fileDados['addressBookInfo'] = parsed_json_books
 
                     parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
                     if parsed_json_ip_addresses is not None:
                         flagDados = True
                         flagPrtt = False
 
+                        fileDados['ipAddresses'] = parsed_json_ip_addresses
+
                         if Out:
                             print("\nIp Addresses")
                             print(f"{json.dumps(parsed_json_ip_addresses, indent=4)}")
-
-                        fileDados['ipAddresses'] = parsed_json_ip_addresses
 
                     parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
                     if parsed_json_connection is not None:
                         flagDados = True
                         flagPrtt = False
 
+                        fileDados['connectionInfo'] = parsed_json_connection
+
                         if Out:
                             print("\nConnection")
                             print(f"{json.dumps(parsed_json_connection, indent=4)}")
-
-                        fileDados['connectionInfo'] = parsed_json_connection
 
                     parsed_json_device = parse_dynamic_sentence_device(bsHtml)
                     if parsed_json_device is not None:
                         flagDados = True
                         flagPrtt = False
 
+                        fileDados['deviceinfo'] = parsed_json_device
+
                         if Out:
                             print("\nDevice")
                             print(f"{json.dumps(parsed_json_device, indent=4)}")
-
-                        fileDados['deviceinfo'] = parsed_json_device
 
                     parsed_json_group = parse_dynamic_sentence_group(bsHtml)
                     if parsed_json_group is not None:
                         flagDados = True
                         flagPrtt = False
 
+                        fileDados['groupsInfo'] = parsed_json_group
+
                         if Out:
                             print("\nGroup")
                             print(f"{json.dumps(parsed_json_group, indent=4)}")
-
-                        fileDados['groupsInfo'] = parsed_json_group
 
                     parsed_json_web = parse_dynamic_sentence_web(bsHtml)
                     if parsed_json_web is not None:
                         flagDados = True
                         flagPrtt = False
 
+                        fileDados['webInfo'] = parsed_json_web
+
                         if Out:
                             print("\nWeb")
                             print(f"{json.dumps(parsed_json_web, indent=4)}")
-
-                        fileDados['webInfo'] = parsed_json_web
 
                     parsed_json_small = parse_dynamic_sentence_small(bsHtml)
                     if parsed_json_small is not None:
                         flagDados = True
                         flagPrtt = False
 
+                        fileDados['smallmediumbusinessinfo'] = parsed_json_small
+
                         if Out:
                             print("\nSmall")
                             print(f"{json.dumps(parsed_json_small, indent=4)}")
-
-                        fileDados['smallmediumbusinessinfo'] = parsed_json_small
 
                     parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
                     if parsed_json_messages is not None:
                         flagDados = False
                         flagPrtt = True
 
+                        fileDados['msgLogs'] = parsed_json_messages
+
                         if Out:
                             print("\nMessages")
                             print(f"{json.dumps(parsed_json_messages, indent=4)}")
-
-                        fileDados['msgLogs'] = parsed_json_messages
 
                     parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
                     if parsed_json_calls is not None:
                         flagDados = False
                         flagPrtt = True
 
+                        fileDados['callLogs'] = parsed_json_calls
+
                         if Out:
                             print("\nCalls")
                             print(f"{json.dumps(parsed_json_calls, indent=4)}")
 
-                        fileDados['callLogs'] = parsed_json_calls
-
-                    print_color(f"\n{fileProcess}", 34)
-
                     if flagDados:
-                        dataType = "DADOS"
-                        fileProcess['Dados'] = fileDados
+                        dataType = "Dados"
+                        fileProcess[dataType] = fileDados
 
                     if flagPrtt:
-                        dataType = "PRTT"
-                        fileProcess['Prtt'] = fileDados
+                        dataType = "Prtt"
+                        fileProcess[dataType] = fileDados
 
-                    print_color(f"\n{dataType}", 31)
+                    print_color(f"\n{fileProcess}", 34)
 
                     if Executar:
                         sizeFile = get_size(source)
@@ -251,7 +250,7 @@ class MyHandler(PatternMatchingEventHandler):
 
             except Exception as inst:
 
-                print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
+                print_color(f"Location: process - Files Open, error: {inst} {str(inst)} File: {str(source)}", 31)
 
                 # delete_log(f'log/Log_Error_{dataType}_Out_{fileName}.json')
 
@@ -402,7 +401,8 @@ def parse_dynamic_sentence_connection(sentence):
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)
         if match:
-            results[remover_espacos_regex(key)] = match.group(1).strip() if key != "Push Name" else match.group(1).strip()
+            results[remover_espacos_regex(key)] = match.group(1).strip() if key != "Push Name" else match.group(
+                1).strip()
 
     if len(results) > 0:
         return results

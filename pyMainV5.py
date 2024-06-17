@@ -354,7 +354,7 @@ def parse_dynamic_sentence_ip_addresses(sentence):
     time_ip_matches = time_ip_pattern.findall(sentence)
 
     # Criar uma lista de dicionários para as conexões
-    results = [{"Time": time, "IP Address": ip} for time, ip in time_ip_matches]
+    results = [{"Time": time, "IPAddress": ip} for time, ip in time_ip_matches]
 
     if len(results) > 0:
         return results
@@ -457,8 +457,8 @@ def parse_dynamic_sentence_group(sentence):
 
     # Dicionário para armazenar os resultados
     results = {
-        "Owned": owned_groups,
-        "Participating": participating_groups
+        "ownedGroups": owned_groups,
+        "ParticipatingGroups": participating_groups
     }
 
     if len(owned_groups) > 0 or len(participating_groups) > 0:

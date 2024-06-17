@@ -340,7 +340,7 @@ def parse_dynamic_sentence_books(sentence):
 
     results.append(data)
 
-    if len(data['Symmetric']) > 0 or len(data['Asymmetric']) > 0:
+    if len(data['Symmetriccontacts']) > 0 or len(data['Asymmetriccontacts']) > 0:
         return results
     else:
         return None

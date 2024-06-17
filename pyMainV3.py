@@ -11,7 +11,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pyBibliotecaV3 import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, get_size, contar_arquivos_zip, \
-    openJsonEstruturado, remover_espacos_regex
+    openJsonEstruturado, remover_espacos_regex, somentenumero
 from pyPostgresql import sendDataPostgres
 from pyPostgresql import find_unidade_postgres
 from pyGetSendApi import sendDataJsonServer
@@ -70,6 +70,8 @@ class MyHandler(PatternMatchingEventHandler):
 
                     parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
                     if parsed_json_parameters is not None:
+                        AccountIdentifier = somentenumero(parsed_json_parameters['AccountIdentifier'])
+                        parsed_json_parameters['AccountIdentifier'] = AccountIdentifier
                         fileProcess = parsed_json_parameters
 
                         if Out:
@@ -222,7 +224,7 @@ class MyHandler(PatternMatchingEventHandler):
                                         f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}", 32)
                                 else:
                                     print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",
-                                                32)
+                                                31)
 
                             print(f"\n{retornoJson}")
 

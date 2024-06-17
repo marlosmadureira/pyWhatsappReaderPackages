@@ -213,10 +213,10 @@ def process(source):
 
                         if Jsondata['GravaBanco']:
                             print_color(
-                                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}", 32)
+                                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}", 32)
                             EventoGravaBanco = True
                         else:
-                            print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",
+                            print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                                         31)
 
                     print(f"\n{retornoJson}")

@@ -74,7 +74,7 @@ class MyHandler(PatternMatchingEventHandler):
                     if parsed_json_parameters is not None:
                         if Out:
                             print("\nRequest Parameters")
-                            print(f"{parsed_json_parameters}")
+                            print(f"{json.dumps(parsed_json_parameters, indent=4)}")
 
                         fileProcess = parsed_json_parameters
 
@@ -85,7 +85,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nAddress Book Info")
-                            print(f"{parsed_json_books}")
+                            print(f"{json.dumps(parsed_json_books, indent=4)}")
 
                         fileDados['addressBookInfo'] = parsed_json_books
 
@@ -96,7 +96,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nIp Addresses")
-                            print(f"{parsed_json_ip_addresses}")
+                            print(f"{json.dumps(parsed_json_ip_addresses, indent=4)}")
 
                         fileDados['ipAddresses'] = parsed_json_ip_addresses
 
@@ -107,7 +107,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nConnection")
-                            print(f"{parsed_json_connection}")
+                            print(f"{json.dumps(parsed_json_connection, indent=4)}")
 
                         fileDados['connectionInfo'] = parsed_json_connection
 
@@ -118,7 +118,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nDevice")
-                            print(f"{parsed_json_device}")
+                            print(f"{json.dumps(parsed_json_device, indent=4)}")
 
                         fileDados['deviceinfo'] = parsed_json_device
 
@@ -129,7 +129,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nGroup")
-                            print(f"{parsed_json_group}")
+                            print(f"{json.dumps(parsed_json_group, indent=4)}")
 
                         fileDados['groupsInfo'] = parsed_json_group
 
@@ -140,7 +140,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nWeb")
-                            print(f"{parsed_json_web}")
+                            print(f"{json.dumps(parsed_json_web, indent=4)}")
 
                         fileDados['webInfo'] = parsed_json_web
 
@@ -151,7 +151,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nSmall")
-                            print(f"{parsed_json_small}")
+                            print(f"{json.dumps(parsed_json_small, indent=4)}")
 
                         fileDados['smallmediumbusinessinfo'] = parsed_json_small
 
@@ -162,7 +162,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nMessages")
-                            print(f"{parsed_json_messages}")
+                            print(f"{json.dumps(parsed_json_messages, indent=4)}")
 
                         fileDados['msgLogs'] = parsed_json_messages
 
@@ -173,7 +173,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                         if Out:
                             print("\nCalls")
-                            print(f"{parsed_json_calls}")
+                            print(f"{json.dumps(parsed_json_calls, indent=4)}")
 
                         fileDados['callLogs'] = parsed_json_calls
 
@@ -317,22 +317,22 @@ def parse_dynamic_sentence_parameters(sentence):
     }
 
     # Dicionário para armazenar os resultados
-    result = {}
+    results = {}
 
     # Iterar sobre os padrões e encontrar as correspondências
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)
         if match:
-            result[remover_espacos_regex(key)] = match.group(1).strip()
+            results[remover_espacos_regex(key)] = match.group(1).strip()
 
-    if len(result) > 0:
-        return json.dumps(result, indent=4)
+    if len(results) > 0:
+        return results
     else:
         return None
 
 
 def parse_dynamic_sentence_books(sentence):
-    allRegistros = []
+    results = []
 
     data = {}
 
@@ -357,10 +357,10 @@ def parse_dynamic_sentence_books(sentence):
     data['Symmetric'] = symmetric_numbers
     data['Asymmetric'] = asymmetric_numbers
 
-    allRegistros.append(data)
+    results.append(data)
 
     if len(data['Symmetric']) > 0 or len(data['Asymmetric']) > 0:
-        return allRegistros
+        return results
     else:
         return None
 
@@ -373,11 +373,10 @@ def parse_dynamic_sentence_ip_addresses(sentence):
     time_ip_matches = time_ip_pattern.findall(sentence)
 
     # Criar uma lista de dicionários para as conexões
-    connections = [{"Time": time, "IP Address": ip} for time, ip in time_ip_matches]
+    results = [{"Time": time, "IP Address": ip} for time, ip in time_ip_matches]
 
-    if len(connections) > 0:
-        connections_json = json.dumps(connections, indent=4)
-        return connections_json
+    if len(results) > 0:
+        return results
     else:
         return None
 
@@ -397,17 +396,16 @@ def parse_dynamic_sentence_connection(sentence):
     }
 
     # Dicionário para armazenar os resultados
-    result = {}
+    results = {}
 
     # Iterar sobre os padrões e encontrar as correspondências
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)
         if match:
-            result[remover_espacos_regex(key)] = match.group(1).strip() if key != "Push Name" else match.group(1).strip()
+            results[remover_espacos_regex(key)] = match.group(1).strip() if key != "Push Name" else match.group(1).strip()
 
-    if len(result) > 0:
-        connection_info_json = json.dumps(result, indent=4)
-        return connection_info_json
+    if len(results) > 0:
+        return results
     else:
         return None
 
@@ -424,17 +422,16 @@ def parse_dynamic_sentence_device(sentence):
     }
 
     # Dicionário para armazenar os resultados
-    result = {}
+    results = {}
 
     # Iterar sobre os padrões e encontrar as correspondências
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)
         if match:
-            result[remover_espacos_regex(key)] = match.group(1).strip()
+            results[remover_espacos_regex(key)] = match.group(1).strip()
 
-    if len(result) > 0:
-        device_info_json = json.dumps(result, indent=4)
-        return device_info_json
+    if len(results) > 0:
+        return results
     else:
         return None
 
@@ -477,14 +474,13 @@ def parse_dynamic_sentence_group(sentence):
         participating_groups.append(participating_group)
 
     # Formatar os resultados como JSON
-    result = {
+    results = {
         "Owned": owned_groups,
         "Participating": participating_groups
     }
 
     if len(owned_groups) > 0 or len(participating_groups) > 0:
-        groups_info_json = json.dumps(result, indent=4)
-        return groups_info_json
+        return results
     else:
         return None
 
@@ -500,17 +496,16 @@ def parse_dynamic_sentence_web(sentence):
     }
 
     # Dicionário para armazenar os resultados
-    result = {}
+    results = {}
 
     # Iterar sobre os padrões e encontrar as correspondências
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)
         if match:
-            result[remover_espacos_regex(key)] = match.group(1).strip()
+            results[remover_espacos_regex(key)] = match.group(1).strip()
 
-    if len(result) > 0:
-        web_info_json = json.dumps(result, indent=4)
-        return web_info_json
+    if len(results) > 0:
+        return results
     else:
         return None
 
@@ -525,17 +520,16 @@ def parse_dynamic_sentence_small(sentence):
     }
 
     # Dicionário para armazenar os resultados
-    result = {}
+    results = {}
 
     # Iterar sobre os padrões e encontrar as correspondências
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)
         if match:
-            result[remover_espacos_regex(key)] = match.group(1).strip()
+            results[remover_espacos_regex(key)] = match.group(1).strip()
 
-    if len(result) > 0:
-        small_info_json = json.dumps(result, indent=4)
-        return small_info_json
+    if len(results) > 0:
+        return results
     else:
         return None
 
@@ -572,8 +566,7 @@ def parse_dynamic_sentence_messages(sentence):
             results.append(result)
 
     if len(results) > 0:
-        groups_info_json = json.dumps(results, indent=4)
-        return groups_info_json
+        return results
     else:
         return None
 
@@ -613,8 +606,7 @@ def parse_dynamic_sentence_calls(sentence):
         results.append(result)
 
     if len(results) > 0:
-        groups_info_json = json.dumps(results, indent=4)
-        return groups_info_json
+        return results
     else:
         return None
 

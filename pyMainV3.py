@@ -189,7 +189,10 @@ class MyHandler(PatternMatchingEventHandler):
                         dataType = "Prtt"
                         fileProcess[dataType] = fileDados
 
-                    print_color(f"\n{fileProcess}", 34)
+                    if DebugMode:
+                        print_color(f"\n{fileProcess}", 34)
+
+                    EventoGravaBanco = None
 
                     if Executar:
                         sizeFile = get_size(source)
@@ -202,6 +205,8 @@ class MyHandler(PatternMatchingEventHandler):
                                 32)
 
                             sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
+
+                            EventoGravaBanco = True
                         else:
                             print_color(
                                 f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
@@ -222,6 +227,7 @@ class MyHandler(PatternMatchingEventHandler):
                                 if Jsondata['GravaBanco']:
                                     print_color(
                                         f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}", 32)
+                                    EventoGravaBanco = True
                                 else:
                                     print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",
                                                 31)
@@ -235,14 +241,25 @@ class MyHandler(PatternMatchingEventHandler):
 
                         grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
 
-                    removeFolderFiles(folderZip)
+                    if EventoGravaBanco:
+                        removeFolderFiles(folderZip)
 
-                    filePath = DIRLIDOS + fileName
+                        filePath = DIRLIDOS + fileName
 
-                    if not os.path.exists(filePath):
-                        shutil.move(source, DIRLIDOS)
+                        if not os.path.exists(filePath):
+                            shutil.move(source, DIRLIDOS)
+                        else:
+                            delete_log(source)
+
                     else:
-                        delete_log(source)
+                        filePath = DIRERROS + fileName
+
+                        if not os.path.exists(filePath):
+                            shutil.move(source, DIRERROS)
+                        else:
+                            os.remove(source)
+
+                        removeFolderFiles(folderZip)
 
                     print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 

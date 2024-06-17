@@ -8,9 +8,7 @@ import shutil
 
 from dotenv import load_dotenv
 from datetime import datetime
-from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler
-from pyBibliotecaV3 import checkFolder, StatusServidor, printTimeData, countdown, printDebug, unzipBase, print_color, \
+from pyBibliotecaV3 import checkFolder, StatusServidor, printTimeData, countdown, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, get_size, contar_arquivos_zip, \
     openJsonEstruturado, remover_espacos_regex, somentenumero
 from pyPostgresql import sendDataPostgres

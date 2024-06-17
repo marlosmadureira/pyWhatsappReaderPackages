@@ -182,15 +182,15 @@ class MyHandler(PatternMatchingEventHandler):
                             print(f"{json.dumps(parsed_json_calls, indent=4)}")
 
                     if flagDados:
-                        dataType = "Dados"
-                        fileProcess[dataType] = fileDados
+                        dataType = "DADOS"
+                        fileProcess["Dados"] = fileDados
 
                     if flagPrtt:
-                        dataType = "Prtt"
-                        fileProcess[dataType] = fileDados
+                        dataType = "PRTT"
+                        fileProcess["Prtt"] = fileDados
 
                     if DebugMode:
-                        print_color(f"\n{fileProcess}", 34)
+                        print_color(f"{fileProcess}", 34)
 
                     EventoGravaBanco = None
 

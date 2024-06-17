@@ -250,7 +250,7 @@ class MyHandler(PatternMatchingEventHandler):
 
             except Exception as inst:
 
-                print_color(f"Location: process - Files Open, error: {inst} {str(inst)} File: {str(source)}", 31)
+                print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
 
                 # delete_log(f'log/Log_Error_{dataType}_Out_{fileName}.json')
 

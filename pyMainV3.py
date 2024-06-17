@@ -62,207 +62,209 @@ class MyHandler(PatternMatchingEventHandler):
             fileProcess['FileName'] = fileName
             fileProcess['Unidade'] = Unidade
 
-            #try:
-            if bsHtml is not None and bsHtml != "" and Unidade is not None:
+            try:
+                if bsHtml is not None and bsHtml != "" and Unidade is not None:
 
-                NomeUnidade = find_unidade_postgres(Unidade)
+                    NomeUnidade = find_unidade_postgres(Unidade)
 
-                flagDados = False
-                flagPrtt = False
-
-                parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
-                if parsed_json_parameters is not None:
-                    if Out:
-                        print("\nRequest Parameters")
-                        print(f"{parsed_json_parameters}")
-
-                    fileProcess = parsed_json_parameters
-
-                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-                if parsed_json_books is not None:
-                    flagDados = True
-                    flagPrtt = False
-
-                    if Out:
-                        print("\nAddress Book Info")
-                        print(f"{parsed_json_books}")
-
-                    fileDados['addressBookInfo'] = parsed_json_books
-
-                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-                if parsed_json_ip_addresses is not None:
-                    flagDados = True
-                    flagPrtt = False
-
-                    if Out:
-                        print("\nIp Addresses")
-                        print(f"{parsed_json_ip_addresses}")
-
-                    fileDados['ipAddresses'] = parsed_json_ip_addresses
-
-                parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
-                if parsed_json_connection is not None:
-                    flagDados = True
-                    flagPrtt = False
-
-                    if Out:
-                        print("\nConnection")
-                        print(f"{parsed_json_connection}")
-
-                    fileDados['connectionInfo'] = parsed_json_connection
-
-                parsed_json_device = parse_dynamic_sentence_device(bsHtml)
-                if parsed_json_device is not None:
-                    flagDados = True
-                    flagPrtt = False
-
-                    if Out:
-                        print("\nDevice")
-                        print(f"{parsed_json_device}")
-
-                    fileDados['deviceinfo'] = parsed_json_device
-
-                parsed_json_group = parse_dynamic_sentence_group(bsHtml)
-                if parsed_json_group is not None:
-                    flagDados = True
-                    flagPrtt = False
-
-                    if Out:
-                        print("\nGroup")
-                        print(f"{parsed_json_group}")
-
-                    fileDados['groupsInfo'] = parsed_json_group
-
-                parsed_json_web = parse_dynamic_sentence_web(bsHtml)
-                if parsed_json_web is not None:
-                    flagDados = True
-                    flagPrtt = False
-
-                    if Out:
-                        print("\nWeb")
-                        print(f"{parsed_json_web}")
-
-                    fileDados['webInfo'] = parsed_json_web
-
-                parsed_json_small = parse_dynamic_sentence_small(bsHtml)
-                if parsed_json_small is not None:
-                    flagDados = True
-                    flagPrtt = False
-
-                    if Out:
-                        print("\nSmall")
-                        print(f"{parsed_json_small}")
-
-                    fileDados['smallmediumbusinessinfo'] = parsed_json_small
-
-                parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
-                if parsed_json_messages is not None:
                     flagDados = False
-                    flagPrtt = True
+                    flagPrtt = False
 
-                    if Out:
-                        print("\nMessages")
-                        print(f"{parsed_json_messages}")
+                    parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
+                    if parsed_json_parameters is not None:
+                        if Out:
+                            print("\nRequest Parameters")
+                            print(f"{parsed_json_parameters}")
 
-                    fileDados['msgLogs'] = parsed_json_messages
+                        fileProcess = parsed_json_parameters
 
-                parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
-                if parsed_json_calls is not None:
-                    flagDados = False
-                    flagPrtt = True
+                    parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                    if parsed_json_books is not None:
+                        flagDados = True
+                        flagPrtt = False
 
-                    if Out:
-                        print("\nCalls")
-                        print(f"{parsed_json_calls}")
+                        if Out:
+                            print("\nAddress Book Info")
+                            print(f"{parsed_json_books}")
 
-                    fileDados['callLogs'] = parsed_json_calls
+                        fileDados['addressBookInfo'] = parsed_json_books
 
-                print_color(f"\n{fileProcess}", 34)
+                    parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                    if parsed_json_ip_addresses is not None:
+                        flagDados = True
+                        flagPrtt = False
 
-                if flagDados:
-                    dataType = "DADOS"
-                    fileProcess['Dados'] = fileDados
+                        if Out:
+                            print("\nIp Addresses")
+                            print(f"{parsed_json_ip_addresses}")
 
-                if flagPrtt:
-                    dataType = "PRTT"
-                    fileProcess['Prtt'] = fileDados
+                        fileDados['ipAddresses'] = parsed_json_ip_addresses
 
-                print_color(f"\n{dataType}", 31)
+                    parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
+                    if parsed_json_connection is not None:
+                        flagDados = True
+                        flagPrtt = False
 
-                if Executar:
-                    sizeFile = get_size(source)
+                        if Out:
+                            print("\nConnection")
+                            print(f"{parsed_json_connection}")
 
-                    print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
+                        fileDados['connectionInfo'] = parsed_json_connection
 
-                    if sizeFile > 400000:
-                        print_color(
-                            f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
-                            32)
+                    parsed_json_device = parse_dynamic_sentence_device(bsHtml)
+                    if parsed_json_device is not None:
+                        flagDados = True
+                        flagPrtt = False
 
-                        sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
+                        if Out:
+                            print("\nDevice")
+                            print(f"{parsed_json_device}")
+
+                        fileDados['deviceinfo'] = parsed_json_device
+
+                    parsed_json_group = parse_dynamic_sentence_group(bsHtml)
+                    if parsed_json_group is not None:
+                        flagDados = True
+                        flagPrtt = False
+
+                        if Out:
+                            print("\nGroup")
+                            print(f"{parsed_json_group}")
+
+                        fileDados['groupsInfo'] = parsed_json_group
+
+                    parsed_json_web = parse_dynamic_sentence_web(bsHtml)
+                    if parsed_json_web is not None:
+                        flagDados = True
+                        flagPrtt = False
+
+                        if Out:
+                            print("\nWeb")
+                            print(f"{parsed_json_web}")
+
+                        fileDados['webInfo'] = parsed_json_web
+
+                    parsed_json_small = parse_dynamic_sentence_small(bsHtml)
+                    if parsed_json_small is not None:
+                        flagDados = True
+                        flagPrtt = False
+
+                        if Out:
+                            print("\nSmall")
+                            print(f"{parsed_json_small}")
+
+                        fileDados['smallmediumbusinessinfo'] = parsed_json_small
+
+                    parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
+                    if parsed_json_messages is not None:
+                        flagDados = False
+                        flagPrtt = True
+
+                        if Out:
+                            print("\nMessages")
+                            print(f"{parsed_json_messages}")
+
+                        fileDados['msgLogs'] = parsed_json_messages
+
+                    parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
+                    if parsed_json_calls is not None:
+                        flagDados = False
+                        flagPrtt = True
+
+                        if Out:
+                            print("\nCalls")
+                            print(f"{parsed_json_calls}")
+
+                        fileDados['callLogs'] = parsed_json_calls
+
+                    print_color(f"\n{fileProcess}", 34)
+
+                    if flagDados:
+                        dataType = "DADOS"
+                        fileProcess['Dados'] = fileDados
+
+                    if flagPrtt:
+                        dataType = "PRTT"
+                        fileProcess['Prtt'] = fileDados
+
+                    print_color(f"\n{dataType}", 31)
+
+                    if Executar:
+                        sizeFile = get_size(source)
+
+                        print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
+
+                        if sizeFile > 400000:
+                            print_color(
+                                f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
+                                32)
+
+                            sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
+                        else:
+                            print_color(
+                                f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================",
+                                32)
+
+                            retornoJson = sendDataJsonServer(fileProcess, dataType)
+
+                            if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+
+                                Jsondata = json.loads(retornoJson['jsonRetorno'])
+
+                                if Jsondata['MostraJsonPython']:
+                                    openJsonEstruturado(fileProcess)
+
+                                if Jsondata['ExibirTotalPacotesFila']:
+                                    contar_arquivos_zip(DIRNOVOS)
+
+                                if Jsondata['GravaBanco']:
+                                    print_color(
+                                        f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}", 32)
+                                else:
+                                    print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",
+                                                32)
+
+                            print(f"\n{retornoJson}")
+
                     else:
                         print_color(
-                            f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================",
-                            32)
+                            f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================",
+                            31)
 
-                        retornoJson = sendDataJsonServer(fileProcess, dataType)
+                        grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
 
-                        if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+                    removeFolderFiles(folderZip)
 
-                            Jsondata = json.loads(retornoJson['jsonRetorno'])
+                    filePath = DIRLIDOS + fileName
 
-                            if Jsondata['MostraJsonPython']:
-                                openJsonEstruturado(fileProcess)
+                    if not os.path.exists(filePath):
+                        shutil.move(source, DIRLIDOS)
+                    else:
+                        delete_log(source)
 
-                            if Jsondata['ExibirTotalPacotesFila']:
-                                contar_arquivos_zip(DIRNOVOS)
-
-                            if Jsondata['GravaBanco']:
-                                print_color(
-                                    f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}", 32)
-                            else:
-                                print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade}",
-                                            32)
-
-                        print(f"\n{retornoJson}")
+                    print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
 
                 else:
-                    print_color(
-                        f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================",
-                        31)
+                    print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
 
-                    grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
+                    grava_log(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 'LogPadraoAntigo.txt')
 
-                removeFolderFiles(folderZip)
+            except Exception as inst:
 
-                filePath = DIRLIDOS + fileName
+                print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
+
+                # delete_log(f'log/Log_Error_{dataType}_Out_{fileName}.json')
+
+                # grava_log(fileProcess, f'Log_Error_{dataType}_Out_{fileName}.json')
+
+                filePath = DIRERROS + fileName
 
                 if not os.path.exists(filePath):
-                    shutil.move(source, DIRLIDOS)
+                    shutil.move(source, DIRERROS)
                 else:
-                    delete_log(source)
+                    os.remove(source)
 
-                print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
-
-            else:
-                print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
-
-                grava_log(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 'LogPadraoAntigo.txt')
-
-            # except Exception as inst:
-            #
-            #     print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
-            #
-            #     # delete_log(f'log/Log_Error_{dataType}_Out_{fileName}.json')
-            #
-            #     # grava_log(fileProcess, f'Log_Error_{dataType}_Out_{fileName}.json')
-            #
-            #     filePath = DIRERROS + fileName
-            #
-            #     if not os.path.exists(filePath):
-            #         shutil.move(source, DIRERROS)
-            #     else:
-            #         os.remove(source)
+                removeFolderFiles(folderZip)
 
             if DebugMode:
                 print("\nMovendo de: ", source)

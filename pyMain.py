@@ -271,6 +271,8 @@ class MyHandler(PatternMatchingEventHandler):
                 else:
                     os.remove(source)
 
+                removeFolderFiles(folderZip)
+
             if DebugMode:
                 print("\nMovendo de: ", source)
                 print("Para: ", DIRLIDOS)

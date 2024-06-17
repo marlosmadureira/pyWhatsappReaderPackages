@@ -78,6 +78,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                     fileProcess['FileName'] = fileName
                     fileProcess['Unidade'] = Unidade
+                    fileProcess['NomeUnidade'] = NomeUnidade
 
                     parsed_json_books = parse_dynamic_sentence_books(bsHtml)
                     if parsed_json_books is not None:
@@ -333,6 +334,7 @@ def parse_dynamic_sentence_parameters(sentence):
 def parse_dynamic_sentence_books(sentence):
     results = []
 
+    # Dicionário para armazenar os resultados
     data = {}
 
     # Expressão regular para capturar números de telefone
@@ -473,7 +475,7 @@ def parse_dynamic_sentence_group(sentence):
                 participating_group[remover_espacos_regex(key)] = match.group(1).strip()
         participating_groups.append(participating_group)
 
-    # Formatar os resultados como JSON
+    # Dicionário para armazenar os resultados
     results = {
         "Owned": owned_groups,
         "Participating": participating_groups
@@ -555,6 +557,7 @@ def parse_dynamic_sentence_messages(sentence):
     results = []
 
     for message in messages:
+        # Dicionário para armazenar os resultados
         result = {}
         # Iterar sobre os padrões e encontrar as correspondências
         for key, pattern in message_patterns.items():
@@ -583,6 +586,7 @@ def parse_dynamic_sentence_calls(sentence):
 
     for call in calls:
         call_id, call_creator, events_section = call
+        # Dicionário para armazenar os resultados
         result = {
             "Call Id": call_id.strip(),
             "Call Creator": call_creator.strip(),

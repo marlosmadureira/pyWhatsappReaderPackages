@@ -23,7 +23,7 @@ DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
-DebugMode = False
+DebugMode = True
 Out = False
 Executar = True
 
@@ -177,7 +177,7 @@ def process(source):
                 fileProcess["Prtt"] = fileDados
 
             if DebugMode:
-                print_color(f"{fileProcess}", 34)
+                print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
 
             EventoGravaBanco = None
 
@@ -335,8 +335,8 @@ def parse_dynamic_sentence_books(sentence):
     if asymmetric_section:
         asymmetric_numbers = re.findall(phone_number_pattern, asymmetric_section.group(1))
 
-    data['Symmetric'] = symmetric_numbers
-    data['Asymmetric'] = asymmetric_numbers
+    data['Symmetriccontacts'] = symmetric_numbers
+    data['Asymmetriccontacts'] = asymmetric_numbers
 
     results.append(data)
 

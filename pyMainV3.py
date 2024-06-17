@@ -202,7 +202,7 @@ class MyHandler(PatternMatchingEventHandler):
                             sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
                         else:
                             print_color(
-                                f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} ===========================",
+                                f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
                                 32)
 
                             retornoJson = sendDataJsonServer(fileProcess, dataType)
@@ -228,7 +228,7 @@ class MyHandler(PatternMatchingEventHandler):
 
                     else:
                         print_color(
-                            f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} =================",
+                            f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
                             31)
 
                         grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')

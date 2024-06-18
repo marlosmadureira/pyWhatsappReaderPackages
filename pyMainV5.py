@@ -34,7 +34,7 @@ def get_files_in_dir(path):
 
 def process(source):
 
-    countdown(2)
+    countdown(1)
 
     fileProcess = {}
     fileDados = {}
@@ -608,7 +608,7 @@ if __name__ == '__main__':
     print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
     while True:
-        time.sleep(5)
+        time.sleep(3)
         current_files = get_files_in_dir(DIRNOVOS)
         added_files = current_files - previous_files
         removed_files = previous_files - current_files

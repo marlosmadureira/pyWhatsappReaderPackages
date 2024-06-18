@@ -584,7 +584,7 @@ def parse_dynamic_sentence_calls(sentence):
                 "FromPort": event[5].strip()
             }
             if event[6]:  # Se o campo 'Media Type' existir
-                event_data["Media Type"] = event[6].strip()
+                event_data["MediaType"] = event[6].strip()
             result["Events"].append(event_data)
 
         results.append(result)

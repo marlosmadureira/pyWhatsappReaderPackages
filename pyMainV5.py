@@ -23,7 +23,7 @@ DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
-DebugMode = True
+DebugMode = False
 Out = False
 Executar = True
 

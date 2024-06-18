@@ -206,7 +206,11 @@ def process(source):
                         Jsondata = json.loads(retornoJson['jsonRetorno'])
 
                         if Jsondata['MostraJsonPython']:
+                            print_color(f"\nJSON PROCESSADO", 35)
                             openJsonEstruturado(fileProcess)
+
+                            print_color(f"\nRETORNO DO PHP", 35)
+                            openJsonEstruturado(Jsondata)
 
                         if Jsondata['ExibirTotalPacotesFila']:
                             contar_arquivos_zip(DIRNOVOS)

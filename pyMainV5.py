@@ -580,8 +580,8 @@ def parse_dynamic_sentence_calls(sentence):
                 "Timestamp": event[1].strip(),
                 "From": event[2].strip(),
                 "To": event[3].strip(),
-                "From Ip": event[4].strip(),
-                "From Port": event[5].strip()
+                "FromIp": event[4].strip(),
+                "FromPort": event[5].strip()
             }
             if event[6]:  # Se o campo 'Media Type' existir
                 event_data["Media Type"] = event[6].strip()

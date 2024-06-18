@@ -206,10 +206,10 @@ def process(source):
                         Jsondata = json.loads(retornoJson['jsonRetorno'])
 
                         if Jsondata['MostraJsonPython']:
-                            print_color(f"\nJSON PROCESSADO", 35)
+                            print_color(f"\nJSON PROCESSADO", 34)
                             openJsonEstruturado(fileProcess)
 
-                            print_color(f"\nRETORNO DO PHP", 35)
+                            print_color(f"\nRETORNO DO PHP", 34)
                             openJsonEstruturado(Jsondata)
 
                         if Jsondata['ExibirTotalPacotesFila']:

@@ -222,9 +222,6 @@ def process(source):
                         else:
                             print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                                         31)
-
-                    print(f"\n{retornoJson}")
-
             else:
                 print_color(
                     f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",

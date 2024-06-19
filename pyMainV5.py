@@ -614,11 +614,14 @@ if __name__ == '__main__':
         added_files = current_files - previous_files
         removed_files = previous_files - current_files
 
-        if added_files:
-            for file in added_files:
-                process(f"{DIRNOVOS}{file}")
-        if removed_files:
-            print(f'\nArquivos removidos: {removed_files}')
+        try:
+            if added_files:
+                for file in added_files:
+                    process(f"{DIRNOVOS}{file}")
+            if removed_files:
+                print(f'\nArquivos removidos: {removed_files}')
+        except Exception as inst:
+            pass
 
         previous_files = current_files
 

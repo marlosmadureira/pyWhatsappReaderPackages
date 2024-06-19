@@ -287,10 +287,23 @@ def process(source):
 
 def parse_dynamic_sentence_parameters(sentence):
     # Expressões regulares para capturar os diferentes campos
+    # patterns = {
+    #     "Service": r"Service(\w+)",
+    #     "Internal Ticket Number": r"Internal Ticket Number(\d+)",
+    #     "Account Identifier": r"Account Identifier(\+\d+)",
+    #     "Account Type": r"Account Type(\w+)",
+    #     "User Generated": r"Generated(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+    #     "Date Range": r"Date Range(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC to \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+    #     "Ncmec Reports Definition": r"Ncmec Reports Definition(NCMEC Reports: [\w\s\(\)]+)",
+    #     "NCMEC CyberTip Numbers": r"NCMEC CyberTip Numbers([\w\s]+)",
+    #     "Emails Definition": r"Emails Definition(Emails: [\w\s':]+)",
+    #     "Registered Email Addresses": r"Registered Email Addresses([\w\s]+)"
+    # }
+
     patterns = {
         "Service": r"Service(\w+)",
         "Internal Ticket Number": r"Internal Ticket Number(\d+)",
-        "Account Identifier": r"Account Identifier(\+\d+)",
+        "Account Identifier": r"Account Identifier\s*([\+\d\s-]+)",
         "Account Type": r"Account Type(\w+)",
         "User Generated": r"Generated(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
         "Date Range": r"Date Range(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC to \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",

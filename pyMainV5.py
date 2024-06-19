@@ -211,6 +211,7 @@ def process(source):
                             print_color(f"\nJSON PROCESSADO", 34)
                             openJsonEstruturado(fileProcess)
 
+                        if Jsondata['RetornoPHP']:
                             print_color(f"\nRETORNO DO PHP", 34)
                             openJsonEstruturado(Jsondata)
 

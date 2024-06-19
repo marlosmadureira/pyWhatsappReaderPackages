@@ -181,7 +181,7 @@ def process(source):
 
             EventoGravaBanco = None
 
-            openJsonEstruturado(fileProcess)
+            print_color(f"{fileProcess}", 32)
 
             if Executar:
                 sizeFile = get_size(source)

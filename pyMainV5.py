@@ -181,8 +181,6 @@ def process(source):
 
             EventoGravaBanco = None
 
-            print_color(f"{fileProcess}", 32)
-
             if Executar:
                 sizeFile = get_size(source)
 
@@ -208,8 +206,8 @@ def process(source):
                         Jsondata = json.loads(retornoJson['jsonRetorno'])
 
                         if Jsondata['MostraJsonPython']:
-                            print_color(f"\nJSON PROCESSADO", 34)
-                            openJsonEstruturado(fileProcess)
+                            print_color(f"\nJSON PROCESSADO", 92)
+                            print_color(f"{fileProcess}", 92)
 
                         if Jsondata['RetornoPHP']:
                             print_color(f"\nRETORNO DO PHP", 34)

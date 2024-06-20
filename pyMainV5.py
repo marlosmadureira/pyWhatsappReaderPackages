@@ -277,6 +277,12 @@ def process(source):
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
+
+            # Novo nome do arquivo
+            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+
+            # Renomeia o arquivo
+            os.rename(filePath, new_filename)
         else:
             os.remove(source)
 

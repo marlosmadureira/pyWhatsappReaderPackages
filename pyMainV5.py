@@ -34,7 +34,7 @@ def get_files_in_dir(path):
 
 def process(source):
 
-    countdown(1)
+    # countdown(1)
 
     fileProcess = {}
     fileDados = {}

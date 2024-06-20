@@ -595,8 +595,8 @@ def parse_dynamic_sentence_calls(sentence):
         call_id, call_creator, events_section = call
         # Dicionário para armazenar os resultados
         result = {
-            "Call Id": call_id.strip(),
-            "Call Creator": call_creator.strip(),
+            "CallId": call_id.strip(),
+            "CallCreator": call_creator.strip(),
             "Events": []
         }
         # Encontrar todos os eventos dentro da seção de eventos

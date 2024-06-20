@@ -243,7 +243,13 @@ def process(source):
                     delete_log(source)
 
             else:
-                filePath = DIRERROS + fileName
+                # Novo nome do arquivo
+                new_filename = fileName.replace('.zip', f'_{Unidade}.zip')
+
+                # Renomeia o arquivo
+                os.rename(fileName, new_filename)
+
+                filePath = DIRERROS + new_filename
 
                 if not os.path.exists(filePath):
                     shutil.move(source, DIRERROS)
@@ -267,7 +273,13 @@ def process(source):
 
         # grava_log(fileProcess, f'Log_Error_{dataType}_Out_{fileName}.json')
 
-        filePath = DIRERROS + fileName
+        # Novo nome do arquivo
+        new_filename = fileName.replace('.zip', f'_{Unidade}.zip')
+
+        # Renomeia o arquivo
+        os.rename(fileName, new_filename)
+
+        filePath = DIRERROS + new_filename
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)

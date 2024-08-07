@@ -597,46 +597,6 @@ def parse_dynamic_sentence_messages(sentence):
         return None
 
 
-# def parse_dynamic_sentence_calls(sentence):
-#     # Expressões regulares para capturar os campos da chamada e eventos
-#     call_pattern = r'Call Id([\w\d]+).*?Call Creator([\d]+).*?(Events.*?)(?=Call|$)'
-#     event_pattern = r'Type([\w]+).*?Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC).*?From([\d]+).*?To([\d]+).*?From Ip([\d\.:a-fA-F]+).*?From Port(\d+)(?:.*?Media Type([\w]+))?'
-#
-#     # Encontrar todas as chamadas
-#     calls = re.findall(call_pattern, sentence, re.DOTALL)
-#
-#     results = []
-#
-#     for call in calls:
-#         call_id, call_creator, events_section = call
-#         # Dicionário para armazenar os resultados
-#         result = {
-#             "CallId": call_id.strip(),
-#             "CallCreator": call_creator.strip(),
-#             "Events": []
-#         }
-#         # Encontrar todos os eventos dentro da seção de eventos
-#         events = re.findall(event_pattern, events_section, re.DOTALL)
-#         for event in events:
-#             event_data = {
-#                 "Type": event[0].strip(),
-#                 "Timestamp": event[1].strip(),
-#                 "From": event[2].strip(),
-#                 "To": event[3].strip(),
-#                 "FromIp": event[4].strip(),
-#                 "FromPort": event[5].strip()
-#             }
-#             if event[6]:  # Se o campo 'Media Type' existir
-#                 event_data["MediaType"] = event[6].strip()
-#             result["Events"].append(event_data)
-#
-#         results.append(result)
-#
-#     if len(results) > 0:
-#         return results
-#     else:
-#         return None
-
 def parse_dynamic_sentence_calls(sentence):
     # Expressões regulares para capturar os campos da chamada e eventos
     # Alterado para lidar com múltiplas linhas e formatos variados de dados

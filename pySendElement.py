@@ -6,7 +6,7 @@ def sendMessageElement(accessToken, roomId, mensagem):
     # URL do WSDL
     wsdl = 'http://10.115.136.194/endpoint/index.php?wsdl'
 
-    mensagemError = f'ALERTA DE SISTEMA ERRO DE PROCESSAMENTO ARQUIVO {mensagem}'
+    mensagemError = f'BOOT ALERTA DE SISTEMA ERRO DE PROCESSAMENTO ARQUIVO {mensagem}'
 
     # Criação do cliente SOAP
     client = Client(wsdl=wsdl)
@@ -32,3 +32,12 @@ def sendMessageElement(accessToken, roomId, mensagem):
     resultado = client.service.sendmessageelement(parametros)
 
     return resultado
+
+
+def getroomIdElement(Unidade):
+    # CPI4 - BAURU
+    if Unidade == 43:
+        return f'!ihbfspHqeSHyCHnquK:cryptochat.com.br'
+    # CPCHOQUE - SAO PAULO
+    if Unidade == 33:
+        return f'!aaEuhYgIwsgwpOkTEm:cryptochat.com.br'

@@ -14,7 +14,7 @@ from pyBibliotecaV3 import checkFolder, StatusServidor, printTimeData, countdown
 from pyPostgresql import sendDataPostgres
 from pyPostgresql import find_unidade_postgres
 from pyGetSendApi import sendDataJsonServer
-from pySendElement import sendMessageElement
+from pySendElement import sendMessageElement, getroomIdElement
 
 # Configs
 load_dotenv()
@@ -250,7 +250,9 @@ def process(source):
                 if not os.path.exists(filePath):
                     shutil.move(source, DIRERROS)
 
-                    # sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
+                    roomId = getroomIdElement(Unidade)
+
+                    sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
 
                     # Novo nome do arquivo
                     new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -282,7 +284,9 @@ def process(source):
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
 
-            # sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
+            roomId = getroomIdElement(Unidade)
+
+            sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

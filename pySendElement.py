@@ -4,7 +4,7 @@ import json
 
 def sendMessageElement(accessToken, roomId, mensagem):
 
-    mensagemError = f'BOOT ALERTA DE SISTEMA ERRO DE PROCESSAMENTO ARQUIVO {mensagem}'
+    mensagemError = f'BOOT ALERTA DE SISTEMA ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {mensagem}'
 
     url = f"https://cryptochat.com.br/_matrix/client/r0/rooms/{roomId}/send/m.room.message"
     

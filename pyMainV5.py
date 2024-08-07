@@ -189,7 +189,7 @@ def process(source):
                 if sizeFile > 400000:
                     print_color(
                         f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
-                        33)
+                        35)
 
                     sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
 

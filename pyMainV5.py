@@ -250,6 +250,8 @@ def process(source):
                 if not os.path.exists(filePath):
                     shutil.move(source, DIRERROS)
 
+                    # sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
+
                     # Novo nome do arquivo
                     new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
 
@@ -279,6 +281,8 @@ def process(source):
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
+
+            # sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

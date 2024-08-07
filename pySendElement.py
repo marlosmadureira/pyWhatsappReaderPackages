@@ -6,6 +6,8 @@ def sendMessageElement(accessToken, roomId, mensagem):
     # URL do WSDL
     wsdl = 'http://10.115.136.194/endpoint/index.php?wsdl'
 
+    mensagemError = f'ALERTA DE SISTEMA ERRO DE PROCESSAMENTO ARQUIVO {mensagem}'
+
     # Criação do cliente SOAP
     client = Client(wsdl=wsdl)
 
@@ -13,7 +15,7 @@ def sendMessageElement(accessToken, roomId, mensagem):
     dados = json.dumps({
         'accessToken': f'{accessToken}',
         'roomId': f'{roomId}',
-        'mensagem': f'{mensagem}'
+        'mensagem': f'{mensagemError}'
     })
 
     # Parâmetros do método

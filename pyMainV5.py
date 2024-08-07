@@ -24,6 +24,8 @@ DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
 
+ACCESSTOKEN = os.getenv("ACCESSTOKEN")
+
 DebugMode = False
 Out = False
 Executar = True
@@ -252,7 +254,7 @@ def process(source):
                     roomId = getroomIdElement(Unidade)
 
                     if roomId is not None:
-                        sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, fileName)
+                        sendMessageElement(ACCESSTOKEN, roomId, fileName)
 
                     # Novo nome do arquivo
                     new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -287,7 +289,7 @@ def process(source):
             roomId = getroomIdElement(Unidade)
 
             if roomId is not None:
-                sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, fileName)
+                sendMessageElement(ACCESSTOKEN, roomId, fileName)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

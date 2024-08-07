@@ -175,6 +175,8 @@ def printDebug(Msg, Comment="Debug:"):
 
 
 def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
+    print_color(f'DESCOMPACTANDO {fileZIP}', 34)
+
     OutPutDie = fileZIP.replace(".zip", "")
     zip_ref = zipfile.ZipFile(fileZIP)
     zip_ref.extractall(OutPutDie)

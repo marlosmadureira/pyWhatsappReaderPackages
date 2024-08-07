@@ -673,8 +673,6 @@ def parse_dynamic_sentence_calls(sentence):
 
             result["Events"].append(event_data)
 
-            print(result)
-
         results.append(result)
 
     return results if results else None

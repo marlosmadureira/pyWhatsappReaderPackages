@@ -44,7 +44,6 @@ def process(source):
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
-
     bsHtml = parsetHTLMFileString(folderZip)
 
     dataType = None
@@ -252,7 +251,8 @@ def process(source):
 
                     roomId = getroomIdElement(Unidade)
 
-                    sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
+                    if roomId is not None:
+                        sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
 
                     # Novo nome do arquivo
                     new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -286,7 +286,8 @@ def process(source):
 
             roomId = getroomIdElement(Unidade)
 
-            sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
+            if roomId is not None:
+                sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -302,9 +303,9 @@ def process(source):
         print("\nMovendo de: ", source)
         print("Para: ", DIRLIDOS)
         print("Arquivo Finalizado!\n")
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads")
+        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
     else:
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads")
+        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
 
 def parse_dynamic_sentence_parameters(sentence):

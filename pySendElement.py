@@ -2,7 +2,7 @@ from zeep import Client
 import json
 
 
-def send_message(accessToken, roomId, mensagem):
+def sendMessageElement(accessToken, roomId, mensagem):
     # URL do WSDL
     wsdl = 'http://10.115.136.194/endpoint/index.php?wsdl'
 

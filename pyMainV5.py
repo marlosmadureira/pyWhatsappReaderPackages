@@ -14,6 +14,7 @@ from pyBibliotecaV3 import checkFolder, StatusServidor, printTimeData, countdown
 from pyPostgresql import sendDataPostgres
 from pyPostgresql import find_unidade_postgres
 from pyGetSendApi import sendDataJsonServer
+from pySendElement import sendMessageElement
 
 # Configs
 load_dotenv()

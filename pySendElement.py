@@ -1,37 +1,34 @@
-from zeep import Client
+import requests
 import json
 
 
 def sendMessageElement(accessToken, roomId, mensagem):
-    # URL do WSDL
-    wsdl = 'http://10.115.136.194/endpoint/index.php?wsdl'
 
     mensagemError = f'BOOT ALERTA DE SISTEMA ERRO DE PROCESSAMENTO ARQUIVO {mensagem}'
 
-    # Criação do cliente SOAP
-    client = Client(wsdl=wsdl)
-
-    # Dados a serem enviados
-    dados = json.dumps({
-        'accessToken': f'{accessToken}',
-        'roomId': f'{roomId}',
-        'mensagem': f'{mensagemError}'
-    })
-
-    # Parâmetros do método
-    parametros = {
-        'find': dados
+    url = f"https://cryptochat.com.br/_matrix/client/r0/rooms/{roomId}/send/m.room.message"
+    
+    post_data = {
+        'msgtype': 'm.text',
+        'body': mensagemError,
     }
 
-    # Definição das credenciais
-    credLogin = 'PM&SP_W&BS&RVIC&'  # Substitua pelo seu login
-    credPassword = 'B@nd&i r@nt&s'  # Substitua pela sua senha
-    client.transport.session.auth = (credLogin, credPassword)
-
-    # Chamada do método sendmessageelement
-    resultado = client.service.sendmessageelement(parametros)
-
-    return resultado
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {accessToken}',
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(post_data))
+        response.raise_for_status()  # Raises a HTTPError for bad responses
+        result = response.text
+    except requests.exceptions.RequestException as e:
+        result = f'Erro ao enviar a mensagem para o grupo: {e}'
+    
+    return {
+        'data': result,
+        'status': response.status_code if response else 500
+    }
 
 
 def getroomIdElement(Unidade):

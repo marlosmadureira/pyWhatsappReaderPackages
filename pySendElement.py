@@ -6,8 +6,6 @@ def sendMessageElement(accessToken, roomId, mensagem):
 
     mensagemError = f'BOOT ALERTA DE SISTEMA ERRO DE PROCESSAMENTO ARQUIVO {mensagem}'
 
-    print (f'{accessToken} {roomId} {mensagemError}')
-
     url = f"https://cryptochat.com.br/_matrix/client/r0/rooms/{roomId}/send/m.room.message"
     
     post_data = {

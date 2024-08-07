@@ -252,7 +252,7 @@ def process(source):
                     roomId = getroomIdElement(Unidade)
 
                     if roomId is not None:
-                        sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
+                        sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, fileName)
 
                     # Novo nome do arquivo
                     new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -287,7 +287,7 @@ def process(source):
             roomId = getroomIdElement(Unidade)
 
             if roomId is not None:
-                sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, source)
+                sendMessageElement('syt_bWFkdXJlaXJh_rajsCzoVzrRHaqtjwGsA_2cZtKY', roomId, fileName)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

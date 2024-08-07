@@ -43,6 +43,7 @@ def process(source):
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
+
     bsHtml = parsetHTLMFileString(folderZip)
 
     dataType = None
@@ -51,6 +52,8 @@ def process(source):
         if bsHtml is not None and bsHtml != "" and Unidade is not None:
 
             NomeUnidade = find_unidade_postgres(Unidade)
+
+            print_color(f'\nDESCOMPACTADO {source} DA UNIDADE {NomeUnidade} \n', 34)
 
             flagDados = False
             flagPrtt = False

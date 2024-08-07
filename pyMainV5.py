@@ -36,7 +36,6 @@ def get_files_in_dir(path):
 
 
 def process(source):
-
     # countdown(1)
 
     fileProcess = {}
@@ -223,11 +222,13 @@ def process(source):
 
                         if Jsondata['GravaBanco']:
                             print_color(
-                                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}", 32)
+                                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                                32)
                             EventoGravaBanco = True
                         else:
-                            print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                                        31)
+                            print_color(
+                                f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                                31)
             else:
                 print_color(
                     f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
@@ -596,10 +597,51 @@ def parse_dynamic_sentence_messages(sentence):
         return None
 
 
+# def parse_dynamic_sentence_calls(sentence):
+#     # Expressões regulares para capturar os campos da chamada e eventos
+#     call_pattern = r'Call Id([\w\d]+).*?Call Creator([\d]+).*?(Events.*?)(?=Call|$)'
+#     event_pattern = r'Type([\w]+).*?Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC).*?From([\d]+).*?To([\d]+).*?From Ip([\d\.:a-fA-F]+).*?From Port(\d+)(?:.*?Media Type([\w]+))?'
+#
+#     # Encontrar todas as chamadas
+#     calls = re.findall(call_pattern, sentence, re.DOTALL)
+#
+#     results = []
+#
+#     for call in calls:
+#         call_id, call_creator, events_section = call
+#         # Dicionário para armazenar os resultados
+#         result = {
+#             "CallId": call_id.strip(),
+#             "CallCreator": call_creator.strip(),
+#             "Events": []
+#         }
+#         # Encontrar todos os eventos dentro da seção de eventos
+#         events = re.findall(event_pattern, events_section, re.DOTALL)
+#         for event in events:
+#             event_data = {
+#                 "Type": event[0].strip(),
+#                 "Timestamp": event[1].strip(),
+#                 "From": event[2].strip(),
+#                 "To": event[3].strip(),
+#                 "FromIp": event[4].strip(),
+#                 "FromPort": event[5].strip()
+#             }
+#             if event[6]:  # Se o campo 'Media Type' existir
+#                 event_data["MediaType"] = event[6].strip()
+#             result["Events"].append(event_data)
+#
+#         results.append(result)
+#
+#     if len(results) > 0:
+#         return results
+#     else:
+#         return None
+
 def parse_dynamic_sentence_calls(sentence):
     # Expressões regulares para capturar os campos da chamada e eventos
-    call_pattern = r'Call Id([\w\d]+).*?Call Creator([\d]+).*?(Events.*?)(?=Call|$)'
-    event_pattern = r'Type([\w]+).*?Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC).*?From([\d]+).*?To([\d]+).*?From Ip([\d\.:a-fA-F]+).*?From Port(\d+)(?:.*?Media Type([\w]+))?'
+    # Alterado para lidar com múltiplas linhas e formatos variados de dados
+    call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'
+    event_pattern = r'Type\s*([\w]+)\s*Timestamp\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*From\s*([\d]+)\s*To\s*([\d]*)\s*From Ip\s*([\d\.:a-fA-F]+)\s*From Port\s*(\d+)(?:\s*Media Type\s*([\w]+))?'
 
     # Encontrar todas as chamadas
     calls = re.findall(call_pattern, sentence, re.DOTALL)
@@ -625,16 +667,17 @@ def parse_dynamic_sentence_calls(sentence):
                 "FromIp": event[4].strip(),
                 "FromPort": event[5].strip()
             }
-            if event[6]:  # Se o campo 'Media Type' existir
+
+            if len(event) > 6 and event[6]:  # Verifica se o campo 'Media Type' existe e não está vazio
                 event_data["MediaType"] = event[6].strip()
+
             result["Events"].append(event_data)
+
+            print(result)
 
         results.append(result)
 
-    if len(results) > 0:
-        return results
-    else:
-        return None
+    return results if results else None
 
 
 if __name__ == '__main__':

@@ -204,6 +204,11 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
         else:
             DateRange = None
 
+        if Dados.get('Service'):
+            Service = Dados['Service']
+        else:
+            Service = None
+
         if Dados.get('EmailAddresses'):
             EmailAddresses = Dados['EmailAddresses']
         else:

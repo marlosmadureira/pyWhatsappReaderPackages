@@ -54,7 +54,7 @@ def process(source):
 
             NomeUnidade = find_unidade_postgres(Unidade)
 
-            print_color(f'\nDESCOMPACTADO {source} DA UNIDADE {NomeUnidade} \n', 34)
+            print_color(f'\nDESCOMPACTADO {source} DA UNIDADE {NomeUnidade} CODIGO {Unidade} \n', 34)
 
             flagDados = False
             flagPrtt = False

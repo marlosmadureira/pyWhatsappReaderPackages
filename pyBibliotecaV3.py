@@ -183,12 +183,12 @@ def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
     arquivo = OutPutDie.replace(DIRNOVOS, "")
     destinationFolder = DIREXTRACAO + arquivo
 
-    countdown(2)
+    # countdown(2)
     print('\n')
 
     if not os.path.isdir(destinationFolder):
         shutil.copytree(OutPutDie, destinationFolder)
-        countdown(2)
+        # countdown(2)
         print('\n')
 
     return OutPutDie

@@ -513,8 +513,6 @@ def parse_dynamic_sentence_group(sentence):
         "ParticipatingGroups": participating_groups
     }
 
-    print(results)
-
     if len(owned_groups) > 0 or len(participating_groups) > 0:
         return results
     else:

@@ -18,14 +18,20 @@
 		fclose($FileLog ); //FIM DE LOG
 	}
 
+	function somenteNumeros($frase) { 
+	    return preg_replace('/\D/', '', $frase);
+	}
+
 	if(!empty($_POST['token']) && $_POST['token'] == $tokenAuthorized){
 
 		if($_POST['action'] == "updateStatus"){
 			$sqlUpdate = "UPDATE configuracao.tblogjava SET log_data = now() WHERE log_id = 1 AND log_status = 1";
-			alterarRegistro($db,$sqlUpdate);
+
+			$resultEventoBd = null;
+			$resultEventoBd = alterarRegistro($db,$sqlUpdate);
 			
 			$status['status'] = 200;
-			$status['text'] = "ok";
+			$status['text'] = 'OK ' . $resultEventoBd;
 
 			echo json_encode($status);
 		}
@@ -77,6 +83,7 @@
 		$executaSql = True;  			//EXCECUTAR COMANDOS SQL
 		$logGrava = False;				//GRAVAR LOGS DE SQL ARQUIVO TXT
 		$printLogJson = True;
+		$jsonRetorno['GravaBanco'] = null;
 
 		if(isset($jsonData)){
 
@@ -109,6 +116,7 @@
 	            $Service = trim(pg_escape_string($json->Service));
 	        }
 	        
+	        $jsonRetorno['TypePRTTouDADOS'] = trim(pg_escape_string($type));
 	        $jsonRetorno['FileName'] = trim(pg_escape_string($FileName));
 	        $jsonRetorno['AccountIdentifier'] = trim(pg_escape_string($AccountIdentifier));
 	        $jsonRetorno['Unidade'] = trim(pg_escape_string($Unidade));
@@ -128,10 +136,11 @@
 					$sqlUpdate = "UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = '".$conta_id."' WHERE conta_zap IS NULL AND apli_id = ".$apli_id." AND linh_id = ".$linh_id;
 
 					if ($executaSql){
-						alterarRegistro($db,$sqlUpdate);
+						$resultEventoBd = null;
+						$resultEventoBd = alterarRegistro($db,$sqlUpdate);
 
 						if($printLogJson){
-							$jsonRetorno['1'] = 'OK';
+							$jsonRetorno['1'] = 'OK ' . $resultEventoBd;
 						}
 					} 
 
@@ -151,7 +160,7 @@
 				}
 
 				if($printLogJson){
-					$jsonRetorno['2'] = 'OK';
+					$jsonRetorno['2'] = 'OK ' . $query['linh_id'];
 				}
 
 				if(!empty($query['linh_id']) && $query['linh_id'] > 0){
@@ -173,7 +182,7 @@
 	                            $queryArId = inserirRegistroReturning($db,$sqlInsert);
 
 								if($printLogJson){
-									$jsonRetorno['3'] = 'OK';
+									$jsonRetorno['3'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
 								}
 
 							}
@@ -193,7 +202,9 @@
 
 						            if(!empty($EmailAddresses)){
 							            $sqlUpdate = "UPDATE leitores.tb_whatszap_arquivo SET ar_email_addresses = '". $EmailAddresses ."' WHERE ar_id = " . $ar_id;
-										alterarRegistro($db,$sqlUpdate);
+
+							            $resultEventoBd = null;
+										$resultEventoBd = alterarRegistro($db,$sqlUpdate);
 									}
 						        }
 
@@ -219,10 +230,11 @@
 		                                        
 						                    	$existente = selectpadraoumalinha($db, $sqlexistente);
 						                    	if(empty($existente['ar_id'])){
-						                    		inserirRegistro($db,$sqlInsert);
+						                    		$resultEventoBd = null;
+						                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 						                    		if($printLogJson){
-														$jsonRetorno['4'] = 'OK';
+														$jsonRetorno['4'] = 'OK ' . $resultEventoBd;
 													}
 						                    	}
 						                    }
@@ -292,10 +304,11 @@
 
 						                	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['ar_id'])){
-					                    		inserirRegistro($db,$sqlInsert);
+					                    		$resultEventoBd = null;
+					                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 					                    		if($printLogJson){
-													$jsonRetorno['5'] = 'OK';
+													$jsonRetorno['5'] = 'OK ' . $resultEventoBd;
 												}
 					                    	}
 						                }
@@ -344,10 +357,11 @@
 
 						                	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['ar_id'])){
-					                    		inserirRegistro($db,$sqlInsert);
+					                    		$resultEventoBd = null;
+					                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 					                    		if($printLogJson){
-													$jsonRetorno['6'] = 'OK';
+													$jsonRetorno['6'] = 'OK ' . $resultEventoBd;
 												}
 					                    	}
 						                }
@@ -410,10 +424,11 @@
 
 						                    	$existente = selectpadraoumalinha($db, $sqlexistente);
 						                    	if(empty($existente['ar_id'])){
-						                    		inserirRegistro($db,$sqlInsert);
+						                    		$resultEventoBd = null;
+						                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 						                    		if($printLogJson){
-														$jsonRetorno['7'] = 'OK';
+														$jsonRetorno['7'] = 'OK ' . $resultEventoBd;
 													}
 						                    	}
 						                    }
@@ -476,10 +491,11 @@
 
 						                    	$existente = selectpadraoumalinha($db, $sqlexistente);
 						                    	if(empty($existente['ar_id'])){
-						                    		inserirRegistro($db,$sqlInsert);
+						                    		$resultEventoBd = null;
+						                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 						                    		if($printLogJson){
-														$jsonRetorno['8'] = 'OK';
+														$jsonRetorno['8'] = 'OK ' . $resultEventoBd;
 													}
 						                    	}
 						                    }
@@ -508,10 +524,11 @@
 
 						                    		$existente = selectpadraoumalinha($db, $sqlexistente);
 							                    	if(empty($existente['ar_id'])){
-							                    		inserirRegistro($db,$sqlInsert);
+							                    		$resultEventoBd = null;
+							                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 							                    		if($printLogJson){
-															$jsonRetorno['9'] = 'OK';
+															$jsonRetorno['9'] = 'OK ' . $resultEventoBd;
 														}
 							                    	}
 						                    	}
@@ -539,10 +556,11 @@
 
 						                    		$existente = selectpadraoumalinha($db, $sqlexistente);
 							                    	if(empty($existente['ar_id'])){
-							                    		inserirRegistro($db,$sqlInsert);
+							                    		$resultEventoBd = null;
+							                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 							                    		if($printLogJson){
-															$jsonRetorno['10'] = 'OK';
+															$jsonRetorno['10'] = 'OK ' . $resultEventoBd;
 														}
 							                    	}
 						                    	}
@@ -562,7 +580,7 @@
 					            	$dadosmallMediumBusiness = trim(pg_escape_string($json->Dados->smallmediumbusinessinfo));	
 
 					            	if($printLogJson){
-										$jsonRetorno['18'] = 'OK';
+										$jsonRetorno['18'] = 'OK FALTA FAZER ' . $dadosmallMediumBusiness;
 									}	            	
 					            }
 
@@ -581,7 +599,7 @@
 					            	}
 
 					            	if($printLogJson){
-										$jsonRetorno['19'] = 'OK';
+										$jsonRetorno['19'] = 'OK FALTA FAZER ' . $NCMECCyberTipNumbers;
 									}
 					            }
 
@@ -626,10 +644,11 @@
 
 					                    	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['ar_id'])){
-					                    		inserirRegistro($db,$sqlInsert);
+					                    		$resultEventoBd = null;
+					                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 					                    		if($printLogJson){
-													$jsonRetorno['20'] = 'OK';
+													$jsonRetorno['20'] = 'OK ' . $resultEventoBd;
 												}
 					                    	}
 					                    }
@@ -640,7 +659,6 @@
 				                    	gravalog($FileName, $sqlInsert);
 				                    	gravalog($FileName, $existente . ' - ' . $sqlexistente);
 				                    }
-
 					            }
 							}
 							$jsonRetorno['GravaBanco'] = True;
@@ -673,7 +691,7 @@
 	                            $queryArId = inserirRegistroReturning($db,$sqlInsert);
 
 	                    		if($printLogJson){
-									$jsonRetorno['11'] = 'OK';
+									$jsonRetorno['11'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
 								}
 							}
 
@@ -723,7 +741,7 @@
 							        	if(isset($registro->SenderPort)){
 							        		$prttSenderPort = trim(pg_escape_string($registro->SenderPort));
 							        	}else{
-							        		$prttSenderPort = null;
+							        		$prttSenderPort = 0;
 							        	}
 							        	if(isset($registro->SenderDevice)){
 							        		$prttSenderDevice = trim(pg_escape_string($registro->SenderDevice));
@@ -755,10 +773,11 @@
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttSender."', '".$prttRecipients."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		
 								        		if ($executaSql){
-	                                                inserirRegistro($db,$sqlInsert);
+								        			$resultEventoBd = null;
+	                                                $resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 						                    		if($printLogJson){
-														$jsonRetorno['12'] = 'OK';
+														$jsonRetorno['12'] = 'OK ' . $resultEventoBd;
 													}
 								        		}
 
@@ -774,10 +793,11 @@
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttRecipients."', '".$prttSender."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		
 								        		if ($executaSql){
-	                                                inserirRegistro($db,$sqlInsert);
+								        			$resultEventoBd = null;
+	                                                $resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 						                    		if($printLogJson){
-														$jsonRetorno['13'] = 'OK';
+														$jsonRetorno['13'] = 'OK ' . $resultEventoBd;
 													}
 								        		}
 
@@ -797,10 +817,11 @@
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttSender."', '".$prttRecipients."', '".$prttGroupId."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		
 								        		if ($executaSql){
-	                                                inserirRegistro($db,$sqlInsert);
+								        			$resultEventoBd = null;
+	                                                $resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 						                    		if($printLogJson){
-														$jsonRetorno['14'] = 'OK';
+														$jsonRetorno['14'] = 'OK ' . $resultEventoBd;
 													}
 								        		}
 
@@ -816,10 +837,11 @@
 								        		$sqlInsert = "INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES ('".$prttTimestamp."', '".$prttMessageId."', '".$TipoDirecaoMsg."', '".$prttRecipients."', '".$prttSender."', '".$prttGroupId."', '".$prttSenderIp."', ".$prttSenderPort.", '".$prttSenderDevice."', ".$prttMessageSize.", '".$prttType."', '".$prttMessageStyle."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.");";
 								        		
 								        		if ($executaSql){
-	                                                inserirRegistro($db,$sqlInsert);
+								        			$resultEventoBd = null;
+	                                                $resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 						                    		if($printLogJson){
-														$jsonRetorno['15'] = 'OK';
+														$jsonRetorno['15'] = 'OK ' . $resultEventoBd;
 													}
 								        		}
 
@@ -880,7 +902,7 @@
 							                	if(isset($subregistro->FromPort)){
 							                		$prttEsolPort = trim(pg_escape_string($subregistro->FromPort));
 							                	}else{
-							                		$prttEsolPort = null;
+							                		$prttEsolPort = 0;
 							                	}
 							                	if(isset($subregistro->MediaType)){
 							                		$prttEmediaType = trim(pg_escape_string($subregistro->MediaType));
@@ -923,10 +945,11 @@
 											                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES ( '".$prttcallID."', '".$prttcallCreator."', '".$prttEtype."', '".$prttEtimestamp."', '".$prttEsolicitante."', '".$prttEatendente."', '".$prttEsolIP."', '".$prttEsolPort."', '".$prttEmediaType."', '".$prttPhoneNumber."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.", '".$TipoDirecaoCall."');";
 											                   
 											                    if ($executaSql){
-		                                                            inserirRegistro($db,$sqlInsert);
+											                    	$resultEventoBd = null;
+		                                                            $resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 										                    		if($printLogJson){
-																		$jsonRetorno['16'] = 'OK';
+																		$jsonRetorno['16'] = 'OK ' . $resultEventoBd;
 																	}
 											                    } 
 											                }
@@ -953,10 +976,11 @@
 									                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES ('".$prttcallID."', '".$prttcallCreator."', '".$prttEtype."', '".$prttEtimestamp."', '".$prttEsolicitante."', '".$prttEatendente."', '".$prttEsolIP."', '".$prttEsolPort."', '".$prttEmediaType."', '".$prttPhoneNumber."', '".$AccountIdentifier."', ".$ar_id.", ".$linh_id.", '".$TipoDirecaoCall."');";
 									                    
 									                    if ($executaSql){
-									                    	inserirRegistro($db,$sqlInsert);
+									                    	$resultEventoBd = null;
+									                    	$resultEventoBd = inserirRegistro($db,$sqlInsert);
 
 								                    		if($printLogJson){
-																$jsonRetorno['17'] = 'OK';
+																$jsonRetorno['17'] = 'OK ' . $resultEventoBd;
 															}
 									                    }
 									                }
@@ -988,10 +1012,43 @@
 							fclose($FileLog ); //FIM DE LOG
 							$jsonRetorno['GravaBanco'] = False;
 						}
-					}	
+					}
+
+					//ARQUIVO DO TIPO SEM TAG DADOS OU PRTT
+					if(empty($type) || $type == ''){
+						$sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 0 AND linh_id = ".$linh_id." AND ar_arquivo = '".$FileName."' AND ar_dtgerado = '".$DateRange."';";
+						$repetido = selectpadraoconta($db, $sqlexistente);
+
+						if (empty($repetido['ar_id'])){
+							$sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, linh_id) VALUES ('".$AccountIdentifier."', '".$DateRange."', NOW(), '".$FileName."', 0, 1, ".$linh_id.") RETURNING ar_id;";
+
+							if ($executaSql){
+	                            $queryArId = inserirRegistroReturning($db,$sqlInsert);
+
+								if($printLogJson){
+									$jsonRetorno['21'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
+								}
+
+							}
+
+							if($logGrava){
+								gravalog($FileName, "21");
+								gravalog($FileName, $sqlInsert);
+								gravalog($FileName, $existente . ' - ' . $sqlexistente); 
+							}
+						}
+
+						$jsonRetorno['GravaBanco'] = True;
+
+						$FileLog = fopen("ArquivoProcessados.txt", "a"); 		//CRIANDO ARQUVIVO
+						$escreve = fwrite($FileLog, $FileName . ' ' . date('d/m/Y H:i:s') . ' ' . $jsonRetorno['UnidName'] . "\n\n");	//ESCREVE NO ARQUIVO LOG
+						fclose($FileLog ); //FIM DE LOG
+					}
 
 					$jsonRetorno['MostraJsonPython'] = False;
+					$jsonRetorno['RetornoPHP'] = True;
 					$jsonRetorno['ExibirTotalPacotesFila'] = False;
+					$jsonRetorno['DataHora'] = date('Y-m-d H:i:s');
 
 				}else{
 					$FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a"); 		//CRIANDO ARQUVIVO
@@ -1262,7 +1319,7 @@
 		        	if(isset($registro->SenderPort)){
 		        		$prttSenderPort = trim(pg_escape_string($registro->SenderPort));
 		        	}else{
-		        		$prttSenderPort = null;
+		        		$prttSenderPort = 0;
 		        	}
 		        	if(isset($registro->SenderDevice)){
 		        		$prttSenderDevice = trim(pg_escape_string($registro->SenderDevice));
@@ -1331,7 +1388,7 @@
 		                	if(isset($subregistro->solPort)){
 		                		$prttEsolPort = trim(pg_escape_string($subregistro->solPort));
 		                	}else{
-		                		$prttEsolPort = null;
+		                		$prttEsolPort = 0;
 		                	}
 		                	if(isset($subregistro->mediaType)){
 		                		$prttEmediaType = trim(pg_escape_string($subregistro->mediaType));

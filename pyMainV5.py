@@ -267,7 +267,7 @@ def process(source):
 
                 removeFolderFiles(folderZip)
 
-            print_color(f"\nFim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", 35)
+            print_color(f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================", 35)
 
         else:
             print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)

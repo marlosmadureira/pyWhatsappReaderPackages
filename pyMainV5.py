@@ -28,7 +28,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
 Out = False
-Executar = True
+Executar = False
 
 
 def get_files_in_dir(path):
@@ -462,6 +462,7 @@ def parse_dynamic_sentence_device(sentence):
 
 
 def parse_dynamic_sentence_group(sentence):
+
     # Expressões regulares para capturar os campos dos grupos
     group_patterns = {
         "Linked Media File": r"Linked Media File:([\w\\/_\.-]+)",
@@ -478,6 +479,10 @@ def parse_dynamic_sentence_group(sentence):
 
     # Capturar informações dos grupos Owned
     owned_section = re.search(r"GroupsOwned.*$", sentence, re.DOTALL)
+
+    if owned_section is None:
+        owned_section = re.search(r"Owned Groups.*$", sentence, re.DOTALL)
+
     if owned_section:
         owned_section_text = owned_section.group(0)
         owned_group = {}
@@ -489,6 +494,10 @@ def parse_dynamic_sentence_group(sentence):
 
     # Capturar informações dos grupos Participating
     participating_section = re.search(r"GroupsParticipating.*$", sentence, re.DOTALL)
+
+    if participating_section is None:
+        participating_section = re.search(r"Participating Groups.*$", sentence, re.DOTALL)
+
     if participating_section:
         participating_section_text = participating_section.group(0)
         participating_group = {}
@@ -503,6 +512,8 @@ def parse_dynamic_sentence_group(sentence):
         "ownedGroups": owned_groups,
         "ParticipatingGroups": participating_groups
     }
+
+    print(results)
 
     if len(owned_groups) > 0 or len(participating_groups) > 0:
         return results

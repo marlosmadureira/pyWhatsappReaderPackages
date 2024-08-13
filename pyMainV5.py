@@ -70,7 +70,7 @@ def process(source):
                     print(f"{json.dumps(parsed_json_parameters, indent=4)}")
 
             if len(AccountIdentifier) > 16:
-                print_color(f'\nQUEBRA DE GRUPO {AccountIdentifier}', 92)
+                print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
 
                 fileProcess['FileName'] = fileName
                 fileProcess['Unidade'] = Unidade
@@ -174,7 +174,7 @@ def process(source):
                     35)
 
             else:
-                print_color(f'\nQUEBRA DE CONTA {AccountIdentifier}', 92)
+                print_color(f'QUEBRA DE CONTA {AccountIdentifier}', 92)
 
                 fileProcess['FileName'] = fileName
                 fileProcess['Unidade'] = Unidade

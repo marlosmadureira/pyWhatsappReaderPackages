@@ -1171,6 +1171,13 @@
 									$jsonRetorno['RetornoPHP'] = True;
 									$jsonRetorno['ExibirTotalPacotesFila'] = False;
 									$jsonRetorno['DataHora'] = date('Y-m-d H:i:s');
+					            }else{
+					            	$FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a");
+									$escreve = fwrite($FileLog, $FileName . " \n" . date('d/m/Y H:i:s') . " \n" . $jsonRetorno['UnidName'] . " \n" . $sqllinh_id ."\nLinha Nao Localizada \n\n");
+									fclose($FileLog );
+
+									$jsonRetorno['GravaBanco'] = False;
+									$jsonRetorno['AVISO_1G'] = 'GRUPO Nao Localizada ' . $AccountIdentifier;
 					            }
 							}
 						}

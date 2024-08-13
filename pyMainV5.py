@@ -28,7 +28,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
 Out = False
-Executar = False
+Executar = True
 
 
 def get_files_in_dir(path):
@@ -96,8 +96,6 @@ def process(source):
                     print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
 
                 EventoGravaBanco = None
-
-                print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
 
                 if Executar:
                     sizeFile = get_size(source)

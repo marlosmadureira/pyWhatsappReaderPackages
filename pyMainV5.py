@@ -103,7 +103,7 @@ def process(source):
                     print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
 
                     print_color(
-                        f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
+                        f"\n=========================== ENVIADO PHP QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
                         33)
 
                     retornoJson = sendDataJsonServer(fileProcess, dataType)
@@ -307,7 +307,7 @@ def process(source):
                         EventoGravaBanco = True
                     else:
                         print_color(
-                            f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
+                            f"\n=========================== ENVIADO PHP QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
                             33)
 
                         retornoJson = sendDataJsonServer(fileProcess, dataType)

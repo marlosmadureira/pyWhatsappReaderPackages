@@ -633,7 +633,7 @@ def parse_dynamic_sentence_group_participants(sentence):
         if match:
             # Capturar e limpar os números
             numbers = match.group(1).strip().split()
-            results[key].extend(numbers)
+            results[remover_espacos_regex(key)].extend(numbers)
 
     return results if any(results.values()) else None
 

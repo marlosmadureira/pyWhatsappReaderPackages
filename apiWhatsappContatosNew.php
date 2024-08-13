@@ -2,7 +2,7 @@
     $db = null;
 	include_once('funcao.php');
 
-	$tokenAuthorized = "2021010251552-Chupisco2"; 
+	$tokenAuthorized = "2021010251552-Chupisco2";
 
 	setlocale(LC_TIME, 'pt_BR', 'pt_BR.utf-8', 'pt_BR.utf-8', 'portuguese');
 	date_default_timezone_set('America/Sao_Paulo');
@@ -1081,18 +1081,18 @@
 							}
 
 							if(!empty($queryArId['ar_id']) && $queryArId['ar_id'] > 0){
-								$sqlIdentificador = "SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats WHERE tbmembros_whats.grupo_id ILIKE '%".trim($AccountIdentifier)."%'";
+								$sqlIdentificador = "SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = ".$Unidade." AND tbmembros_whats.grupo_id ILIKE '%".trim($AccountIdentifier)."%'";
 								$queryIdentificador = selectpadraoumalinha($db, $sqlIdentificador);
 
 								if(isset($json->Dados->groupsInfo) && !empty($queryIdentificador['identificador'])){
 									$identificador = $queryIdentificador['identificador'];
 
 					                foreach($json->Dados->groupsInfo->GroupParticipants as $registro){
-					                	//GRAVANDO CONEXÃO CONEXÃO INFO
-						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".$registro."', 'A', ".$identificador.");";
+					                	//GRAVANDO PARTICIPANTES GRUPO
+						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
 
 						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".$registro."'";
+		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
 
 						                	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['grupo_id'])){
@@ -1113,11 +1113,11 @@
 					                }
 
 					                foreach($json->Dados->groupsInfo->GroupAdministrators as $registro){
-					                	//GRAVANDO CONEXÃO CONEXÃO INFO
-						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".$registro."', 'S', 'A', ".$identificador.");";
+					                	//GRAVANDO PARTICIPANTES GRUPO
+						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'S', 'A', ".$identificador.");";
 
 						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".$registro."' AND grupo_adm = 'S'";
+		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."' AND grupo_adm = 'S'";
 
 						                	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['grupo_id'])){
@@ -1138,11 +1138,11 @@
 					                }
 
 					                foreach($json->Dados->groupsInfo->Participants as $registro){
-					                	//GRAVANDO CONEXÃO CONEXÃO INFO
-						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".$registro."', 'A', ".$identificador.");";
+					                	//GRAVANDO PARTICIPANTES GRUPO
+						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
 
 						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".$registro."'";
+		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
 
 						                	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['grupo_id'])){
@@ -1229,7 +1229,7 @@
 	            $EmailAddresses = trim(pg_escape_string($json->EmailAddresses));
 	        }
 
-			//ARQUIVOS DO TIPO DADOS	
+			//ARQUIVOS DO TIPO DADOS
 			if(isset($json->Dados->ipAddresses)){
 	            foreach($json->Dados->ipAddresses as $registro){
 	            	if(isset($registro->IPAddress)){
@@ -1237,57 +1237,57 @@
 	            	}else{
 	            		$dadoIPAddress = null;
 	            	}
-	            	if(isset($registro->Time)){		                    
+	            	if(isset($registro->Time)){
 	                	$dadoTime = trim(pg_escape_string(str_replace("UTC","",$registro->Time)));
 	                }else{
 	                	$dadoTime = null;
-	                } 
+	                }
 	            }
 	        }
-	        
+
 	        if(isset($json->Dados->connectionInfo)){
 	        	if(isset($json->Dados->connectionInfo->ServiceStart)){
 	                $dadoServiceStart = trim(pg_escape_string($json->Dados->connectionInfo->ServiceStart));
 	            }else{
-	            	$dadoServiceStart = null; 
+	            	$dadoServiceStart = null;
 	            }
 	            if(isset($json->Dados->connectionInfo->DeviceType)){
 	                $dadoDeviceType = trim(pg_escape_string($json->Dados->connectionInfo->DeviceType));
 	            }else{
-	            	$dadoDeviceType = null; 
+	            	$dadoDeviceType = null;
 	            }
 	            if(isset($json->Dados->connectionInfo->AppVersion)){
 	                $dadoAppVersion = trim(pg_escape_string($json->Dados->connectionInfo->AppVersion));
 	            }else{
-	            	$dadoAppVersion = null; 
+	            	$dadoAppVersion = null;
 	            }
 	            if(isset($json->Dados->connectionInfo->DeviceOSBuildNumber)){
 	                $dadoDeviceOSBuildNumber = trim(pg_escape_string($json->Dados->connectionInfo->DeviceOSBuildNumber));
 	            }else{
-	            	$dadoDeviceOSBuildNumber = null; 
+	            	$dadoDeviceOSBuildNumber = null;
 	            }
 	            if(isset($json->Dados->connectionInfo->ConnectionState)){
 	                $dadoConnectionState = trim(pg_escape_string($json->Dados->connectionInfo->ConnectionState));
 	            }else{
-	            	$dadoConnectionState = null; 
+	            	$dadoConnectionState = null;
 	            }
 	            if(isset($json->Dados->connectionInfo->OnlineSince)){
 	                $dadoOnlineSince = trim(pg_escape_string($json->Dados->connectionInfo->OnlineSince));
 	            }else{
-	            	$dadoOnlineSince = null; 
+	            	$dadoOnlineSince = null;
 	            }
 	            if(isset($json->Dados->connectionInfo->PushName)){
 	                $dadoPushName = trim(pg_escape_string($json->Dados->connectionInfo->PushName));
 	            }else{
-	            	$dadoOnlineSince = null; 
+	            	$dadoOnlineSince = null;
 	            }
 	            if(isset($json->Dados->connectionInfo->LastSeen)){
 	                $dadoLastSeen = trim(pg_escape_string($json->Dados->connectionInfo->LastSeen));
 	            }else{
-	            	$dadoLastSeen = null; 
-	            } 
+	            	$dadoLastSeen = null;
+	            }
 	        }
-			
+
 	        if(isset($json->Dados->webInfo)){
 	        	if(isset($json->Dados->webInfo->Version)){
 	        		$dadoVersion = trim(pg_escape_string($json->Dados->webInfo->Version));
@@ -1308,9 +1308,9 @@
 	            	$dadoInactiveSince = trim(pg_escape_string($json->Dados->webInfo->InactiveSince));
 	            }else{
 	            	$dadoInactiveSince = null;
-	            } 
+	            }
 	        }
-	        
+
 	        if(isset($json->Dados->groupsInfo)){
 	            foreach($json->Dados->groupsInfo->ownedGroups as $registro){
 	            	$dadoTipoGroup = 'Owned';
@@ -1339,7 +1339,7 @@
 	            		$dadoSize = trim(pg_escape_string($registro->Size));
 	            	}else{
 	            		$dadoSize = null;
-	            	}		                    
+	            	}
 	                if(isset($registro->Description)){
 	                	$dadoDescription = trim(pg_escape_string($registro->Description));
 	                }else{
@@ -1379,7 +1379,7 @@
 	            		$dadoSize = trim(pg_escape_string($registro->Size));
 	            	}else{
 	            		$dadoSize = null;
-	            	}		                    
+	            	}
 	                if(isset($registro->Description)){
 	                	$dadoDescription = trim(pg_escape_string($registro->Description));
 	                }else{
@@ -1392,13 +1392,13 @@
 	                }
 	            }
 	        }
-	        
+
 	        if(isset($json->Dados->addressBookInfo)){
-	            
+
 	            foreach($json->Dados->addressBookInfo->symmetricContacts as $registro){
 	                $dadosymmetricContacts = trim(pg_escape_string($registro));
 	            }
-	            
+
 	            foreach($json->Dados->addressBookInfo->asymmetricContacts as $registro){
 	                $dadoasymmetricContacts = trim(pg_escape_string($registro));
 	            }
@@ -1406,17 +1406,17 @@
 
 	        if(isset($json->Dados->smallMediumBusiness)){
 	        	//AINDA NÃO IMPLEMENTADO PQ NÃO HOUVE DADOS PARA ANALAISE
-	        	$dadosmallMediumBusiness = trim(pg_escape_string($json->Dados->smallMediumBusiness));		            	
+	        	$dadosmallMediumBusiness = trim(pg_escape_string($json->Dados->smallMediumBusiness));
 	        }
 
 	        if(isset($json->Dados->ncmecReportsInfo)){
 	        	//AINDA NÃO IMPLEMENTADO PQ NÃO HOUVE DADOS PARA ANALAISE
-	        	$dadoncmecReports = trim(pg_escape_string($json->Dados->ncmecReportsInfo));		            	
+	        	$dadoncmecReports = trim(pg_escape_string($json->Dados->ncmecReportsInfo));
 	        }
-			
 
-			//ARQUIVOS DO TIPO PRTT	
-				
+
+			//ARQUIVOS DO TIPO PRTT
+
 			if(isset($json->Prtt->msgLogs)){
 		        foreach($json->Prtt->msgLogs as $registro){
 		        	if(isset($registro->Timestamp)){
@@ -1489,9 +1489,9 @@
 		            	$prttcallCreator = trim(pg_escape_string($registro->callCreator));
 		            }else{
 		            	$prttcallCreator = null;
-		            }				            
+		            }
 		            if(isset($registro->Events)){
-		            	
+
 		                foreach($registro->Events as $subregistro){
 		                	if(isset($subregistro->type)){
 		                		$prttEtype = trim(pg_escape_string($subregistro->type));
@@ -1527,7 +1527,7 @@
 		                		$prttEmediaType = trim(pg_escape_string($subregistro->mediaType));
 		                	}else{
 		                		$prttEmediaType = null;
-		                	}		                	
+		                	}
 		                	if(count($subregistro->Participants) > 0){
 		                		if (isset($subregistro->Participants)){
 			                		foreach($subregistro->Participants as $eventParticipant){
@@ -1535,19 +1535,19 @@
 			                				$callGruopParticipant = $eventParticipant->PhoneNumber;
 			                			}else{
 			                				$callGruopParticipant = null;
-			                			} 
+			                			}
 				                	}
 				                }
 		                	}
-		                	
+
 		                }
 		            }
 		        }
 		    }
-		    
+
 		    /*if(isset($json->Prtt->fileContent)){
 		        $prttfileContent = trim(pg_escape_string($json->Prtt->fileContent));
-		    }*/		
+		    }*/
 		}
 	}
 

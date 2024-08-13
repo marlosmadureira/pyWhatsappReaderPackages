@@ -28,7 +28,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
 Out = False
-Executar = True
+Executar = False
 
 
 def get_files_in_dir(path):
@@ -69,136 +69,41 @@ def process(source):
                     print("\nRequest Parameters")
                     print(f"{json.dumps(parsed_json_parameters, indent=4)}")
 
-            fileProcess['FileName'] = fileName
-            fileProcess['Unidade'] = Unidade
-            fileProcess['NomeUnidade'] = NomeUnidade
+            if len(AccountIdentifier) > 16:
+                print_color(f'\nQUEBRA DE GRUPO {AccountIdentifier}', 92)
 
-            parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-            if parsed_json_books is not None:
-                flagDados = True
-                flagPrtt = False
+                fileProcess['FileName'] = fileName
+                fileProcess['Unidade'] = Unidade
+                fileProcess['NomeUnidade'] = NomeUnidade
 
-                fileDados['addressBookInfo'] = parsed_json_books
+                parsed_json_group = parse_dynamic_sentence_group_participants(bsHtml)
 
-                if Out:
-                    print("\nAddress Book Info")
-                    print(f"{json.dumps(parsed_json_books, indent=4)}")
+                if parsed_json_group is not None:
+                    flagDados = True
+                    flagPrtt = False
 
-            parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-            if parsed_json_ip_addresses is not None:
-                flagDados = True
-                flagPrtt = False
+                    fileDados['groupsInfo'] = parsed_json_group
 
-                fileDados['ipAddresses'] = parsed_json_ip_addresses
+                    if Out:
+                        print("\nGroup")
+                        print(f"{json.dumps(parsed_json_group, indent=4)}")
 
-                if Out:
-                    print("\nIp Addresses")
-                    print(f"{json.dumps(parsed_json_ip_addresses, indent=4)}")
+                if flagDados:
+                    dataType = "DADOS"
+                    fileProcess["Dados"] = fileDados
 
-            parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
-            if parsed_json_connection is not None:
-                flagDados = True
-                flagPrtt = False
+                if DebugMode:
+                    print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
 
-                fileDados['connectionInfo'] = parsed_json_connection
+                EventoGravaBanco = None
 
-                if Out:
-                    print("\nConnection")
-                    print(f"{json.dumps(parsed_json_connection, indent=4)}")
-
-            parsed_json_device = parse_dynamic_sentence_device(bsHtml)
-            if parsed_json_device is not None:
-                flagDados = True
-                flagPrtt = False
-
-                fileDados['deviceinfo'] = parsed_json_device
-
-                if Out:
-                    print("\nDevice")
-                    print(f"{json.dumps(parsed_json_device, indent=4)}")
-
-            parsed_json_group = parse_dynamic_sentence_group(bsHtml)
-            if parsed_json_group is not None:
-                flagDados = True
-                flagPrtt = False
-
-                fileDados['groupsInfo'] = parsed_json_group
-
-                if Out:
-                    print("\nGroup")
-                    print(f"{json.dumps(parsed_json_group, indent=4)}")
-
-            parsed_json_web = parse_dynamic_sentence_web(bsHtml)
-            if parsed_json_web is not None:
-                flagDados = True
-                flagPrtt = False
-
-                fileDados['webInfo'] = parsed_json_web
-
-                if Out:
-                    print("\nWeb")
-                    print(f"{json.dumps(parsed_json_web, indent=4)}")
-
-            parsed_json_small = parse_dynamic_sentence_small(bsHtml)
-            if parsed_json_small is not None:
-                flagDados = True
-                flagPrtt = False
-
-                fileDados['smallmediumbusinessinfo'] = parsed_json_small
-
-                if Out:
-                    print("\nSmall")
-                    print(f"{json.dumps(parsed_json_small, indent=4)}")
-
-            parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
-            if parsed_json_messages is not None:
-                flagDados = False
-                flagPrtt = True
-
-                fileDados['msgLogs'] = parsed_json_messages
-
-                if Out:
-                    print("\nMessages")
-                    print(f"{json.dumps(parsed_json_messages, indent=4)}")
-
-            parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
-            if parsed_json_calls is not None:
-                flagDados = False
-                flagPrtt = True
-
-                fileDados['callLogs'] = parsed_json_calls
-
-                if Out:
-                    print("\nCalls")
-                    print(f"{json.dumps(parsed_json_calls, indent=4)}")
-
-            if flagDados:
-                dataType = "DADOS"
-                fileProcess["Dados"] = fileDados
-
-            if flagPrtt:
-                dataType = "PRTT"
-                fileProcess["Prtt"] = fileDados
-
-            if DebugMode:
                 print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
 
-            EventoGravaBanco = None
+                if Executar:
+                    sizeFile = get_size(source)
 
-            if Executar:
-                sizeFile = get_size(source)
+                    print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
 
-                print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
-
-                if sizeFile > 400000:
-                    print_color(
-                        f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
-                        35)
-
-                    sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
-
-                    EventoGravaBanco = True
-                else:
                     print_color(
                         f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
                         33)
@@ -229,45 +134,250 @@ def process(source):
                             print_color(
                                 f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                                 31)
-            else:
+                else:
+                    print_color(
+                        f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
+                        31)
+
+                    grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
+
+                if EventoGravaBanco:
+                    removeFolderFiles(folderZip)
+
+                    filePath = DIRLIDOS + fileName
+
+                    if not os.path.exists(filePath):
+                        shutil.move(source, DIRLIDOS)
+                    else:
+                        delete_log(source)
+                else:
+                    filePath = DIRERROS + fileName
+
+                    if not os.path.exists(filePath):
+                        shutil.move(source, DIRERROS)
+
+                        roomId = getroomIdElement(Unidade)
+
+                        if roomId is not None:
+                            sendMessageElement(ACCESSTOKEN, roomId, fileName)
+
+                        # Novo nome do arquivo
+                        new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+
+                        # Renomeia o arquivo
+                        os.rename(filePath, new_filename)
+                    else:
+                        os.remove(source)
+
+                    removeFolderFiles(folderZip)
+
                 print_color(
-                    f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
-                    31)
-
-                grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
-
-            if EventoGravaBanco:
-                removeFolderFiles(folderZip)
-
-                filePath = DIRLIDOS + fileName
-
-                if not os.path.exists(filePath):
-                    shutil.move(source, DIRLIDOS)
-                else:
-                    delete_log(source)
+                    f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
+                    35)
 
             else:
-                filePath = DIRERROS + fileName
+                print_color(f'\nQUEBRA DE CONTA {AccountIdentifier}', 92)
 
-                if not os.path.exists(filePath):
-                    shutil.move(source, DIRERROS)
+                fileProcess['FileName'] = fileName
+                fileProcess['Unidade'] = Unidade
+                fileProcess['NomeUnidade'] = NomeUnidade
 
-                    roomId = getroomIdElement(Unidade)
+                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                if parsed_json_books is not None:
+                    flagDados = True
+                    flagPrtt = False
 
-                    if roomId is not None:
-                        sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                    fileDados['addressBookInfo'] = parsed_json_books
 
-                    # Novo nome do arquivo
-                    new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+                    if Out:
+                        print("\nAddress Book Info")
+                        print(f"{json.dumps(parsed_json_books, indent=4)}")
 
-                    # Renomeia o arquivo
-                    os.rename(filePath, new_filename)
+                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                if parsed_json_ip_addresses is not None:
+                    flagDados = True
+                    flagPrtt = False
+
+                    fileDados['ipAddresses'] = parsed_json_ip_addresses
+
+                    if Out:
+                        print("\nIp Addresses")
+                        print(f"{json.dumps(parsed_json_ip_addresses, indent=4)}")
+
+                parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
+                if parsed_json_connection is not None:
+                    flagDados = True
+                    flagPrtt = False
+
+                    fileDados['connectionInfo'] = parsed_json_connection
+
+                    if Out:
+                        print("\nConnection")
+                        print(f"{json.dumps(parsed_json_connection, indent=4)}")
+
+                parsed_json_device = parse_dynamic_sentence_device(bsHtml)
+                if parsed_json_device is not None:
+                    flagDados = True
+                    flagPrtt = False
+
+                    fileDados['deviceinfo'] = parsed_json_device
+
+                    if Out:
+                        print("\nDevice")
+                        print(f"{json.dumps(parsed_json_device, indent=4)}")
+
+                parsed_json_group = parse_dynamic_sentence_group(bsHtml)
+                if parsed_json_group is not None:
+                    flagDados = True
+                    flagPrtt = False
+
+                    fileDados['groupsInfo'] = parsed_json_group
+
+                    if Out:
+                        print("\nGroup")
+                        print(f"{json.dumps(parsed_json_group, indent=4)}")
+
+                parsed_json_web = parse_dynamic_sentence_web(bsHtml)
+                if parsed_json_web is not None:
+                    flagDados = True
+                    flagPrtt = False
+
+                    fileDados['webInfo'] = parsed_json_web
+
+                    if Out:
+                        print("\nWeb")
+                        print(f"{json.dumps(parsed_json_web, indent=4)}")
+
+                parsed_json_small = parse_dynamic_sentence_small(bsHtml)
+                if parsed_json_small is not None:
+                    flagDados = True
+                    flagPrtt = False
+
+                    fileDados['smallmediumbusinessinfo'] = parsed_json_small
+
+                    if Out:
+                        print("\nSmall")
+                        print(f"{json.dumps(parsed_json_small, indent=4)}")
+
+                parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
+                if parsed_json_messages is not None:
+                    flagDados = False
+                    flagPrtt = True
+
+                    fileDados['msgLogs'] = parsed_json_messages
+
+                    if Out:
+                        print("\nMessages")
+                        print(f"{json.dumps(parsed_json_messages, indent=4)}")
+
+                parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
+                if parsed_json_calls is not None:
+                    flagDados = False
+                    flagPrtt = True
+
+                    fileDados['callLogs'] = parsed_json_calls
+
+                    if Out:
+                        print("\nCalls")
+                        print(f"{json.dumps(parsed_json_calls, indent=4)}")
+
+                if flagDados:
+                    dataType = "DADOS"
+                    fileProcess["Dados"] = fileDados
+
+                if flagPrtt:
+                    dataType = "PRTT"
+                    fileProcess["Prtt"] = fileDados
+
+                if DebugMode:
+                    print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
+
+                EventoGravaBanco = None
+
+                if Executar:
+                    sizeFile = get_size(source)
+
+                    print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
+
+                    if sizeFile > 400000:
+                        print_color(
+                            f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
+                            35)
+
+                        sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
+
+                        EventoGravaBanco = True
+                    else:
+                        print_color(
+                            f"\n=========================== ENVIADO PHP {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
+                            33)
+
+                        retornoJson = sendDataJsonServer(fileProcess, dataType)
+
+                        if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+
+                            Jsondata = json.loads(retornoJson['jsonRetorno'])
+
+                            if Jsondata['MostraJsonPython']:
+                                print_color(f"\nJSON PROCESSADO", 92)
+                                print_color(f"{fileProcess}", 92)
+
+                            if Jsondata['RetornoPHP']:
+                                print_color(f"\nRETORNO DO PHP", 34)
+                                openJsonEstruturado(Jsondata)
+
+                            if Jsondata['ExibirTotalPacotesFila']:
+                                contar_arquivos_zip(DIRNOVOS)
+
+                            if Jsondata['GravaBanco']:
+                                print_color(
+                                    f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                                    32)
+                                EventoGravaBanco = True
+                            else:
+                                print_color(
+                                    f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                                    31)
                 else:
-                    os.remove(source)
+                    print_color(
+                        f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
+                        31)
 
-                removeFolderFiles(folderZip)
+                    grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
 
-            print_color(f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================", 35)
+                if EventoGravaBanco:
+                    removeFolderFiles(folderZip)
+
+                    filePath = DIRLIDOS + fileName
+
+                    if not os.path.exists(filePath):
+                        shutil.move(source, DIRLIDOS)
+                    else:
+                        delete_log(source)
+                else:
+                    filePath = DIRERROS + fileName
+
+                    if not os.path.exists(filePath):
+                        shutil.move(source, DIRERROS)
+
+                        roomId = getroomIdElement(Unidade)
+
+                        if roomId is not None:
+                            sendMessageElement(ACCESSTOKEN, roomId, fileName)
+
+                        # Novo nome do arquivo
+                        new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+
+                        # Renomeia o arquivo
+                        os.rename(filePath, new_filename)
+                    else:
+                        os.remove(source)
+
+                    removeFolderFiles(folderZip)
+
+                print_color(
+                    f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
+                    35)
 
         else:
             print_color(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 31)
@@ -448,7 +558,6 @@ def parse_dynamic_sentence_device(sentence):
 
 
 def parse_dynamic_sentence_group(sentence):
-
     # Expressões regulares para capturar os campos dos grupos
     group_patterns = {
         "Linked Media File": r"Linked Media File:([\w\\/_\.-]+)",
@@ -503,6 +612,32 @@ def parse_dynamic_sentence_group(sentence):
         return results
     else:
         return None
+
+
+def parse_dynamic_sentence_group_participants(sentence):
+    # Expressões regulares para capturar os números de cada padrão
+    patterns = {
+        "GroupParticipants": r"GroupParticipants\d+\s+Total\s+([\d\s]+)",
+        "Group Administrators": r"Group\s+Administrators\d+\s+Total\s+([\d\s]+)",
+        "Participants": r"Participants\d+\s+Total\s+([\d\s]+)"
+    }
+
+    # Dicionário para armazenar os resultados
+    results = {
+        "GroupParticipants": [],
+        "Group Administrators": [],
+        "Participants": []
+    }
+
+    # Captura de dados para cada padrão
+    for key, pattern in patterns.items():
+        match = re.search(pattern, sentence)
+        if match:
+            # Capturar e limpar os números
+            numbers = match.group(1).strip().split()
+            results[key].extend(numbers)
+
+    return results if any(results.values()) else None
 
 
 def parse_dynamic_sentence_web(sentence):

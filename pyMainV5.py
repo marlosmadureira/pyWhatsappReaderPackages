@@ -725,48 +725,6 @@ def parse_dynamic_sentence_messages(sentence):
         return None
 
 
-# def parse_dynamic_sentence_calls(sentence):
-#     # Expressões regulares para capturar os campos da chamada e eventos
-#     # Alterado para lidar com múltiplas linhas e formatos variados de dados
-#     call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'
-#     event_pattern = r'Type\s*([\w]+)\s*Timestamp\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*From\s*([\d]+)\s*To\s*([\d]*)\s*From Ip\s*([\d\.:a-fA-F]+)\s*From Port\s*(\d+)(?:\s*Media Type\s*([\w]+))?'
-#
-#     # Encontrar todas as chamadas
-#     calls = re.findall(call_pattern, sentence, re.DOTALL)
-#
-#     results = []
-#
-#     print(calls)
-#
-#     for call in calls:
-#         call_id, call_creator, events_section = call
-#         # Dicionário para armazenar os resultados
-#         result = {
-#             "CallId": call_id.strip(),
-#             "CallCreator": call_creator.strip(),
-#             "Events": []
-#         }
-#         # Encontrar todos os eventos dentro da seção de eventos
-#         events = re.findall(event_pattern, events_section, re.DOTALL)
-#         for event in events:
-#             event_data = {
-#                 "Type": event[0].strip(),
-#                 "Timestamp": event[1].strip(),
-#                 "From": event[2].strip(),
-#                 "To": event[3].strip(),
-#                 "FromIp": event[4].strip(),
-#                 "FromPort": event[5].strip()
-#             }
-#
-#             if len(event) > 6 and event[6]:  # Verifica se o campo 'Media Type' existe e não está vazio
-#                 event_data["MediaType"] = event[6].strip()
-#
-#             result["Events"].append(event_data)
-#
-#         results.append(result)
-#
-#     return results if results else None
-
 def parse_dynamic_sentence_calls(sentence):
     # Expressões regulares para capturar os campos da chamada, eventos e participantes
     call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'

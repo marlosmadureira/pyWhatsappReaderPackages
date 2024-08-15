@@ -11,16 +11,7 @@
 	set_time_limit(0);
 	ini_set('memory_limit', '-1');
 
-	function gravalog($filename,$content){
-		$filename = str_replace(".zip", '', $filename);
-		$FileLog = fopen('./Logs/'.$filename.".txt", "a");
-		$escreve = fwrite($FileLog,$content."\n\n");
-		fclose($FileLog );
-	}
-
-	function somenteNumeros($frase) {
-	    return preg_replace('/\D/', '', $frase);
-	}
+	configApache();
 
 	if(!empty($_POST['token']) && $_POST['token'] == $tokenAuthorized){
 
@@ -84,6 +75,10 @@
 		$logGrava = False;				//GRAVAR LOGS DE SQL ARQUIVO TXT
 		$printLogJson = True;
 		$jsonRetorno['GravaBanco'] = null;
+
+		if($logGrava){
+			gravaLogJson($jsonData);
+		}
 
 		if(isset($jsonData)){
 
@@ -1092,7 +1087,7 @@
 						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
 
 						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
+		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
 
 						                	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['grupo_id'])){
@@ -1117,7 +1112,7 @@
 						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'S', 'A', ".$identificador.");";
 
 						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."' AND grupo_adm = 'S'";
+		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."' AND grupo_adm = 'S'";
 
 						                	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['grupo_id'])){
@@ -1142,7 +1137,7 @@
 						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
 
 						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
+		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
 
 						                	$existente = selectpadraoumalinha($db, $sqlexistente);
 					                    	if(empty($existente['grupo_id'])){
@@ -1561,4 +1556,51 @@
 	    $sqlUnid = "SELECT * FROM sistema.tbunidade WHERE unid_id = " . $unid_id;
 	    $queryUnid = selectpadraoumalinha($db, $sqlUnid);
 	    return $queryUnid['unid_nome'];
+	}
+
+	function gravaLogJson($dados){
+		// Convertendo o array em JSON
+		$json = json_encode($dados, JSON_PRETTY_PRINT); // JSON_PRETTY_PRINT para formatar o JSON de forma legível
+
+		// Caminho do arquivo onde o JSON será gravado
+		$caminhoArquivo = 'dados.json';
+
+		// Gravando o JSON no arquivo
+		if (file_put_contents($caminhoArquivo, $json)) {
+		    echo "Dados gravados com sucesso!";
+		} else {
+		    echo "Erro ao gravar os dados.";
+		}
+	}
+
+	function gravalog($filename,$content){
+		$filename = str_replace(".zip", '', $filename);
+		$FileLog = fopen('./Logs/'.$filename.".txt", "a");
+		$escreve = fwrite($FileLog,$content."\n\n");
+		fclose($FileLog );
+	}
+
+	function somenteNumeros($frase) {
+	    return preg_replace('/\D/', '', $frase);
+	}
+
+	function configApache(){
+		// Obter a quantidade máxima de memória disponível para scripts PHP
+		$memory_limit = ini_get('memory_limit');
+
+		// Obter o tamanho máximo de upload permitido
+		$upload_max_filesize = ini_get('upload_max_filesize');
+
+		// Obter o tamanho máximo de dados permitidos em uma solicitação POST
+		$post_max_size = ini_get('post_max_size');
+
+		// Obter a versão do PHP
+		$php_version = phpversion();
+
+		// Exibir as informações
+		echo "<h1>Configurações de PHP</h1>";
+		echo "<p><strong>Versão do PHP:</strong> $php_version</p>";
+		echo "<p><strong>Limite de Memória:</strong> $memory_limit</p>";
+		echo "<p><strong>Tamanho Máximo de Upload:</strong> $upload_max_filesize</p>";
+		echo "<p><strong>Tamanho Máximo de Dados POST:</strong> $post_max_size</p>";
 	}

@@ -11,7 +11,7 @@
 	set_time_limit(0);
 	ini_set('memory_limit', '-1');
 
-	configApache();
+	//configApache();
 
 	if(!empty($_POST['token']) && $_POST['token'] == $tokenAuthorized){
 
@@ -29,13 +29,15 @@
 
 		if($_POST['action'] == "sendWPData"){
 
-			if (file_exists('jsonWhatsappDados.txt')){
-				unlink('jsonWhatsappDados.txt');
-			}
+			// if (file_exists('./Logs/jsonWhatsappDados.txt')){
+			// 	unlink('./Logs/jsonWhatsappDados.txt');
+			// }
 
-			if (file_exists('jsonWhatsappPRTT.txt')){
-				unlink('jsonWhatsappPRTT.txt');
-			}
+			// if (file_exists('./Logs/jsonWhatsappPRTT.txt')){
+			// 	unlink('./Logs/jsonWhatsappPRTT.txt');
+			// }
+
+			$nameFile = generateUUID();
 
 			if(!empty($_POST['jsonData'])){
 
@@ -44,19 +46,27 @@
 				if(!empty($jsonData)){
 
 					if($_POST['type'] == "DADOS"){
-						//$myfile = fopen("jsonWhatsappDados.txt", "w+") or die("Unable to open file!");
+						//$myfile = fopen("./Logs/jsonWhatsappDados.json", "w+") or die("Unable to open file!");
+						//$myfile = fopen("./Logs/jsonWhatsappDados".$nameFile.".json", "w+") or die("Unable to open file!");
 						$status['type'] = "DADOS";
 					}
 
 					if($_POST['type'] == "PRTT"){
-						//$myfile = fopen("jsonWhatsappPRTT.txt", "w+") or die("Unable to open file!");
+						//$myfile = fopen("./Logs/jsonWhatsappPRTT.json", "w+") or die("Unable to open file!");
+						//$myfile = fopen("./Logs/jsonWhatsappPRTT".$nameFile.".json", "w+") or die("Unable to open file!");
 						$status['type'] = "PRTT";
+					}
+
+					if($_POST['type'] == "GDADOS"){
+						//$myfile = fopen("./Logs/jsonWhatsappPRTT.json", "w+") or die("Unable to open file!");
+						//$myfile = fopen("./Logs/jsonWhatsappPRTT".$nameFile.".json", "w+") or die("Unable to open file!");
+						$status['type'] = "GDADOS";
 					}
 
 					$jsonRetorno = InsertBanco($db, $_POST['type'], $_POST['jsonData']);
 
-					//fwrite($myfile, json_encode($jsonData));
-					//fclose($myfile);
+					// fwrite($myfile, json_encode($jsonData));
+					// fclose($myfile);
 				}
 			}
 
@@ -75,10 +85,6 @@
 		$logGrava = False;				//GRAVAR LOGS DE SQL ARQUIVO TXT
 		$printLogJson = True;
 		$jsonRetorno['GravaBanco'] = null;
-
-		if($logGrava){
-			gravaLogJson($jsonData);
-		}
 
 		if(isset($jsonData)){
 
@@ -1040,149 +1046,153 @@
 						fclose($FileLog );
 					}
 
-					$jsonRetorno['MostraJsonPython'] = False;
+					$jsonRetorno['MostraJsonPython'] = True;
 					$jsonRetorno['RetornoPHP'] = True;
 					$jsonRetorno['ExibirTotalPacotesFila'] = False;
 					$jsonRetorno['DataHora'] = date('Y-m-d H:i:s');
 
 				}else{
 
-					$sqlGrupo = "SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id FROM interceptacao.tbobje_whatsappgrupos, interceptacao.tbobje_intercepta WHERE tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = ".$Unidade." AND tbobje_whatsappgrupos.grupo_id ILIKE '%".$AccountIdentifier."%'";
-					$queryGrupo= selectpadraoumalinha($db,$sqlGrupo);
+					//ARQUIVOS DO TIPO DADOS
+					if($type == "GDADOS"){
 
-					if(!empty($queryGrupo['linh_id']) && $queryGrupo['linh_id'] > 0){
-						$queryArId = null;
+						$sqlGrupo = "SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id FROM interceptacao.tbobje_whatsappgrupos, interceptacao.tbobje_intercepta WHERE tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = ".$Unidade." AND tbobje_whatsappgrupos.grupo_id ILIKE '%".$AccountIdentifier."%'";
+						$queryGrupo= selectpadraoumalinha($db,$sqlGrupo);
 
-						$linh_id = $queryGrupo['linh_id'];
+						if(!empty($queryGrupo['linh_id']) && $queryGrupo['linh_id'] > 0){
+							$queryArId = null;
 
-						$sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = ".$linh_id." AND ar_arquivo = '".$FileName."'";
-						$repetido = selectpadraoumalinha($db, $sqlexistente);
+							$linh_id = $queryGrupo['linh_id'];
 
-						if (empty($repetido['ar_id'])){
-							$sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES (".$linh_id.", '".$AccountIdentifier."', '".$DateRange."', NOW(), '".$FileName."', 1, 1) RETURNING ar_id;";
+							$sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 2 AND linh_id = ".$linh_id." AND ar_arquivo = '".$FileName."'";
+							$repetido = selectpadraoumalinha($db, $sqlexistente);
 
-							if ($executaSql){
-	                            $queryArId = inserirRegistroReturning($db,$sqlInsert);
+							if (empty($repetido['ar_id'])){
+								$sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES (".$linh_id.", '".$AccountIdentifier."', '".$DateRange."', NOW(), '".$FileName."', 2, 1) RETURNING ar_id;";
 
-								if($printLogJson){
-									$jsonRetorno['1G'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
+								if ($executaSql){
+		                            $queryArId = inserirRegistroReturning($db,$sqlInsert);
+
+									if($printLogJson){
+										$jsonRetorno['1G'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
+									}
+								}
+
+								if($logGrava){
+									gravalog($FileName, "1G");
+									gravalog($FileName, $sqlInsert);
+									gravalog($FileName, $existente . ' - ' . $sqlexistente);
+								}
+
+								if(!empty($queryArId['ar_id']) && $queryArId['ar_id'] > 0){
+									$sqlIdentificador = "SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = ".$Unidade." AND tbmembros_whats.grupo_id ILIKE '%".trim($AccountIdentifier)."%'";
+									$queryIdentificador = selectpadraoumalinha($db, $sqlIdentificador);
+
+									if(isset($json->Dados->groupsInfo) && !empty($queryIdentificador['identificador'])){
+										$identificador = $queryIdentificador['identificador'];
+
+						                foreach($json->Dados->groupsInfo->GroupParticipants as $registro){
+						                	//GRAVANDO PARTICIPANTES GRUPO
+							                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
+
+							                if ($executaSql){
+			                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
+
+							                	$existente = selectpadraoumalinha($db, $sqlexistente);
+						                    	if(empty($existente['grupo_id'])){
+						                    		$resultEventoBd = null;
+						                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
+
+						                    		if($printLogJson){
+														$jsonRetorno['2G'] = 'OK ' . $resultEventoBd;
+													}
+						                    	}
+
+						                    	if($logGrava){
+													gravalog($FileName, "2G");
+													gravalog($FileName, $sqlInsert);
+													gravalog($FileName, $existente . ' - ' . $sqlexistente);
+												}
+							                }
+						                }
+
+						                foreach($json->Dados->groupsInfo->GroupAdministrators as $registro){
+						                	//GRAVANDO PARTICIPANTES GRUPO
+							                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'S', 'A', ".$identificador.");";
+
+							                if ($executaSql){
+			                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."' AND grupo_adm = 'S'";
+
+							                	$existente = selectpadraoumalinha($db, $sqlexistente);
+						                    	if(empty($existente['grupo_id'])){
+						                    		$resultEventoBd = null;
+						                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
+
+						                    		if($printLogJson){
+														$jsonRetorno['3G'] = 'OK ' . $resultEventoBd;
+													}
+						                    	}
+
+						                    	if($logGrava){
+													gravalog($FileName, "3G");
+													gravalog($FileName, $sqlInsert);
+													gravalog($FileName, $existente . ' - ' . $sqlexistente);
+												}
+							                }
+						                }
+
+						                foreach($json->Dados->groupsInfo->Participants as $registro){
+						                	//GRAVANDO PARTICIPANTES GRUPO
+							                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
+
+							                if ($executaSql){
+			                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
+
+							                	$existente = selectpadraoumalinha($db, $sqlexistente);
+						                    	if(empty($existente['grupo_id'])){
+						                    		$resultEventoBd = null;
+						                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
+
+						                    		if($printLogJson){
+														$jsonRetorno['4G'] = 'OK ' . $resultEventoBd;
+													}
+						                    	}
+
+						                    	if($logGrava){
+													gravalog($FileName, "4G");
+													gravalog($FileName, $sqlInsert);
+													gravalog($FileName, $existente . ' - ' . $sqlexistente);
+												}
+							                }
+						                }
+
+						                $FileLog = fopen("ArquivoProcessados.txt", "a");
+										$escreve = fwrite($FileLog, $FileName . ' ' . date('d/m/Y H:i:s') . ' ' . $jsonRetorno['UnidName'] . "\n\n");
+										fclose($FileLog );
+
+						                $jsonRetorno['GravaBanco'] = True;
+						                $jsonRetorno['MostraJsonPython'] = True;
+										$jsonRetorno['RetornoPHP'] = True;
+										$jsonRetorno['ExibirTotalPacotesFila'] = False;
+										$jsonRetorno['DataHora'] = date('Y-m-d H:i:s');
+						            }else{
+						            	$FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a");
+										$escreve = fwrite($FileLog, $FileName . " \n" . date('d/m/Y H:i:s') . " \n" . $jsonRetorno['UnidName'] . " \n" . $sqllinh_id ."\nLinha Nao Localizada \n\n");
+										fclose($FileLog );
+
+										$jsonRetorno['GravaBanco'] = False;
+										$jsonRetorno['AVISO_1G'] = 'GRUPO Nao Localizada ' . $AccountIdentifier;
+						            }
 								}
 							}
+						}else{
+							$FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a");
+							$escreve = fwrite($FileLog, $FileName . " \n" . date('d/m/Y H:i:s') . " \n" . $jsonRetorno['UnidName'] . " \n" . $sqllinh_id ."\nLinha Nao Localizada \n\n");
+							fclose($FileLog );
 
-							if($logGrava){
-								gravalog($FileName, "1G");
-								gravalog($FileName, $sqlInsert);
-								gravalog($FileName, $existente . ' - ' . $sqlexistente);
-							}
-
-							if(!empty($queryArId['ar_id']) && $queryArId['ar_id'] > 0){
-								$sqlIdentificador = "SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = ".$Unidade." AND tbmembros_whats.grupo_id ILIKE '%".trim($AccountIdentifier)."%'";
-								$queryIdentificador = selectpadraoumalinha($db, $sqlIdentificador);
-
-								if(isset($json->Dados->groupsInfo) && !empty($queryIdentificador['identificador'])){
-									$identificador = $queryIdentificador['identificador'];
-
-					                foreach($json->Dados->groupsInfo->GroupParticipants as $registro){
-					                	//GRAVANDO PARTICIPANTES GRUPO
-						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
-
-						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
-
-						                	$existente = selectpadraoumalinha($db, $sqlexistente);
-					                    	if(empty($existente['grupo_id'])){
-					                    		$resultEventoBd = null;
-					                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
-
-					                    		if($printLogJson){
-													$jsonRetorno['2G'] = 'OK ' . $resultEventoBd;
-												}
-					                    	}
-
-					                    	if($logGrava){
-												gravalog($FileName, "2G");
-												gravalog($FileName, $sqlInsert);
-												gravalog($FileName, $existente . ' - ' . $sqlexistente);
-											}
-						                }
-					                }
-
-					                foreach($json->Dados->groupsInfo->GroupAdministrators as $registro){
-					                	//GRAVANDO PARTICIPANTES GRUPO
-						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'S', 'A', ".$identificador.");";
-
-						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."' AND grupo_adm = 'S'";
-
-						                	$existente = selectpadraoumalinha($db, $sqlexistente);
-					                    	if(empty($existente['grupo_id'])){
-					                    		$resultEventoBd = null;
-					                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
-
-					                    		if($printLogJson){
-													$jsonRetorno['3G'] = 'OK ' . $resultEventoBd;
-												}
-					                    	}
-
-					                    	if($logGrava){
-												gravalog($FileName, "3G");
-												gravalog($FileName, $sqlInsert);
-												gravalog($FileName, $existente . ' - ' . $sqlexistente);
-											}
-						                }
-					                }
-
-					                foreach($json->Dados->groupsInfo->Participants as $registro){
-					                	//GRAVANDO PARTICIPANTES GRUPO
-						                $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
-
-						                if ($executaSql){
-		                                    $sqlexistente = "SELECT grupo_id FROM whatsapp.tbmembros_whats WHERE grupo_id ILIKE '%".$AccountIdentifier."%' AND grupo_participante = '".somenteNumeros($registro)."'";
-
-						                	$existente = selectpadraoumalinha($db, $sqlexistente);
-					                    	if(empty($existente['grupo_id'])){
-					                    		$resultEventoBd = null;
-					                    		$resultEventoBd = inserirRegistro($db,$sqlInsert);
-
-					                    		if($printLogJson){
-													$jsonRetorno['4G'] = 'OK ' . $resultEventoBd;
-												}
-					                    	}
-
-					                    	if($logGrava){
-												gravalog($FileName, "4G");
-												gravalog($FileName, $sqlInsert);
-												gravalog($FileName, $existente . ' - ' . $sqlexistente);
-											}
-						                }
-					                }
-
-					                $FileLog = fopen("ArquivoProcessados.txt", "a");
-									$escreve = fwrite($FileLog, $FileName . ' ' . date('d/m/Y H:i:s') . ' ' . $jsonRetorno['UnidName'] . "\n\n");
-									fclose($FileLog );
-
-					                $jsonRetorno['GravaBanco'] = True;
-					                $jsonRetorno['MostraJsonPython'] = False;
-									$jsonRetorno['RetornoPHP'] = True;
-									$jsonRetorno['ExibirTotalPacotesFila'] = False;
-									$jsonRetorno['DataHora'] = date('Y-m-d H:i:s');
-					            }else{
-					            	$FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a");
-									$escreve = fwrite($FileLog, $FileName . " \n" . date('d/m/Y H:i:s') . " \n" . $jsonRetorno['UnidName'] . " \n" . $sqllinh_id ."\nLinha Nao Localizada \n\n");
-									fclose($FileLog );
-
-									$jsonRetorno['GravaBanco'] = False;
-									$jsonRetorno['AVISO_1G'] = 'GRUPO Nao Localizada ' . $AccountIdentifier;
-					            }
-							}
+							$jsonRetorno['GravaBanco'] = False;
+							$jsonRetorno['AVISO_1'] = 'Linha Id Nao Localizada ' . $AccountIdentifier;
 						}
-					}else{
-						$FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a");
-						$escreve = fwrite($FileLog, $FileName . " \n" . date('d/m/Y H:i:s') . " \n" . $jsonRetorno['UnidName'] . " \n" . $sqllinh_id ."\nLinha Nao Localizada \n\n");
-						fclose($FileLog );
-
-						$jsonRetorno['GravaBanco'] = False;
-						$jsonRetorno['AVISO_1'] = 'Linha Id Nao Localizada ' . $AccountIdentifier;
 					}
 				}
 			}else{
@@ -1558,21 +1568,6 @@
 	    return $queryUnid['unid_nome'];
 	}
 
-	function gravaLogJson($dados){
-		// Convertendo o array em JSON
-		$json = json_encode($dados, JSON_PRETTY_PRINT); // JSON_PRETTY_PRINT para formatar o JSON de forma legível
-
-		// Caminho do arquivo onde o JSON será gravado
-		$caminhoArquivo = 'dados.json';
-
-		// Gravando o JSON no arquivo
-		if (file_put_contents($caminhoArquivo, $json)) {
-		    echo "Dados gravados com sucesso!";
-		} else {
-		    echo "Erro ao gravar os dados.";
-		}
-	}
-
 	function gravalog($filename,$content){
 		$filename = str_replace(".zip", '', $filename);
 		$FileLog = fopen('./Logs/'.$filename.".txt", "a");
@@ -1603,4 +1598,25 @@
 		echo "<p><strong>Limite de Memória:</strong> $memory_limit</p>";
 		echo "<p><strong>Tamanho Máximo de Upload:</strong> $upload_max_filesize</p>";
 		echo "<p><strong>Tamanho Máximo de Dados POST:</strong> $post_max_size</p>";
+	}
+
+	function generateUUID() {
+	    // Gera 16 bytes (128 bits) de dados aleatórios
+	    $data = random_bytes(16);
+
+	    // Define as versões e variantes do UUID
+	    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // Define a versão 4 (0100)
+	    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // Define a variante (10xx)
+
+	    // Converte os bytes em uma string hexadecimal
+	    return sprintf(
+	        '%08x-%04x-%04x-%02x%02x-%012x',
+	        // Divida os bytes conforme o formato UUID
+	        bin2hex(substr($data, 0, 4)),  // 8 dígitos
+	        bin2hex(substr($data, 4, 2)),  // 4 dígitos
+	        bin2hex(substr($data, 6, 2)),  // 4 dígitos
+	        bin2hex(substr($data, 8, 1)),  // 2 dígitos
+	        bin2hex(substr($data, 9, 1)),  // 2 dígitos
+	        bin2hex(substr($data, 10, 6))  // 12 dígitos
+	    );
 	}

@@ -28,7 +28,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
 Out = False
-Executar = False
+Executar = True
 
 
 def get_files_in_dir(path):

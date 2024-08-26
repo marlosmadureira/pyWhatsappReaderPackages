@@ -58,6 +58,7 @@ def process(source):
 
             flagDados = False
             flagPrtt = False
+            flagGDados = False
 
             parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
             if parsed_json_parameters is not None:
@@ -79,7 +80,8 @@ def process(source):
                 parsed_json_group = parse_dynamic_sentence_group_participants(bsHtml)
 
                 if parsed_json_group is not None:
-                    flagDados = True
+                    flagGDados = True
+                    flagDados = False
                     flagPrtt = False
 
                     fileDados['groupsInfo'] = parsed_json_group
@@ -88,9 +90,9 @@ def process(source):
                         print("\nGroup")
                         print(f"{json.dumps(parsed_json_group, indent=4)}")
 
-                if flagDados:
-                    dataType = "DADOS"
-                    fileProcess["Dados"] = fileDados
+                if flagGDados:
+                    dataType = "GDADOS"
+                    fileProcess["GDados"] = fileDados
 
                 if DebugMode:
                     print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
@@ -184,6 +186,7 @@ def process(source):
                 if parsed_json_books is not None:
                     flagDados = True
                     flagPrtt = False
+                    flagGDados = False
 
                     fileDados['addressBookInfo'] = parsed_json_books
 
@@ -195,6 +198,7 @@ def process(source):
                 if parsed_json_ip_addresses is not None:
                     flagDados = True
                     flagPrtt = False
+                    flagGDados = False
 
                     fileDados['ipAddresses'] = parsed_json_ip_addresses
 
@@ -206,6 +210,7 @@ def process(source):
                 if parsed_json_connection is not None:
                     flagDados = True
                     flagPrtt = False
+                    flagGDados = False
 
                     fileDados['connectionInfo'] = parsed_json_connection
 
@@ -217,6 +222,7 @@ def process(source):
                 if parsed_json_device is not None:
                     flagDados = True
                     flagPrtt = False
+                    flagGDados = False
 
                     fileDados['deviceinfo'] = parsed_json_device
 
@@ -228,6 +234,7 @@ def process(source):
                 if parsed_json_group is not None:
                     flagDados = True
                     flagPrtt = False
+                    flagGDados = False
 
                     fileDados['groupsInfo'] = parsed_json_group
 
@@ -239,6 +246,7 @@ def process(source):
                 if parsed_json_web is not None:
                     flagDados = True
                     flagPrtt = False
+                    flagGDados = False
 
                     fileDados['webInfo'] = parsed_json_web
 
@@ -250,6 +258,7 @@ def process(source):
                 if parsed_json_small is not None:
                     flagDados = True
                     flagPrtt = False
+                    flagGDados = False
 
                     fileDados['smallmediumbusinessinfo'] = parsed_json_small
 
@@ -261,6 +270,7 @@ def process(source):
                 if parsed_json_messages is not None:
                     flagDados = False
                     flagPrtt = True
+                    flagGDados = False
 
                     fileDados['msgLogs'] = parsed_json_messages
 
@@ -272,6 +282,7 @@ def process(source):
                 if parsed_json_calls is not None:
                     flagDados = False
                     flagPrtt = True
+                    flagGDados = False
 
                     fileDados['callLogs'] = parsed_json_calls
 
@@ -286,6 +297,10 @@ def process(source):
                 if flagPrtt:
                     dataType = "PRTT"
                     fileProcess["Prtt"] = fileDados
+
+                if flagGDados:
+                    dataType = "GDADOS"
+                    fileProcess["GDados"] = fileDados
 
                 if DebugMode:
                     print_color(f"{json.dumps(fileProcess, indent=4)}", 34)

@@ -616,14 +616,14 @@ def parse_dynamic_sentence_group_participants(sentence):
     # Expressões regulares para capturar os números de cada padrão
     patterns = {
         "GroupParticipants": r"GroupParticipants\d+\s+Total\s+([\d\s]+)",
-        "Group Administrators": r"Group\s+Administrators\d+\s+Total\s+([\d\s]+)",
+        "GroupAdministrators": r"GroupAdministrators\d+\s+Total\s+([\d\s]+)",
         "Participants": r"Participants\d+\s+Total\s+([\d\s]+)"
     }
 
     # Dicionário para armazenar os resultados
     results = {
         "GroupParticipants": [],
-        "Group Administrators": [],
+        "GroupAdministrators": [],
         "Participants": []
     }
 

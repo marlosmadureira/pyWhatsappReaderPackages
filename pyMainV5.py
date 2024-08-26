@@ -28,7 +28,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
 Out = False
-Executar = True
+Executar = False
 
 
 def get_files_in_dir(path):
@@ -612,13 +612,11 @@ def parse_dynamic_sentence_group(sentence):
         return None
 
 
-def parse_dynamic_sentence_group_participants(sentence):
-    # Expressões regulares para capturar os números de cada padrão
-    patterns = {
-        "GroupParticipants": r"GroupParticipants\d+\s+Total\s+([\d\s]+)",
-        "GroupAdministrators": r"GroupAdministrators\d+\s+Total\s+([\d\s]+)",
-        "Participants": r"Participants\d+\s+Total\s+([\d\s]+)"
-    }
+def parse_dynamic_sentence_group_participants(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
+    # Expressão regular para capturar números de telefone de qualquer grupo
+    pattern = r"(GroupParticipants|GroupAdministrators|Participants)\d+\s+Total\s+([\d\s]+)"
 
     # Dicionário para armazenar os resultados
     results = {
@@ -627,14 +625,16 @@ def parse_dynamic_sentence_group_participants(sentence):
         "Participants": []
     }
 
-    # Captura de dados para cada padrão
-    for key, pattern in patterns.items():
-        match = re.search(pattern, sentence)
-        if match:
-            # Capturar e limpar os números
-            numbers = match.group(1).strip().split()
-            results[remover_espacos_regex(key)].extend(numbers)
+    # Captura de dados usando regex
+    matches = re.findall(pattern, sentence)
 
+    # Itera sobre cada correspondência encontrada
+    for key, numbers in matches:
+        # Limpa e separa os números
+        cleaned_numbers = numbers.strip().split()
+        results[key].extend(cleaned_numbers)
+
+    # Verifica se há resultados e retorna, caso contrário, retorna None
     return results if any(results.values()) else None
 
 

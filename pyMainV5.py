@@ -434,7 +434,9 @@ def process(source):
         print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
 
-def parse_dynamic_sentence_parameters(sentence):
+def parse_dynamic_sentence_parameters(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     patterns = {
         "Service": r"Service(\w+)",
         "Internal Ticket Number": r"Internal Ticket Number(\d+)",
@@ -463,7 +465,9 @@ def parse_dynamic_sentence_parameters(sentence):
         return None
 
 
-def parse_dynamic_sentence_books(sentence):
+def parse_dynamic_sentence_books(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     results = []
 
     # Dicionário para armazenar os resultados
@@ -498,7 +502,9 @@ def parse_dynamic_sentence_books(sentence):
         return None
 
 
-def parse_dynamic_sentence_ip_addresses(sentence):
+def parse_dynamic_sentence_ip_addresses(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     # Expressão regular para capturar os pares de "Time" e "IP Address"
     time_ip_pattern = re.compile(r"Time(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s+IP Address([0-9a-fA-F\.:]+)")
 
@@ -514,7 +520,9 @@ def parse_dynamic_sentence_ip_addresses(sentence):
         return None
 
 
-def parse_dynamic_sentence_connection(sentence):
+def parse_dynamic_sentence_connection(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     # Expressões regulares para capturar os campos da conexão
     patterns = {
         "Device Id": r"Device Id(\d+)",
@@ -544,7 +552,9 @@ def parse_dynamic_sentence_connection(sentence):
         return None
 
 
-def parse_dynamic_sentence_device(sentence):
+def parse_dynamic_sentence_device(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
         "Device Id": r"Device Id(\d+)",
@@ -570,7 +580,9 @@ def parse_dynamic_sentence_device(sentence):
         return None
 
 
-def parse_dynamic_sentence_group(sentence):
+def parse_dynamic_sentence_group(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     # Expressões regulares para capturar os campos dos grupos
     group_patterns = {
         "Linked Media File": r"Linked Media File:([\w\\/_\.-]+)",
@@ -653,7 +665,9 @@ def parse_dynamic_sentence_group_participants(content):
     return results if any(results.values()) else None
 
 
-def parse_dynamic_sentence_web(sentence):
+def parse_dynamic_sentence_web(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
         "Version": r"Version([\w\.]+)",
@@ -678,7 +692,9 @@ def parse_dynamic_sentence_web(sentence):
         return None
 
 
-def parse_dynamic_sentence_small(sentence):
+def parse_dynamic_sentence_small(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
         "Small Medium Business": r"Small Medium Business([\w\.]+)",
@@ -702,7 +718,9 @@ def parse_dynamic_sentence_small(sentence):
         return None
 
 
-def parse_dynamic_sentence_messages(sentence):
+def parse_dynamic_sentence_messages(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     # Expressões regulares para capturar os campos da mensagem
     message_patterns = {
         "Timestamp": r"Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
@@ -740,7 +758,9 @@ def parse_dynamic_sentence_messages(sentence):
         return None
 
 
-def parse_dynamic_sentence_calls(sentence):
+def parse_dynamic_sentence_calls(content):
+    sentence = content.replace('WhatsApp Business Record Page', '')
+
     # Expressões regulares para capturar os campos da chamada, eventos e participantes
     call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'
     event_pattern = r'Type\s*([\w]+)\s*Timestamp\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*From\s*([\d]+)\s*To\s*([\d]*)\s*From Ip\s*([\d\.:a-fA-F]+)\s*From Port\s*(\d+)(?:\s*Media Type\s*([\w]+))?'

@@ -298,6 +298,9 @@ def process(source):
                     dataType = "PRTT"
                     fileProcess["Prtt"] = fileDados
 
+                    if "webInfo" in fileProcess["Prtt"]:
+                        del fileProcess["Prtt"]["webInfo"]
+
                 if flagGDados:
                     dataType = "GDADOS"
                     fileProcess["GDados"] = fileDados

@@ -27,8 +27,8 @@ DIREXTRACAO = os.getenv("DIREXTRACAO")
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
-Out = False
-Executar = True
+Out = True
+Executar = False
 
 
 def get_files_in_dir(path):
@@ -375,7 +375,7 @@ def process(source):
 
                         roomId = getroomIdElement(Unidade)
 
-                        if roomId is not None:
+                        if roomId is not None and Executar:
                             sendMessageElement(ACCESSTOKEN, roomId, fileName)
 
                         # Novo nome do arquivo

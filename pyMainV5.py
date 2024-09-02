@@ -606,6 +606,9 @@ def parse_dynamic_sentence_group(content):
     if owned_section is None:
         owned_section = re.search(r"Owned Groups.*$", sentence, re.DOTALL)
 
+    if owned_section is None:
+        owned_section = re.search(r"OwnedGroups.*$", sentence, re.DOTALL)
+
     if owned_section:
         owned_section_text = owned_section.group(0)
         owned_group = {}
@@ -620,6 +623,9 @@ def parse_dynamic_sentence_group(content):
 
     if participating_section is None:
         participating_section = re.search(r"Participating Groups.*$", sentence, re.DOTALL)
+
+    if participating_section is None:
+        participating_section = re.search(r"ParticipatingGroups.*$", sentence, re.DOTALL)
 
     if participating_section:
         participating_section_text = participating_section.group(0)
@@ -662,7 +668,7 @@ def parse_dynamic_sentence_group_participants(content):
     for key, numbers in matches:
         # Limpa e separa os números
         cleaned_numbers = numbers.strip().split()
-        results[key].extend(cleaned_numbers)
+        results[remover_espacos_regex(key)].extend(cleaned_numbers)
 
     # Verifica se há resultados e retorna, caso contrário, retorna None
     return results if any(results.values()) else None

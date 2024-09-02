@@ -27,8 +27,8 @@ DIREXTRACAO = os.getenv("DIREXTRACAO")
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
-Out = True
-Executar = False
+Out = False
+Executar = True
 
 
 def get_files_in_dir(path):

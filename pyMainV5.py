@@ -438,7 +438,7 @@ def process(source):
 
 
 def parse_dynamic_sentence_parameters(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     patterns = {
         "Service": r"Service(\w+)",
@@ -469,7 +469,7 @@ def parse_dynamic_sentence_parameters(content):
 
 
 def parse_dynamic_sentence_books(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     results = []
 
@@ -506,7 +506,7 @@ def parse_dynamic_sentence_books(content):
 
 
 def parse_dynamic_sentence_ip_addresses(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressão regular para capturar os pares de "Time" e "IP Address"
     time_ip_pattern = re.compile(r"Time(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s+IP Address([0-9a-fA-F\.:]+)")
@@ -524,7 +524,7 @@ def parse_dynamic_sentence_ip_addresses(content):
 
 
 def parse_dynamic_sentence_connection(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressões regulares para capturar os campos da conexão
     patterns = {
@@ -556,7 +556,7 @@ def parse_dynamic_sentence_connection(content):
 
 
 def parse_dynamic_sentence_device(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
@@ -584,7 +584,7 @@ def parse_dynamic_sentence_device(content):
 
 
 def parse_dynamic_sentence_group(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressões regulares para capturar os campos dos grupos
     group_patterns = {
@@ -606,9 +606,6 @@ def parse_dynamic_sentence_group(content):
     if owned_section is None:
         owned_section = re.search(r"Owned Groups.*$", sentence, re.DOTALL)
 
-    if owned_section is None:
-        owned_section = re.search(r"OwnedGroups.*$", sentence, re.DOTALL)
-
     if owned_section:
         owned_section_text = owned_section.group(0)
         owned_group = {}
@@ -623,9 +620,6 @@ def parse_dynamic_sentence_group(content):
 
     if participating_section is None:
         participating_section = re.search(r"Participating Groups.*$", sentence, re.DOTALL)
-
-    if participating_section is None:
-        participating_section = re.search(r"ParticipatingGroups.*$", sentence, re.DOTALL)
 
     if participating_section:
         participating_section_text = participating_section.group(0)
@@ -649,7 +643,7 @@ def parse_dynamic_sentence_group(content):
 
 
 def parse_dynamic_sentence_group_participants(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressão regular para capturar números de telefone de qualquer grupo
     pattern = r"(GroupParticipants|GroupAdministrators|Participants)\d+\s+Total\s+([\d\s]+)"
@@ -668,14 +662,14 @@ def parse_dynamic_sentence_group_participants(content):
     for key, numbers in matches:
         # Limpa e separa os números
         cleaned_numbers = numbers.strip().split()
-        results[remover_espacos_regex(key)].extend(cleaned_numbers)
+        results[key].extend(cleaned_numbers)
 
     # Verifica se há resultados e retorna, caso contrário, retorna None
     return results if any(results.values()) else None
 
 
 def parse_dynamic_sentence_web(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
@@ -702,7 +696,7 @@ def parse_dynamic_sentence_web(content):
 
 
 def parse_dynamic_sentence_small(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
@@ -728,7 +722,7 @@ def parse_dynamic_sentence_small(content):
 
 
 def parse_dynamic_sentence_messages(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressões regulares para capturar os campos da mensagem
     message_patterns = {
@@ -768,7 +762,7 @@ def parse_dynamic_sentence_messages(content):
 
 
 def parse_dynamic_sentence_calls(content):
-    sentence = content.replace('WhatsApp Business Record Page', '')
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     # Expressões regulares para capturar os campos da chamada, eventos e participantes
     call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'

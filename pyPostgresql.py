@@ -21,7 +21,10 @@ def find_unidade_postgres(Unidade):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
 
-        sqlFind = f"SELECT unid_nome FROM sistema.tbunidade WHERE tbunidade.unid_id = {Unidade};"
+        if Unidade is not None and Unidade != "":
+            sqlFind = f"SELECT unid_nome FROM sistema.tbunidade WHERE tbunidade.unid_id = {Unidade};"
+        else:
+            sqlFind = f"SELECT unid_nome FROM sistema.tbunidade WHERE tbunidade.unid_id = 1;"
 
         db.execute(sqlFind)
         queryFind = db.fetchone()

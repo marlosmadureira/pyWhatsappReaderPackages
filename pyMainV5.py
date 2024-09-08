@@ -28,7 +28,8 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
 Out = False
-Executar = True
+Executar = False
+FileJson = True
 
 
 def get_files_in_dir(path):
@@ -99,6 +100,10 @@ def process(source):
 
                 EventoGravaBanco = None
 
+                if FileJson:
+                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+                    grava_log(json_formatado, f'Log_{dataType}_Out{fileName}.json')
+
                 if Executar:
                     sizeFile = get_size(source)
 
@@ -138,8 +143,6 @@ def process(source):
                     print_color(
                         f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
                         31)
-
-                    grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
 
                 if EventoGravaBanco:
                     removeFolderFiles(folderZip)
@@ -310,6 +313,10 @@ def process(source):
 
                 EventoGravaBanco = None
 
+                if FileJson:
+                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+                    grava_log(json_formatado, f'Log_{dataType}_Out{fileName}.json')
+
                 if Executar:
                     sizeFile = get_size(source)
 
@@ -358,8 +365,6 @@ def process(source):
                     print_color(
                         f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
                         31)
-
-                    grava_log(fileProcess, f'Log_{dataType}_Out{fileName}.json')
 
                 if EventoGravaBanco:
                     removeFolderFiles(folderZip)

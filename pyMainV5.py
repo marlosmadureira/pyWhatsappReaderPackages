@@ -29,7 +29,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 DebugMode = False
 Out = False
 Executar = True
-FileJson = True
+FileJsonLog = True
 
 
 def get_files_in_dir(path):
@@ -100,7 +100,7 @@ def process(source):
 
                 EventoGravaBanco = None
 
-                if FileJson:
+                if FileJsonLog:
                     json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                     grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
 
@@ -313,7 +313,7 @@ def process(source):
 
                 EventoGravaBanco = None
 
-                if FileJson:
+                if FileJsonLog:
                     json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                     grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
 
@@ -409,7 +409,7 @@ def process(source):
 
         print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
 
-        if FileJson:
+        if FileJsonLog:
             json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
             grava_log(json_formatado, f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
 

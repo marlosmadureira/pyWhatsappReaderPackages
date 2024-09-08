@@ -409,9 +409,10 @@ def process(source):
 
         print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
 
-        # delete_log(f'log/Log_Error_{dataType}_Out_{fileName}.json')
+        if FileJson:
+            json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+            grava_log(json_formatado, f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
 
-        # grava_log(fileProcess, f'Log_Error_{dataType}_Out_{fileName}.json')
 
         filePath = DIRERROS + fileName
 

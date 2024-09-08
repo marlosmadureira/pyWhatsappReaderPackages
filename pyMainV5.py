@@ -102,7 +102,7 @@ def process(source):
 
                 if FileJson:
                     json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-                    grava_log(json_formatado, f'Log_{dataType}_Out{fileName}.json')
+                    grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
 
                 if Executar:
                     sizeFile = get_size(source)
@@ -315,7 +315,7 @@ def process(source):
 
                 if FileJson:
                     json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-                    grava_log(json_formatado, f'Log_{dataType}_Out{fileName}.json')
+                    grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
 
                 if Executar:
                     sizeFile = get_size(source)

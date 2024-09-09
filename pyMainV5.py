@@ -102,8 +102,12 @@ def process(source):
 
                 if Executar:
                     if FileJsonLog:
+                        readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+                        delete_log(f'log/{readerJsonFile}')
+
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-                        grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
+                        grava_log(json_formatado, readerJsonFile)
 
                     sizeFile = get_size(source)
 
@@ -315,8 +319,12 @@ def process(source):
 
                 if Executar:
                     if FileJsonLog:
+                        readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+                        delete_log(f'log/{readerJsonFile}')
+
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-                        grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
+                        grava_log(json_formatado, readerJsonFile)
 
                     sizeFile = get_size(source)
 
@@ -410,8 +418,12 @@ def process(source):
         print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
 
         if FileJsonLog:
+            readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+            delete_log(f'log/{readerJsonFile}')
+
             json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-            grava_log(json_formatado, f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
+            grava_log(json_formatado, readerJsonFile)
 
 
         filePath = DIRERROS + fileName

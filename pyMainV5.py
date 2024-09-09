@@ -23,6 +23,7 @@ DIRNOVOS = os.getenv("DIRNOVOS")
 DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
+DIRLOG = os.getenv("DIRLOG")
 
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
@@ -843,7 +844,7 @@ if __name__ == '__main__':
     checkFolder(DIRLIDOS)
     checkFolder(DIRERROS)
     checkFolder(DIREXTRACAO)
-    checkFolder("log")
+    checkFolder(DIRLOG)
 
     previous_files = get_files_in_dir(DIRNOVOS)
 

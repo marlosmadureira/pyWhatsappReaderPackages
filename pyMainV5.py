@@ -100,11 +100,11 @@ def process(source):
 
                 EventoGravaBanco = None
 
-                if FileJsonLog:
-                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-                    grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
-
                 if Executar:
+                    if FileJsonLog:
+                        json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+                        grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
+
                     sizeFile = get_size(source)
 
                     print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
@@ -313,11 +313,11 @@ def process(source):
 
                 EventoGravaBanco = None
 
-                if FileJsonLog:
-                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-                    grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
-
                 if Executar:
+                    if FileJsonLog:
+                        json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+                        grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
+
                     sizeFile = get_size(source)
 
                     print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)

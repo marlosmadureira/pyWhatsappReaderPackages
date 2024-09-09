@@ -47,7 +47,10 @@ def getUnidadeFileName(nome_original):
     if "_" in nome_original:
         DadosUnidade = nome_original.split("_")
 
-        Unidade = DadosUnidade[1].replace(".zip", "")
+        if DadosUnidade[1] is not None:
+            Unidade = DadosUnidade[1].replace(".zip", "")
+        else:
+            Unidade = 1
 
         FileName = f"{DadosUnidade[0]}.zip";
 

@@ -23,6 +23,7 @@ DIRNOVOS = os.getenv("DIRNOVOS")
 DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
 DIREXTRACAO = os.getenv("DIREXTRACAO")
+DIRLOG = os.getenv("DIRLOG")
 
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
@@ -100,11 +101,15 @@ def process(source):
 
                 EventoGravaBanco = None
 
-                if FileJsonLog:
-                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-                    grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
-
                 if Executar:
+                    if FileJsonLog:
+                        readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+                        delete_log(f'log/{readerJsonFile}')
+
+                        json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+                        grava_log(json_formatado, readerJsonFile)
+
                     sizeFile = get_size(source)
 
                     print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
@@ -313,11 +318,15 @@ def process(source):
 
                 EventoGravaBanco = None
 
-                if FileJsonLog:
-                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-                    grava_log(json_formatado, f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
-
                 if Executar:
+                    if FileJsonLog:
+                        readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+                        delete_log(f'log/{readerJsonFile}')
+
+                        json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+                        grava_log(json_formatado, readerJsonFile)
+
                     sizeFile = get_size(source)
 
                     print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
@@ -410,8 +419,12 @@ def process(source):
         print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
 
         if FileJsonLog:
+            readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+            delete_log(f'log/{readerJsonFile}')
+
             json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-            grava_log(json_formatado, f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json')
+            grava_log(json_formatado, readerJsonFile)
 
 
         filePath = DIRERROS + fileName
@@ -831,7 +844,7 @@ if __name__ == '__main__':
     checkFolder(DIRLIDOS)
     checkFolder(DIRERROS)
     checkFolder(DIREXTRACAO)
-    checkFolder("log")
+    checkFolder(DIRLOG)
 
     previous_files = get_files_in_dir(DIRNOVOS)
 

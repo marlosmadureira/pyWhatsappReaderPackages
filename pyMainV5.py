@@ -458,7 +458,7 @@ def process(source):
 
 def parse_dynamic_sentence_parameters(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -494,7 +494,7 @@ def parse_dynamic_sentence_parameters(content):
 
 def parse_dynamic_sentence_books(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -536,7 +536,7 @@ def parse_dynamic_sentence_books(content):
 
 def parse_dynamic_sentence_ip_addresses(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -559,7 +559,7 @@ def parse_dynamic_sentence_ip_addresses(content):
 
 def parse_dynamic_sentence_connection(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -596,7 +596,7 @@ def parse_dynamic_sentence_connection(content):
 
 def parse_dynamic_sentence_device(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -629,7 +629,7 @@ def parse_dynamic_sentence_device(content):
 
 def parse_dynamic_sentence_group(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -693,7 +693,7 @@ def parse_dynamic_sentence_group(content):
 
 def parse_dynamic_sentence_group_participants(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -724,7 +724,7 @@ def parse_dynamic_sentence_group_participants(content):
 
 def parse_dynamic_sentence_web(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -756,7 +756,7 @@ def parse_dynamic_sentence_web(content):
 
 def parse_dynamic_sentence_small(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -787,7 +787,7 @@ def parse_dynamic_sentence_small(content):
 
 def parse_dynamic_sentence_messages(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias
@@ -806,6 +806,8 @@ def parse_dynamic_sentence_messages(content):
         "Message Style": r"Message Style([\w]+)",
         "Message Size": r"Message Size(\d+)"
     }
+
+    grava_log(sentence, "msg.txt")
 
     # Dividir a string em blocos de mensagens individuais usando a presença de 'Timestamp' e 'Message Size' como delimitadores
     messages = re.findall(r'(Timestamp\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC.*?Message Size\d+)', sentence, re.DOTALL)
@@ -832,7 +834,7 @@ def parse_dynamic_sentence_messages(content):
 
 def parse_dynamic_sentence_calls(content):
     # Remove o padrão 'WhatsApp Business Record Page'
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
     # Remove linhas vazias

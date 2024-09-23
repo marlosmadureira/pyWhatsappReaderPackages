@@ -29,7 +29,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
 Out = False
-Executar = True
+Executar = False
 FileJsonLog = True
 
 
@@ -371,6 +371,8 @@ def process(source):
                         f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
                         31)
 
+                    print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
+
                 if EventoGravaBanco:
                     removeFolderFiles(folderZip)
 
@@ -451,7 +453,7 @@ def process(source):
 
 
 def parse_dynamic_sentence_parameters(content):
-    sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b|\\', '', content).strip()
+    sentence = re.sub(r'WhatsApp Business Record Page \d+', '', content)
 
     patterns = {
         "Service": r"Service(\w+)",
@@ -735,52 +737,54 @@ def parse_dynamic_sentence_small(content):
 
 
 def parse_dynamic_sentence_messages(content):
+    # Remove o padrão 'WhatsApp Business Record Page' e barras invertidas
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b|\\', '', content).strip()
 
     # Expressões regulares para capturar os campos da mensagem
     message_patterns = {
-        "Timestamp": r"Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
+        "Timestamp": r"Timestamp\s*\\?\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
         "Message Id": r"Message Id([\w\d]+)",
         "Sender": r"Sender(\d+)",
         "Recipients": r"Recipients(\d+)",
-        "Sender Ip": r"Sender Ip([\d\.:a-fA-F]+)",
+        "Sender Ip": r"Sender Ip\s*\\?\s*([\d\.]+)",
         "Sender Port": r"Sender Port(\d+)",
         "Sender Device": r"Sender Device([\w]+)",
-        "Type": r"Type([\w]+)",
+        "Type": r"Type\s*\\?\s*([\w_]+)",
         "Message Style": r"Message Style([\w]+)",
         "Message Size": r"Message Size(\d+)"
     }
 
     # Dividir a string em blocos de mensagens individuais usando a presença de 'Timestamp' e 'Message Size' como delimitadores
-    messages = re.findall(r'(Timestamp\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC.*?Message Size\d+)', sentence, re.DOTALL)
+    messages = re.findall(r'(Timestamp\s*\\?\s*\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC.*?Message Size\s*\d+)', sentence, re.DOTALL)
 
     results = []
 
     for message in messages:
-        # Dicionário para armazenar os resultados
         result = {}
         # Iterar sobre os padrões e encontrar as correspondências
         for key, pattern in message_patterns.items():
             match = re.search(pattern, message)
             if match:
-                result[remover_espacos_regex(key)] = match.group(1).strip()
-        # Adicionar apenas se result não estiver vazio
+                value = match.group(1).strip()
+                # Verificação de integridade para o campo 'Timestamp'
+                if key == "Timestamp" and not re.match(r'\d{4}-\d{2}-\d{2}', value):
+                    continue  # Pula 'Timestamp' corrompido
+                result[remover_espacos_regex(key)] = value
         if result:
             results.append(result)
 
-    if len(results) > 0:
-        return results
-    else:
-        return None
+    return results if results else None
+
 
 
 def parse_dynamic_sentence_calls(content):
+    # Remove o padrão 'WhatsApp Business Record Page' e barras invertidas
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b|\\', '', content).strip()
 
-    # Expressões regulares para capturar os campos da chamada, eventos e participantes
+    # Padrões para capturar os campos da chamada, eventos e participantes
     call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'
-    event_pattern = r'Type\s*([\w]+)\s*Timestamp\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*From\s*([\d]+)\s*To\s*([\d]*)\s*From Ip\s*([\d\.:a-fA-F]+)\s*From Port\s*(\d+)(?:\s*Media Type\s*([\w]+))?'
-    participant_pattern = r'Phone Number\s*([\d]+)\s*State\s*([\w]+)\s*Platform\s*([\w]+)'
+    event_pattern = r'Type\s*([\w_]+)\s*Timestamp\s*\\?\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*From\s*([\d]*)\s*To\s*([\d]*)\s*From Ip\s*([\d\.:a-fA-F]+)?\s*From Port\s*(\d+)(?:\s*Media Type\s*([\w]+))?'
+    participant_pattern = r'Phone Number\s*([\d]+)\s*State\s*([\w]+)\s*(?:Platform\s*([\w]+))?'
 
     # Encontrar todas as chamadas
     calls = re.findall(call_pattern, sentence, re.DOTALL)
@@ -790,7 +794,7 @@ def parse_dynamic_sentence_calls(content):
     for call in calls:
         call_id, call_creator, events_section = call
 
-        # Dicionário para armazenar os resultados
+        # Dicionário para armazenar os resultados da chamada
         result = {
             "CallId": call_id.strip(),
             "CallCreator": call_creator.strip(),
@@ -803,9 +807,9 @@ def parse_dynamic_sentence_calls(content):
             event_data = {
                 "Type": event[0].strip(),
                 "Timestamp": event[1].strip(),
-                "From": event[2].strip(),
-                "To": event[3].strip(),
-                "FromIp": event[4].strip(),
+                "From": event[2].strip() if event[2] else '',
+                "To": event[3].strip() if event[3] else '',
+                "FromIp": event[4].strip() if event[4] else '',
                 "FromPort": event[5].strip(),
                 "Participants": []
             }
@@ -814,7 +818,7 @@ def parse_dynamic_sentence_calls(content):
             if len(event) > 6 and event[6]:
                 event_data["MediaType"] = event[6].strip()
 
-            # Encontrar todos os participantes dentro do evento
+            # Localizar a seção de participantes para o evento atual
             participant_section = sentence[sentence.find('Participants', sentence.find(event[1])):]
             participants = re.findall(participant_pattern, participant_section, re.DOTALL)
 
@@ -822,7 +826,7 @@ def parse_dynamic_sentence_calls(content):
                 participant_data = {
                     "PhoneNumber": participant[0],
                     "State": participant[1],
-                    "Platform": participant[2]
+                    "Platform": participant[2] if len(participant) > 2 else ''
                 }
                 event_data["Participants"].append(participant_data)
 

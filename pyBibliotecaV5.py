@@ -35,6 +35,10 @@ def html_to_markdown(html):
     # Usar BeautifulSoup para manipular o HTML
     soup = BeautifulSoup(html, 'html.parser')
 
+    # Encontrar todas as divs com a classe 'pageBreak' e removê-las
+    for div in soup.find_all('div', class_='pageBreak'):
+        div.decompose()  # Remove a tag e seu conteúdo
+
     # Converter o HTML modificado para Markdown
     markdown = md(str(soup), strip=['div'])
 

@@ -74,7 +74,6 @@ def sendDataJsonServer(Dados, type):
     payload = {'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados)}
     try:
         print(f'\nEVENTO POST AGUARDE RESPOSTA DO PHP\n')
-
         r = requests.post(APILINK, data=payload)
 
         if r.status_code == 200 and r.text != "" and r.text is not None:

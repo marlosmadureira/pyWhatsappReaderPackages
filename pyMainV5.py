@@ -807,6 +807,8 @@ def parse_dynamic_sentence_messages(content):
         "Message Size": r"Message Size(\d+)"
     }
 
+    grava_log(sentence, "msg.txt")
+
     # Dividir a string em blocos de mensagens individuais usando a presença de 'Timestamp' e 'Message Size' como delimitadores
     messages = re.findall(r'(Timestamp\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC.*?Message Size\d+)', sentence, re.DOTALL)
 

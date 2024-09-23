@@ -21,7 +21,7 @@
     if(isset($_POST['Executar']) && !empty($_POST['fileName'])){
         //PRTT_Out_2741209949393128_43_5514982270440.json
 
-        $caminhoArquivo = 'arquivos/' . $_POST['fileName'];
+        $caminhoArquivo = 'Logs/' . $_POST['fileName'];
 
         if (file_exists($caminhoArquivo)) {
             $extensao = pathinfo($caminhoArquivo, PATHINFO_EXTENSION);

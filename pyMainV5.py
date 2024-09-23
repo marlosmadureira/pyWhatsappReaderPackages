@@ -461,6 +461,8 @@ def parse_dynamic_sentence_parameters(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     patterns = {
         "Service": r"Service(\w+)",
@@ -495,6 +497,8 @@ def parse_dynamic_sentence_books(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     results = []
 
@@ -535,6 +539,8 @@ def parse_dynamic_sentence_ip_addresses(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressão regular para capturar os pares de "Time" e "IP Address"
     time_ip_pattern = re.compile(r"Time(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s+IP Address([0-9a-fA-F\.:]+)")
@@ -556,6 +562,8 @@ def parse_dynamic_sentence_connection(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressões regulares para capturar os campos da conexão
     patterns = {
@@ -591,6 +599,8 @@ def parse_dynamic_sentence_device(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
@@ -622,6 +632,8 @@ def parse_dynamic_sentence_group(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressões regulares para capturar os campos dos grupos
     group_patterns = {
@@ -684,6 +696,8 @@ def parse_dynamic_sentence_group_participants(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressão regular para capturar números de telefone de qualquer grupo
     pattern = r"(GroupParticipants|GroupAdministrators|Participants)\d+\s+Total\s+([\d\s]+)"
@@ -713,6 +727,8 @@ def parse_dynamic_sentence_web(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
@@ -743,6 +759,8 @@ def parse_dynamic_sentence_small(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressões regulares para capturar os campos da informação do dispositivo
     patterns = {
@@ -772,6 +790,8 @@ def parse_dynamic_sentence_messages(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressões regulares para capturar os campos da mensagem
     message_patterns = {
@@ -815,6 +835,8 @@ def parse_dynamic_sentence_calls(content):
     sentence = re.sub(r'\bWhatsApp Business Record Page \d+\b', '', content)
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', sentence).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressões regulares para capturar os campos da chamada, eventos e participantes
     call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'

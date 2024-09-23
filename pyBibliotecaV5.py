@@ -91,7 +91,7 @@ def delete_log(nome_arquivo):
 
 
 def grava_log(content, arquivo):
-    arquivo = f"log/{arquivo}"
+    arquivo = f"{os.getcwd()}/log/{arquivo}"
     with open(arquivo, "a") as text_file:
         text_file.write('{}\n'.format(content) + '\n')
     text_file.close()

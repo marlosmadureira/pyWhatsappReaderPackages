@@ -477,6 +477,8 @@ def parse_dynamic_sentence_parameters(content):
         "Registered Email Addresses": r"Registered Email Addresses([\w\s]+)"
     }
 
+    grava_log(sentence, f"{datetime.now().strftime('%d_%m_%Y_%H_%M_%S')}.txt")
+
     # Dicionário para armazenar os resultados
     results = {}
 

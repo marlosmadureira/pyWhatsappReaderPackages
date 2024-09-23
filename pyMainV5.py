@@ -105,8 +105,6 @@ def process(source):
                     if FileJsonLog:
                         readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
 
-                        delete_log(f'log/{readerJsonFile}')
-
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                         grava_log(json_formatado, readerJsonFile)
 
@@ -322,8 +320,6 @@ def process(source):
                     if FileJsonLog:
                         readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
 
-                        delete_log(f'log/{readerJsonFile}')
-
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                         grava_log(json_formatado, readerJsonFile)
 
@@ -421,8 +417,6 @@ def process(source):
         if FileJsonLog:
             readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
 
-            delete_log(f'log/{readerJsonFile}')
-
             json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
             grava_log(json_formatado, readerJsonFile)
 
@@ -462,7 +456,7 @@ def parse_dynamic_sentence_parameters(content):
     patterns = {
         "Service": r"Service(\w+)",
         "Internal Ticket Number": r"Internal Ticket Number(\d+)",
-        "Account Identifier": r"Account Identifier\s*([\+\d\s-]+)",
+        "Account Identifier": r"Account Identifier\s*\\?\s*([\+\d\s-]+)",
         "Account Type": r"Account Type(\w+)",
         "User Generated": r"Generated(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
         "Date Range": r"Date Range(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC to \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",

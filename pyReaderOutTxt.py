@@ -12,8 +12,6 @@ load_dotenv()
 
 DIRLOG = os.getenv("DIRLOG")
 
-ACCESSTOKEN = os.getenv("ACCESSTOKEN")
-
 DebugMode = False
 Out = False
 

@@ -30,7 +30,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 DebugMode = False
 Out = False
 Executar = True
-FileJsonLog = True
+FileJsonLog = False
 
 
 def get_files_in_dir(path):
@@ -103,7 +103,7 @@ def process(source):
 
                 if Executar:
                     if FileJsonLog:
-                        readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+                        readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
 
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                         grava_log(json_formatado, readerJsonFile)
@@ -318,7 +318,7 @@ def process(source):
 
                 if Executar:
                     if FileJsonLog:
-                        readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+                        readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
 
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                         grava_log(json_formatado, readerJsonFile)

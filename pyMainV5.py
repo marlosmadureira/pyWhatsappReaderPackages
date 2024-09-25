@@ -682,8 +682,6 @@ def parse_dynamic_sentence_group_participants(content):
     # Expressão regular para capturar números de telefone de qualquer grupo
     pattern = r"(GroupParticipants|GroupAdministrators|Participants)\s*\d+\s+Total\s+([\d\s]+)"
 
-    print("Processed sentence:\n", sentence)
-
     # Dicionário para armazenar os resultados
     results = {
         "GroupParticipants": [],

@@ -103,7 +103,7 @@ def process(source):
 
                 if Executar:
                     if FileJsonLog:
-                        readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+                        readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
 
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                         grava_log(json_formatado, readerJsonFile)
@@ -318,7 +318,7 @@ def process(source):
 
                 if Executar:
                     if FileJsonLog:
-                        readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+                        readerJsonFile = f'Log_Except_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
 
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                         grava_log(json_formatado, readerJsonFile)
@@ -680,7 +680,9 @@ def parse_dynamic_sentence_group_participants(content):
     sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # Expressão regular para capturar números de telefone de qualquer grupo
-    pattern = r"(GroupParticipants|GroupAdministrators|Participants)\d+\s+Total\s+([\d\s]+)"
+    pattern = r"(GroupParticipants|GroupAdministrators|Participants)\s*\d+\s+Total\s+([\d\s]+)"
+
+    print("Processed sentence:\n", sentence)
 
     # Dicionário para armazenar os resultados
     results = {
@@ -690,12 +692,12 @@ def parse_dynamic_sentence_group_participants(content):
     }
 
     # Captura de dados usando regex
-    matches = re.findall(pattern, sentence)
+    matches = re.findall(pattern, sentence, re.IGNORECASE)
 
     # Itera sobre cada correspondência encontrada
     for key, numbers in matches:
         # Limpa e separa os números
-        cleaned_numbers = numbers.strip().split()
+        cleaned_numbers = re.findall(r'\d+', numbers)
         results[key].extend(cleaned_numbers)
 
     # Verifica se há resultados e retorna, caso contrário, retorna None

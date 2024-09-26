@@ -671,4 +671,6 @@ def parse_dynamic_sentence_calls(content):
 if __name__ == '__main__':
     checkFolder(DIRLOG)
 
-    process(f"{DIRLOG}/541932698498667.txt")
+    nomedoarquivo = input('Entre com Nome do Arquivo Exempol (1658256034716941_1.txt): ')
+
+    process(f"{DIRLOG}/{nomedoarquivo}")

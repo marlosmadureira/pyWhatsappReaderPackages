@@ -214,6 +214,9 @@ def process(source):
                 if "webInfo" in fileProcess["Prtt"]:
                     del fileProcess["Prtt"]["webInfo"]
 
+                if "groupsInfo" in fileProcess["Prtt"]:
+                    del fileProcess["Prtt"]["groupsInfo"]
+
             if flagGDados:
                 dataType = "GDADOS"
                 fileProcess["GDados"] = fileDados

@@ -803,7 +803,7 @@ def sendDataPostgres(Dados, type, Out):
                                     # Processar GroupParticipants
                                     if Dados['GDados']['groupsInfo'].get('GroupParticipants'):
                                         for registro in Dados['GDados']['groupsInfo']['GroupParticipants']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('%s', '%s', '%s', '%s', %s);"
 
                                             if executaSql:
                                                 try:
@@ -816,7 +816,7 @@ def sendDataPostgres(Dados, type, Out):
                                     # Processar GroupAdministrators
                                     if Dados['GDados']['groupsInfo'].get('GroupAdministrators'):
                                         for registro in Dados['GDados']['groupsInfo']['GroupAdministrators']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('%s', '%s', '%s', '%s', %s);"
 
                                             if executaSql:
                                                 try:
@@ -831,7 +831,7 @@ def sendDataPostgres(Dados, type, Out):
                                     # Processar Participants
                                     if Dados['GDados']['groupsInfo'].get('Participants'):
                                         for registro in Dados['GDados']['groupsInfo']['Participants']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('%s', '%s', '%s', '%s', %s);"
 
                                             if executaSql:
                                                 try:

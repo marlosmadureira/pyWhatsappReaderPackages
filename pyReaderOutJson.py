@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from pyBibliotecaReaderOut import checkFolder, print_color, grava_log, getUnidadeFileName, remover_espacos_regex, somentenumero, unzipBase, parsetHTLMFileString, removeFolderFiles, delete_log
 from pyPostgresql import find_unidade_postgres
 from datetime import datetime
+from pyGravandoDados import sendDataPostgres
 
 # Configs
 load_dotenv()
@@ -78,6 +79,8 @@ def process(bsHtml, Unidade, fileName):
 
             json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
             grava_log(json_formatado, readerJsonFile)
+
+            #sendDataPostgres(json_formatado, dataType, Out)
 
             print_color(
                 f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",

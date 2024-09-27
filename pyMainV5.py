@@ -31,6 +31,7 @@ DebugMode = False
 Out = False
 Executar = True
 FileJsonLog = False
+ReaderTxt = False
 
 
 def get_files_in_dir(path):
@@ -471,6 +472,9 @@ def parse_dynamic_sentence_parameters(content):
         "Emails Definition": r"Emails Definition(Emails: [\w\s':]+)",
         "Registered Email Addresses": r"Registered Email Addresses([\w\s]+)"
     }
+
+    if ReaderTxt:
+        grava_log(sentence, 'arquivo.txt')
 
     # Dicionário para armazenar os resultados
     results = {}

@@ -13,7 +13,7 @@ DB_PASS = os.getenv("DB_PASS")
 APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
-executaSql = False
+executaSql = True
 PrintSql = True
 
 def sendDataPostgres(Dados, type, Out):
@@ -135,14 +135,14 @@ def sendDataPostgres(Dados, type, Out):
                 if queryExiste is None:
 
                     if 'DADOS' in type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) SELECT {linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}' RETURNING ar_id;"
+                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}') RETURNING ar_id;"
 
                         if PrintSql:
                             indice += 1
                             print(f"5 {indice} - {sqlInsert}")
 
                     if 'PRTT' in type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) SELECT {linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}' RETURNING ar_id;"
+                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id;"
 
                         if PrintSql:
                             indice += 1
@@ -268,7 +268,7 @@ def sendDataPostgres(Dados, type, Out):
                                 else:
                                     dadoLastIP = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_conexaoinfo WHERE servicestart = '%s' AND devicetype = '%s' AND appversion = '%s' AND deviceosbuildnumber = '%s' AND telefone = '%s');"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, %s);"
 
                                 if executaSql:
                                     try:
@@ -318,7 +318,7 @@ def sendDataPostgres(Dados, type, Out):
                                 else:
                                     Availability = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '%s' AND we_platform = '%s' AND telefone = '%s');"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) VALUES ('%s', '%s', '%s', '%s', '%s', %s, %s);"
 
                                 if executaSql:
                                     try:
@@ -381,7 +381,7 @@ def sendDataPostgres(Dados, type, Out):
                                             else:
                                                 dadoSubject = None
 
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_grupoinfo WHERE grouptype = '%s' AND creation = '%s' AND id_msg = '%s' AND telefone = '%s');"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s);"
 
                                             if executaSql:
                                                 try:
@@ -445,7 +445,7 @@ def sendDataPostgres(Dados, type, Out):
                                             else:
                                                 dadoSubject = None
 
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_grupoinfo WHERE grouptype = '%s' AND creation = '%s' AND id_msg = '%s' AND telefone = '%s');"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', %s);"
 
                                             if executaSql:
                                                 try:
@@ -473,7 +473,7 @@ def sendDataPostgres(Dados, type, Out):
                                     symmetricContacts = Dados['Dados']['addressBookInfo'][0]['Symmetriccontacts']
                                     if len(symmetricContacts) > 0:
                                         for contacts in symmetricContacts:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '%s' AND ag_tipo = '%s' AND telefone = '%s');"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES ('%s', '%s', '%s', %s, %s);"
 
                                             if executaSql:
                                                 try:
@@ -498,7 +498,7 @@ def sendDataPostgres(Dados, type, Out):
                                     asymmetricContacts = Dados['Dados']['addressBookInfo'][0]['Asymmetriccontacts']
                                     if len(asymmetricContacts) > 0:
                                         for contacts in asymmetricContacts:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_agenda WHERE ag_telefone = '%s' AND ag_tipo = '%s' AND telefone = '%s');"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES ('%s', '%s', '%s', %s, %s);"
 
                                             if executaSql:
                                                 try:
@@ -571,7 +571,7 @@ def sendDataPostgres(Dados, type, Out):
                                 else:
                                     DeviceModel = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_deviceinfo (dev_appversion, dev_osversion, dev_buildnumber, dev_manufacturer, dev_devicemodel, ar_id, linh_id, telefone) SELECT '%s', '%s', '%s', '%s', '%s', %s, %s, '%s' WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_deviceinfo WHERE dev_appversion = '%s' AND dev_osversion = '%s' AND dev_buildnumber = '%s' AND telefone = '%s');"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_deviceinfo (dev_appversion, dev_osversion, dev_buildnumber, dev_manufacturer, dev_devicemodel, ar_id, linh_id, telefone) VALUES ('%s', '%s', '%s', '%s', '%s', %s, %s, '%s');"
 
                                 if executaSql:
                                     try:

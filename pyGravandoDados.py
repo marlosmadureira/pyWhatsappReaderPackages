@@ -109,12 +109,12 @@ def sendDataPostgres(Dados, type, Out):
 
             queryLinId = None
 
-            if executaSql:
-                try:
-                    db.execute(sqllinh_id)
-                    queryLinId = db.fetchone()
-                except:
-                    pass
+            try:
+                db.execute(sqllinh_id)
+                queryLinId = db.fetchone()
+            except:
+                pass
+
 
             if queryLinId is not None and queryLinId[0] > 0:
 
@@ -149,14 +149,14 @@ def sendDataPostgres(Dados, type, Out):
                             print(f"6 {indice} - {sqlInsert}")
 
                     if executaSql:
+                        ar_id = None
+
                         try:
                             db.execute(sqlInsert)
                             con.commit()
                             result = db.fetchone()
                             if result is not None and result[0] is not None:
                                 ar_id = result[0]
-                            else:
-                                ar_id = None
                         except:
                             db.execute("rollback")
                             pass
@@ -997,7 +997,10 @@ if __name__ == '__main__':
 
     fileName = f"log/Log_PRTT_Out_380390691797908.json"
 
+    Dados = None
+
     if os.path.exists(fileName):
         Dados = openJson(fileName)
 
-    sendDataPostgres(Dados, dataType, Out)
+    if Dados is not None:
+        sendDataPostgres(Dados, dataType, Out)

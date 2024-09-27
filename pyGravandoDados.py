@@ -744,8 +744,102 @@ def sendDataPostgres(Dados, type, Out):
 
                 else:
                     print(f"\nARQUIVO EXISTNTE {FileName}")
+
             else:
-                print(f"\nLINHA NÃO LOCALIZADA OU INTERCEPTADA {AccountIdentifier}\n")
+
+                if type == "GDADOS":
+                    sqlGrupo = f"SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id FROM interceptacao.tbobje_whatsappgrupos, interceptacao.tbobje_intercepta WHERE tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = {Unidade} AND tbobje_whatsappgrupos.grupo_id ILIKE '%{AccountIdentifier}%'"
+
+                    try:
+                        db.execute(sqlGrupo)
+                        queryGrupo = db.fetchone()
+                    except:
+                        pass
+
+                    if queryGrupo is not None and queryGrupo[0] > 0:
+                        queryArId = None
+
+                        linh_id = queryGrupo[1]
+
+                        sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 2 AND linh_id = {linh_id} AND ar_arquivo = '{FileName}'"
+
+                        try:
+                            db.execute(sqlexistente)
+                            queryExiste = db.fetchone()
+                        except:
+                            pass
+
+                        if queryExiste is None and queryExiste[0] > 0:
+
+                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1, '{EmailAddresses}') RETURNING ar_id;"
+
+                            if executaSql:
+                                try:
+                                    db.execute(sqlInsert)
+                                    con.commit()
+                                    result = db.fetchone()
+                                    if result is not None and result[0] is not None:
+                                        ar_id = result[0]
+                                    else:
+                                        ar_id = None
+                                except:
+                                    db.execute("rollback")
+                                    pass
+
+                            if ar_id is not None:
+                                sqlIdentificador = f"SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = {Unidade} AND tbmembros_whats.grupo_id ILIKE '%{AccountIdentifier}%'"
+
+                                try:
+                                    db.execute(sqlIdentificador)
+                                    queryIdentificador = db.fetchone()
+                                except:
+                                    pass
+
+                                if queryIdentificador is None and queryIdentificador[0] > 0:
+                                    identificador = queryIdentificador[0]
+
+                                    # Processar GroupParticipants
+                                    if Dados['GDados']['groupsInfo'].get('GroupParticipants'):
+                                        for registro in Dados['GDados']['groupsInfo']['GroupParticipants']:
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert, (AccountIdentifier.strip(), somentenumero(registro), 'N', 'A', identificador))
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                    # Processar GroupAdministrators
+                                    if Dados['GDados']['groupsInfo'].get('GroupAdministrators'):
+                                        for registro in Dados['GDados']['groupsInfo']['GroupAdministrators']:
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert, (
+                                                    AccountIdentifier.strip(), somentenumero(registro), 'S', 'A',
+                                                    identificador))
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
+
+                                    # Processar Participants
+                                    if Dados['GDados']['groupsInfo'].get('Participants'):
+                                        for registro in Dados['GDados']['groupsInfo']['Participants']:
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+
+                                            if executaSql:
+                                                try:
+                                                    db.execute(sqlInsert, (
+                                                    AccountIdentifier.strip(), somentenumero(registro), 'N', 'A',
+                                                    identificador))
+                                                    con.commit()
+                                                except:
+                                                    db.execute("rollback")
+                                                    pass
         else:
             print(f"\nNÃO LOCALIZADO A CONTA {AccountIdentifier}\n")
 

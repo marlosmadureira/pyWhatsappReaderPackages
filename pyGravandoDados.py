@@ -88,13 +88,14 @@ def sendDataPostgres(Dados, type, Out):
 
                 sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = '%s' WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
 
-                if PrintSql:
-                    indice += 1
-                    print(f"2 {indice} - {sqlUpdate}")
-
                 if executaSql:
                     try:
                         db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
+
+                        if PrintSql:
+                            indice += 1
+                            print(f"2 {indice} - {db.query}")
+
                         con.commit()
                     except:
                         db.execute("rollback")

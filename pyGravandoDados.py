@@ -450,7 +450,7 @@ def sendDataPostgres(Dados, type, Out):
                             # FALTA AMOSTRA
                             if Dados['Dados'].get('ncmecReportsInfo'):
                                 if Dados['Dados']['ncmecReportsInfo'].get('NcmecReportsDefinition'):
-                                    NcmecReportsDefinition = Dados['Dados']['ncmecReportsInfo'][
+                                    NcmecReportsDefinition = Dados['Dados']['NcmecReportsDefinition'][
                                         'NcmecReportsDefinition']
                                 else:
                                     NcmecReportsDefinition = None

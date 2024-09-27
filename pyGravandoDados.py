@@ -842,6 +842,24 @@ def sendDataPostgres(Dados, type, Out):
                                                 except:
                                                     db.execute("rollback")
                                                     pass
+                else:
+
+                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id;"
+
+                    if executaSql:
+                        try:
+                            db.execute(sqlInsert)
+                            con.commit()
+                            result = db.fetchone()
+                            if result is not None and result[0] is not None:
+                                ar_id = result[0]
+                            else:
+                                ar_id = None
+                        except:
+                            db.execute("rollback")
+                            pass
+
+
         else:
             print(f"\nNÃO LOCALIZADO A CONTA {AccountIdentifier}\n")
 

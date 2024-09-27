@@ -95,6 +95,7 @@ def process(source):
 
                 if flagGDados:
                     dataType = "GDADOS"
+                    fileProcess['dataType'] = dataType
                     fileProcess["GDados"] = fileDados
 
                 if DebugMode:
@@ -299,10 +300,12 @@ def process(source):
 
                 if flagDados:
                     dataType = "DADOS"
+                    fileProcess['dataType'] = dataType
                     fileProcess["Dados"] = fileDados
 
                 if flagPrtt:
                     dataType = "PRTT"
+                    fileProcess['dataType'] = dataType
                     fileProcess["Prtt"] = fileDados
 
                     if "webInfo" in fileProcess["Prtt"]:
@@ -313,6 +316,7 @@ def process(source):
 
                 if flagGDados:
                     dataType = "GDADOS"
+                    fileProcess['dataType'] = dataType
                     fileProcess["GDados"] = fileDados
 
                 if DebugMode:

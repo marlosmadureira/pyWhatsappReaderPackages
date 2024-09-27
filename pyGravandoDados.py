@@ -148,9 +148,9 @@ def sendDataPostgres(Dados, type, Out):
                             indice += 1
                             print(f"6 {indice} - {sqlInsert}")
 
-                    if executaSql:
-                        ar_id = None
+                    ar_id = None
 
+                    if executaSql:
                         try:
                             db.execute(sqlInsert)
                             con.commit()

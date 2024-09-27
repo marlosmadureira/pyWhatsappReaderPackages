@@ -1,34 +1,28 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
-import json, os,re
+import json, os, re, shutil, time
 
 from dotenv import load_dotenv
-from datetime import datetime
-from pyBibliotecaReaderOut import checkFolder, print_color, grava_log, getUnidadeFileName, remover_espacos_regex, somentenumero
+from pyBibliotecaReaderOut import checkFolder, print_color, grava_log, getUnidadeFileName, remover_espacos_regex, somentenumero, unzipBase, parsetHTLMFileString, removeFolderFiles, delete_log
 from pyPostgresql import find_unidade_postgres
+from datetime import datetime
 
 # Configs
 load_dotenv()
 
+DIRNOVOS = os.getenv("DIRNOVOS")
+DIRLIDOS = os.getenv("DIRLIDOS")
+DIRERROS = os.getenv("DIRERROS")
+DIREXTRACAO = os.getenv("DIREXTRACAO")
 DIRLOG = os.getenv("DIRLOG")
 
 DebugMode = False
 Out = False
 
 
-def process(source):
-    # countdown(1)
-
+def process(bsHtml, Unidade, fileName):
     fileProcess = {}
     fileDados = {}
-
-    source, Unidade = getUnidadeFileName(source)
-
-    file_name_with_extension = os.path.basename(source)
-    fileName = os.path.splitext(file_name_with_extension)[0]
-
-    with open(source, 'r') as file:
-        bsHtml = file.read()
 
     dataType = None
 
@@ -237,6 +231,7 @@ def process(source):
                 f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
                 35)
 
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
 def parse_dynamic_sentence_parameters(content):
     # Remove as barras invertidas e espaços em branco desnecessários
@@ -675,9 +670,58 @@ def parse_dynamic_sentence_calls(content):
     return results if results else None
 
 
+def get_files_in_dir(path):
+    return set(os.listdir(path))
+
+
+def processLendoZip(source):
+    source, Unidade = getUnidadeFileName(source)
+
+    fileName = source.replace(DIRNOVOS, "")
+    folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
+    bsHtml = parsetHTLMFileString(folderZip)
+
+    print(fileName, folderZip, bsHtml)
+
+    try:
+        if bsHtml is not None and bsHtml != "" and Unidade is not None:
+
+            removeFolderFiles(folderZip)
+
+            filePath = DIRLIDOS + fileName
+
+            if not os.path.exists(filePath):
+                shutil.move(source, DIRLIDOS)
+            else:
+                delete_log(source)
+
+            return bsHtml, Unidade, fileName
+
+    except Exception as inst:
+        return None, None, None
+        pass
+
 if __name__ == '__main__':
+    checkFolder(DIRNOVOS)
+    checkFolder(DIRLIDOS)
+    checkFolder(DIRERROS)
+    checkFolder(DIREXTRACAO)
     checkFolder(DIRLOG)
 
-    nomedoarquivo = input('Entre com Nome do Arquivo Exempol (1658256034716941_1.txt): ')
+    previous_files = get_files_in_dir(DIRNOVOS)
 
-    process(f"{DIRLOG}/{nomedoarquivo}")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+
+    while True:
+        time.sleep(3)
+        current_files = get_files_in_dir(DIRNOVOS)
+        added_files = current_files - previous_files
+        removed_files = previous_files - current_files
+
+        try:
+            if added_files:
+                for file in added_files:
+                    bsHtml, Unidade, fileName = processLendoZip(f"{DIRNOVOS}{file}")
+                    process(bsHtml, Unidade, fileName)
+        except Exception as inst:
+            print(inst)

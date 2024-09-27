@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV5 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, get_size, contar_arquivos_zip, \
-    openJsonEstruturado, remover_espacos_regex, somentenumero
-from pyPostgresql import sendDataPostgres
+    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json
+from pyGravandoDados import sendDataPostgres
 from pyPostgresql import find_unidade_postgres
 from pyGetSendApi import sendDataJsonServer
 from pySendElement import sendMessageElement, getroomIdElement
@@ -331,45 +331,36 @@ def process(source):
 
                     print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
 
-                    if sizeFile > 400000:
-                        print_color(
-                            f"\n=========================== PYTHON {fileName} Unidade {Unidade} ===========================",
-                            35)
+                    print_color(
+                        f"\n=========================== ENVIADO PHP QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
+                        33)
 
-                        sendDataPostgres(fileProcess, dataType, DebugMode, Out, fileName)
+                    retornoJson = sendDataJsonServer(fileProcess, dataType)
 
-                        EventoGravaBanco = True
-                    else:
-                        print_color(
-                            f"\n=========================== ENVIADO PHP QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
-                            33)
+                    if 'MostraJsonPython' in retornoJson['jsonRetorno']:
 
-                        retornoJson = sendDataJsonServer(fileProcess, dataType)
+                        Jsondata = json.loads(retornoJson['jsonRetorno'])
 
-                        if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+                        if Jsondata['MostraJsonPython']:
+                            print_color(f"\nJSON PROCESSADO", 92)
+                            print_color(f"{fileProcess}", 92)
 
-                            Jsondata = json.loads(retornoJson['jsonRetorno'])
+                        if Jsondata['RetornoPHP']:
+                            print_color(f"\nRETORNO DO PHP", 34)
+                            openJsonEstruturado(Jsondata)
 
-                            if Jsondata['MostraJsonPython']:
-                                print_color(f"\nJSON PROCESSADO", 92)
-                                print_color(f"{fileProcess}", 92)
+                        if Jsondata['ExibirTotalPacotesFila']:
+                            contar_arquivos_zip(DIRNOVOS)
 
-                            if Jsondata['RetornoPHP']:
-                                print_color(f"\nRETORNO DO PHP", 34)
-                                openJsonEstruturado(Jsondata)
-
-                            if Jsondata['ExibirTotalPacotesFila']:
-                                contar_arquivos_zip(DIRNOVOS)
-
-                            if Jsondata['GravaBanco']:
-                                print_color(
-                                    f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                                    32)
-                                EventoGravaBanco = True
-                            else:
-                                print_color(
-                                    f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                                    31)
+                        if Jsondata['GravaBanco']:
+                            print_color(
+                                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                                32)
+                            EventoGravaBanco = True
+                        else:
+                            print_color(
+                                f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                                31)
                 else:
                     print_color(
                         f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
@@ -415,6 +406,9 @@ def process(source):
             grava_log(f"Erro Arquivo Contém Index: {fileName} Unidade: {Unidade}", 'LogPadraoAntigo.txt')
 
     except Exception as inst:
+
+        if is_valid_json(fileProcess):
+            sendDataPostgres(fileProcess, dataType, Out)
 
         print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
 

@@ -88,6 +88,13 @@ def countdown(num_of_secs):
         num_of_secs -= 1
 
 
+def is_valid_json(json_string):
+    try:
+        json.loads(json_string)
+        return True
+    except json.JSONDecodeError:
+        return False
+
 def delete_log(nome_arquivo):
     if os.path.exists(nome_arquivo):
         os.remove(nome_arquivo)

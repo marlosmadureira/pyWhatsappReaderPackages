@@ -9,7 +9,7 @@ import shutil
 from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV5 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
-    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, get_size, contar_arquivos_zip, \
+    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, contar_arquivos_zip, \
     openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json
 from pyGravandoDados import sendDataPostgres
 from pyPostgresql import find_unidade_postgres
@@ -109,10 +109,6 @@ def process(source):
 
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                         grava_log(json_formatado, readerJsonFile)
-
-                    sizeFile = get_size(source)
-
-                    print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
 
                     print_color(
                         f"\n=========================== ENVIADO PHP QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} ===========================",
@@ -330,10 +326,6 @@ def process(source):
 
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
                         grava_log(json_formatado, readerJsonFile)
-
-                    sizeFile = get_size(source)
-
-                    print_color(f"\nTAMANHO DO PACOTE {sizeFile}", 32)
 
                     print_color(
                         f"\n=========================== ENVIADO PHP QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} ===========================",

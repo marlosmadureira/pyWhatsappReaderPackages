@@ -475,6 +475,7 @@ def parse_dynamic_sentence_parameters(content):
 
     if ReaderTxt:
         grava_log(sentence, 'arquivo.txt')
+        exit()
 
     # Dicionário para armazenar os resultados
     results = {}

@@ -233,6 +233,7 @@ def process(bsHtml, Unidade, fileName):
 
     print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
+
 def parse_dynamic_sentence_parameters(content):
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', content).strip()
@@ -680,8 +681,6 @@ def processLendoZip(source):
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
     bsHtml = parsetHTLMFileString(folderZip)
-
-    print(fileName, folderZip, bsHtml)
 
     try:
         if bsHtml is not None and bsHtml != "" and Unidade is not None:

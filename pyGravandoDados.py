@@ -14,8 +14,11 @@ APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
 executaSql = False
+PrintSql = True
 
 def sendDataPostgres(Dados, type, Out):
+    indice = 0
+
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
 
@@ -68,6 +71,10 @@ def sendDataPostgres(Dados, type, Out):
 
             sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
 
+            if PrintSql:
+                indice += 1
+                print(f"1 {indice} - {sqlTratamento}")
+
             try:
                 db.execute(sqlTratamento)
                 queryTratamento = db.fetchone()
@@ -81,6 +88,10 @@ def sendDataPostgres(Dados, type, Out):
 
                 sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = '%s' WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
 
+                if PrintSql:
+                    indice += 1
+                    print(f"2 {indice} - {sqlUpdate}")
+
                 if executaSql:
                     try:
                         db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
@@ -90,6 +101,12 @@ def sendDataPostgres(Dados, type, Out):
                         pass
 
             sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
+
+            if PrintSql:
+                indice += 1
+                print(f"3 {indice} - {sqllinh_id}")
+
+            queryLinId = None
 
             if executaSql:
                 try:
@@ -104,6 +121,10 @@ def sendDataPostgres(Dados, type, Out):
 
                 sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = {linh_id} AND ar_arquivo = '{FileName}' AND ar_dtgerado = '{DateRange}'"
 
+                if PrintSql:
+                    indice += 1
+                    print(f"4 {indice} - {sqlexistente}")
+
                 try:
                     db.execute(sqlexistente)
                     queryExiste = db.fetchone()
@@ -115,8 +136,16 @@ def sendDataPostgres(Dados, type, Out):
                     if 'DADOS' in type:
                         sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) SELECT {linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}' RETURNING ar_id;"
 
+                        if PrintSql:
+                            indice += 1
+                            print(f"5 {indice} - {sqlInsert}")
+
                     if 'PRTT' in type:
                         sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) SELECT {linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}' RETURNING ar_id;"
+
+                        if PrintSql:
+                            indice += 1
+                            print(f"6 {indice} - {sqlInsert}")
 
                     if executaSql:
                         try:
@@ -143,6 +172,11 @@ def sendDataPostgres(Dados, type, Out):
                                 if executaSql:
                                     try:
                                         db.execute(sqlUpdate, (EmailAddresses, ar_id))
+
+                                        if PrintSql:
+                                            indice += 1
+                                            print(f"7 {indice} - {db.query}")
+
                                         con.commit()
                                     except:
                                         db.execute("rollback")
@@ -172,6 +206,11 @@ def sendDataPostgres(Dados, type, Out):
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     dadoIPAddress, dadoTime, AccountIdentifier, ar_id, linh_id))
+
+                                                    if PrintSql:
+                                                        indice += 1
+                                                        print(f"8 {indice} - {db.query}")
+
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -238,6 +277,11 @@ def sendDataPostgres(Dados, type, Out):
                                                     dadoPushName, dadoLastSeen, AccountIdentifier, ar_id, linh_id,
                                                     dadoServiceStart, dadoDeviceType, dadoAppVersion,
                                                     dadoDeviceOSBuildNumber, AccountIdentifier))
+
+                                        if PrintSql:
+                                            indice += 1
+                                            print(f"9 {indice} - {db.query}")
+
                                         con.commit()
                                     except:
                                         db.execute("rollback")
@@ -281,6 +325,11 @@ def sendDataPostgres(Dados, type, Out):
                                         dadoVersion, dadoPlatform, dadoOnlineSince, dadoInactiveSince,
                                         AccountIdentifier, ar_id, linh_id, dadoVersion, dadoPlatform,
                                         AccountIdentifier))
+
+                                        if PrintSql:
+                                            indice += 1
+                                            print(f"10 {indice} - {db.query}")
+
                                         con.commit()
                                     except:
                                         db.execute("rollback")
@@ -341,6 +390,11 @@ def sendDataPostgres(Dados, type, Out):
                                                         ar_id,
                                                         dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID,
                                                         AccountIdentifier))
+
+                                                    if PrintSql:
+                                                        indice += 1
+                                                        print(f"11 {indice} - {db.query}")
+
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -400,6 +454,11 @@ def sendDataPostgres(Dados, type, Out):
                                                         ar_id,
                                                         dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID,
                                                         AccountIdentifier))
+
+                                                    if PrintSql:
+                                                        indice += 1
+                                                        print(f"12 {indice} - {db.query}")
+
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -420,6 +479,12 @@ def sendDataPostgres(Dados, type, Out):
                                                     db.execute(sqlInsert, (
                                                     contacts, 'S', AccountIdentifier, ar_id, linh_id, contacts, 'S',
                                                     AccountIdentifier))
+
+                                                    if PrintSql:
+                                                        indice += 1
+                                                        print(f"13 {indice} - {db.query}")
+
+
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -439,6 +504,11 @@ def sendDataPostgres(Dados, type, Out):
                                                     db.execute(sqlInsert, (
                                                         contacts, 'A', AccountIdentifier, ar_id, linh_id, contacts, 'A',
                                                         AccountIdentifier))
+
+                                                    if PrintSql:
+                                                        indice += 1
+                                                        print(f"14 {indice} - {db.query}")
+
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -509,6 +579,11 @@ def sendDataPostgres(Dados, type, Out):
                                             ar_id,
                                             linh_id, AccountIdentifier, AppVersion, OSVersion, OSBuildNumber,
                                             AccountIdentifier))
+
+                                        if PrintSql:
+                                            indice += 1
+                                            print(f"15 {indice} - {db.query}")
+
                                         con.commit()
                                     except:
                                         db.execute("rollback")
@@ -757,6 +832,10 @@ def sendDataPostgres(Dados, type, Out):
                 if type == "GDADOS":
                     sqlGrupo = f"SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id FROM interceptacao.tbobje_whatsappgrupos, interceptacao.tbobje_intercepta WHERE tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = {Unidade} AND tbobje_whatsappgrupos.grupo_id ILIKE '%{AccountIdentifier}%'"
 
+                    if PrintSql:
+                        indice += 1
+                        print(f"16 {indice} - {sqlGrupo}")
+
                     try:
                         db.execute(sqlGrupo)
                         queryGrupo = db.fetchone()
@@ -770,6 +849,10 @@ def sendDataPostgres(Dados, type, Out):
 
                         sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 2 AND linh_id = {linh_id} AND ar_arquivo = '{FileName}'"
 
+                        if PrintSql:
+                            indice += 1
+                            print(f"17 {indice} - {sqlexistente}")
+
                         try:
                             db.execute(sqlexistente)
                             queryExiste = db.fetchone()
@@ -779,6 +862,10 @@ def sendDataPostgres(Dados, type, Out):
                         if queryExiste is None and queryExiste[0] > 0:
 
                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1, '{EmailAddresses}') RETURNING ar_id;"
+
+                            if PrintSql:
+                                indice += 1
+                                print(f"18 {indice} - {sqlInsert}")
 
                             if executaSql:
                                 try:
@@ -795,6 +882,10 @@ def sendDataPostgres(Dados, type, Out):
 
                             if ar_id is not None:
                                 sqlIdentificador = f"SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = {Unidade} AND tbmembros_whats.grupo_id ILIKE '%{AccountIdentifier}%'"
+
+                                if PrintSql:
+                                    indice += 1
+                                    print(f"19 {indice} - {sqlIdentificador}")
 
                                 try:
                                     db.execute(sqlIdentificador)
@@ -813,6 +904,11 @@ def sendDataPostgres(Dados, type, Out):
                                             if executaSql:
                                                 try:
                                                     db.execute(sqlInsert, (AccountIdentifier.strip(), somentenumero(registro), 'N', 'A', identificador))
+
+                                                    if PrintSql:
+                                                        indice += 1
+                                                        print(f"20 {indice} - {db.query}")
+
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -828,6 +924,11 @@ def sendDataPostgres(Dados, type, Out):
                                                     db.execute(sqlInsert, (
                                                     AccountIdentifier.strip(), somentenumero(registro), 'S', 'A',
                                                     identificador))
+
+                                                    if PrintSql:
+                                                        indice += 1
+                                                        print(f"21 {indice} - {db.query}")
+
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -843,6 +944,11 @@ def sendDataPostgres(Dados, type, Out):
                                                     db.execute(sqlInsert, (
                                                     AccountIdentifier.strip(), somentenumero(registro), 'N', 'A',
                                                     identificador))
+
+                                                    if PrintSql:
+                                                        indice += 1
+                                                        print(f"22 {indice} - {db.query}")
+
                                                     con.commit()
                                                 except:
                                                     db.execute("rollback")
@@ -850,6 +956,10 @@ def sendDataPostgres(Dados, type, Out):
                 else:
 
                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id;"
+
+                    if PrintSql:
+                        indice += 1
+                        print(f"23 {indice} - {sqlInsert}")
 
                     if executaSql:
                         try:

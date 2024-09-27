@@ -230,6 +230,8 @@ def process(bsHtml, Unidade, fileName):
             json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
             grava_log(json_formatado, readerJsonFile)
 
+            # sendDataPostgres(json_formatado, dataType, Out)
+
             print_color(
                 f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
                 35)

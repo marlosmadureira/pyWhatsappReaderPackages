@@ -268,6 +268,11 @@ def sendDataPostgres(Dados, type, Out):
                                 else:
                                     dadoInactiveSince = None
 
+                                if webInfo.get('Availability'):
+                                    Availability = webInfo['Availability']
+                                else:
+                                    Availability = None
+
                                 sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_weinfo WHERE we_version = '%s' AND we_platform = '%s' AND telefone = '%s');"
 
                                 if executaSql:

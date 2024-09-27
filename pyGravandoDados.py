@@ -1,6 +1,6 @@
 import json, os
 
-from pyBiblioteca import conectBD, somentenumero
+from pyBibliotecaV5 import conectBD, somentenumero
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -987,20 +987,20 @@ def openJson(file):
         dados = json.load(arquivo)
     return dados
 
-if __name__ == '__main__':
-    # dataType = "DADOS"
-    dataType = "PRTT"
-    # dataType = "GDADOS"
-
-    DebugMode = False
-    Out = False
-
-    fileName = f"log/Log_PRTT_Out_380390691797908.json"
-
-    Dados = None
-
-    if os.path.exists(fileName):
-        Dados = openJson(fileName)
-
-    if Dados is not None:
-        sendDataPostgres(Dados, dataType, Out)
+# if __name__ == '__main__':
+#     # dataType = "DADOS"
+#     dataType = "PRTT"
+#     # dataType = "GDADOS"
+#
+#     DebugMode = False
+#     Out = False
+#
+#     fileName = f"log/Log_PRTT_Out_380390691797908.json"
+#
+#     Dados = None
+#
+#     if os.path.exists(fileName):
+#         Dados = openJson(fileName)
+#
+#     if Dados is not None:
+#         sendDataPostgres(Dados, dataType, Out)

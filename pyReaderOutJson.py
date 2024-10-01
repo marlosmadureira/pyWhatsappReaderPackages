@@ -626,15 +626,15 @@ def parse_dynamic_sentence_messages(content):
 
 
 def parse_dynamic_sentence_calls(content):
-    # Remove as barras invertidas e espaços em branco desnecessários
+    # Remove barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', content).strip()
     # Remove linhas vazias
     sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
-    # Expressões regulares para capturar os campos da chamada, eventos e participantes
+    # Padrões para capturar os campos da chamada e eventos
     call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'
-    event_pattern = r'Type\s*([\w]+)\s*Timestamp\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*From\s*([\d]+)\s*To\s*([\d]*)\s*From Ip\s*([\d\.:a-fA-F]+)\s*From Port\s*(\d+)(?:\s*Media Type\s*([\w]+))?'
-    participant_pattern = r'Phone Number\s*([\d]+)\s*State\s*([\w]+)\s*Platform\s*([\w]+)'
+    event_pattern = r'Type\s*(\w+)\s*Timestamp\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*From\s*([\d]+)\s*To\s*([\d]*)\s*From Ip\s*([\d\.:a-fA-F]+)\s*From Port\s*(\d+)(?:\s*Media Type\s*([\w]+))?'
+    participant_pattern = r'Phone Number\s*([\d]+)\s*State\s*(\w+)\s*Platform\s*(\w+)'
 
     # Encontrar todas as chamadas
     calls = re.findall(call_pattern, sentence, re.DOTALL)
@@ -668,15 +668,15 @@ def parse_dynamic_sentence_calls(content):
             if len(event) > 6 and event[6]:
                 event_data["MediaType"] = event[6].strip()
 
-            # Encontrar todos os participantes dentro do evento
+            # Verificar se há participantes
             participant_section = sentence[sentence.find('Participants', sentence.find(event[1])):]
             participants = re.findall(participant_pattern, participant_section, re.DOTALL)
 
             for participant in participants:
                 participant_data = {
-                    "PhoneNumber": participant[0],
-                    "State": participant[1],
-                    "Platform": participant[2]
+                    "PhoneNumber": participant[0].strip(),
+                    "State": participant[1].strip(),
+                    "Platform": participant[2].strip()
                 }
                 event_data["Participants"].append(participant_data)
 

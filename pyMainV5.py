@@ -402,9 +402,6 @@ def process(source):
 
     except Exception as inst:
 
-        if is_valid_json(fileProcess):
-            sendDataPostgres(fileProcess, dataType, Out)
-
         print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
 
         if FileJsonLog:
@@ -433,6 +430,9 @@ def process(source):
             os.remove(source)
 
         removeFolderFiles(folderZip)
+
+        if is_valid_json(fileProcess):
+            sendDataPostgres(fileProcess, dataType, Out)
 
     if DebugMode:
         print("\nMovendo de: ", source)

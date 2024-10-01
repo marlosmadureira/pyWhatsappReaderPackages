@@ -21,9 +21,20 @@ DebugMode = False
 Out = False
 
 
-def process(bsHtml, Unidade, fileName):
+#def process(bsHtml, Unidade, fileName, flagTxtReader):
+def process(source, flagTxtReader):
     fileProcess = {}
     fileDados = {}
+
+    if flagTxtReader:
+        DadosUnidade = source.split("_")
+
+        Unidade = DadosUnidade[1].replace(".txt", "")
+
+        fileName = f"{DadosUnidade[0]}.txt"
+
+        with open(source, 'r') as file:
+            bsHtml = file.read()
 
     dataType = None
 
@@ -712,20 +723,24 @@ if __name__ == '__main__':
     checkFolder(DIREXTRACAO)
     checkFolder(DIRLOG)
 
-    previous_files = get_files_in_dir(DIRNOVOS)
+    nomedoarquivo = input('Entre com Nome do Arquivo Exempol (1658256034716941_1.txt): ')
 
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+    process(f"{DIRLOG}/{nomedoarquivo}", True)
 
-    while True:
-        time.sleep(3)
-        current_files = get_files_in_dir(DIRNOVOS)
-        added_files = current_files - previous_files
-        removed_files = previous_files - current_files
-
-        try:
-            if added_files:
-                for file in added_files:
-                    bsHtml, Unidade, fileName = processLendoZip(f"{DIRNOVOS}{file}")
-                    process(bsHtml, Unidade, fileName)
-        except Exception as inst:
-            print(inst)
+    # previous_files = get_files_in_dir(DIRNOVOS)
+    #
+    # print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+    #
+    # while True:
+    #     time.sleep(3)
+    #     current_files = get_files_in_dir(DIRNOVOS)
+    #     added_files = current_files - previous_files
+    #     removed_files = previous_files - current_files
+    #
+    #     try:
+    #         if added_files:
+    #             for file in added_files:
+    #                 bsHtml, Unidade, fileName = processLendoZip(f"{DIRNOVOS}{file}")
+    #                 process(bsHtml, Unidade, fileName)
+    #     except Exception as inst:
+    #         print(inst)

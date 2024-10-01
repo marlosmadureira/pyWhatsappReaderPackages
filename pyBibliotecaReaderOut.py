@@ -77,14 +77,13 @@ def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
     return OutPutDie
 
 def getUnidadeFileName(nome_original):
-    FileName, Unidade = None, None
 
     if "_" in nome_original:
         DadosUnidade = nome_original.split("_")
 
         Unidade = DadosUnidade[1].replace(".zip", "")
 
-        FileName = f"{DadosUnidade[0]}.zip";
+        FileName = f"{DadosUnidade[0]}.zip"
 
         os.rename(nome_original, FileName)
     else:

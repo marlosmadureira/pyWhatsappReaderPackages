@@ -798,41 +798,42 @@ def parse_dynamic_sentence_messages(content):
 
 
 def parse_dynamic_sentence_calls(content):
-    # Remove barras invertidas e espaços em branco desnecessários
-    sentence = re.sub(r'\\', '', content).strip()
-    # Remove linhas vazias
-    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
+    # Remove barras invertidas e espaços desnecessários
+    sentence = re.sub(r'\\', '', content.strip())
+    sentence = re.sub(r'^\s*[\r\n]', '', sentence, flags=re.M)  # Remove linhas vazias
 
-    # Padrões para capturar os campos da chamada e eventos
+    # Padrões para capturar campos de chamadas e eventos
     call_pattern = r'Call Id\s*([\w\d]+)\s*Call Creator\s*([\d]+)\s*(Events.*?)(?=Call Id|$)'
-    event_pattern = r'Type\s*(\w+)\s*Timestamp\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*From\s*([\d]+)\s*To\s*([\d]*)\s*From Ip\s*([\d\.:a-fA-F]+)\s*From Port\s*(\d+)(?:\s*Media Type\s*([\w]+))?'
+    event_pattern = r'Type\s*(\w+)\s*Timestamp\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)\s*(?:From\s*([\d]*)\s*To\s*([\d]*)\s*)?(?:From Ip\s*([\d\.:a-fA-F]+)\s*From Port\s*(\d+))?(?:\s*Media Type\s*([\w]+))?'
     participant_pattern = r'Phone Number\s*([\d]+)\s*State\s*(\w+)\s*Platform\s*(\w+)'
 
     # Encontrar todas as chamadas
-    calls = re.findall(call_pattern, sentence, re.DOTALL)
+    calls = re.findall(call_pattern, sentence, re.S)
 
     results = []
 
     for call in calls:
-        call_id, call_creator, events_section = call
+        call_id = call[0].strip()
+        call_creator = call[1].strip()
+        events_section = call[2]
 
         # Dicionário para armazenar os resultados
         result = {
-            "CallId": call_id.strip(),
-            "CallCreator": call_creator.strip(),
+            "CallId": call_id,
+            "CallCreator": call_creator,
             "Events": []
         }
 
         # Encontrar todos os eventos dentro da seção de eventos
-        events = re.findall(event_pattern, events_section, re.DOTALL)
+        events = re.findall(event_pattern, events_section, re.S)
         for event in events:
             event_data = {
                 "Type": event[0].strip(),
                 "Timestamp": event[1].strip(),
-                "From": event[2].strip(),
-                "To": event[3].strip(),
-                "FromIp": event[4].strip(),
-                "FromPort": event[5].strip(),
+                "From": event[2].strip() if event[2] else '',
+                "To": event[3].strip() if event[3] else '',
+                "FromIp": event[4].strip() if event[4] else '',
+                "FromPort": event[5].strip() if event[5] else '',
                 "Participants": []
             }
 
@@ -841,8 +842,7 @@ def parse_dynamic_sentence_calls(content):
                 event_data["MediaType"] = event[6].strip()
 
             # Verificar se há participantes
-            participant_section = sentence[sentence.find('Participants', sentence.find(event[1])):]
-            participants = re.findall(participant_pattern, participant_section, re.DOTALL)
+            participants = re.findall(participant_pattern, events_section, re.S)
 
             for participant in participants:
                 participant_data = {

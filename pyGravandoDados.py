@@ -1,6 +1,6 @@
 import json, os
 
-from pyBibliotecaV5 import conectBD, somentenumero
+from pyBibliotecaV5 import conectBD, somentenumero, openJson
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -978,11 +978,6 @@ def sendDataPostgres(Dados, type, Out):
 
     db.close()
     con.close()
-
-def openJson(file):
-    with open(file, 'r', encoding='utf-8') as arquivo:
-        dados = json.load(arquivo)
-    return dados
 
 # if __name__ == '__main__':
 #     # dataType = "DADOS"

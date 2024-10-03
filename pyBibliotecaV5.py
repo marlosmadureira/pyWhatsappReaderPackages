@@ -63,6 +63,11 @@ def getUnidadeFileName(nome_original):
 
     return FileName, Unidade
 
+def openJson(file):
+    with open(file, 'r', encoding='utf-8') as arquivo:
+        dados = json.load(arquivo)
+    return dados
+
 
 def clean_html(html_text):
     """Remove tags HTML e espaços extras de uma string HTML."""

@@ -38,7 +38,7 @@ def limpar_arquivos_antigos(diretorio, dias=10):
 
             # Apaga arquivos antigos
             if ultima_modificacao < limite:
-                print(f"Apagando {arquivo}...")
+                print(f"\nApagando {arquivo}...")
                 os.remove(caminho_arquivo)
 
     print("\nLimpeza concluída.")

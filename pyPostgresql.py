@@ -49,7 +49,7 @@ def listaProcessamento(source, Unidade):
 
         try:
             db.execute(sqlInsert, (source, Unidade, datanow))
-            print(f"{db.query}")
+            #print(f"{db.query}")
             con.commit()
         except:
             db.execute("rollback")

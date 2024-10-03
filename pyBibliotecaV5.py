@@ -10,7 +10,7 @@ import zipfile
 from markdownify import markdownify as md
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Configs
 load_dotenv()
@@ -20,6 +20,28 @@ APITOKEN = os.getenv("APITOKEN")
 DIRLOG = os.getenv("DIRLOG")
 
 DebugMode = False
+
+
+def limpar_arquivos_antigos(diretorio, dias=10):
+    # Obter o timestamp atual
+    agora = time.time()
+    limite = agora - dias * 86400  # 86400 segundos = 1 dia
+
+    # Verificar todos os arquivos no diretório
+    for arquivo in os.listdir(diretorio):
+        caminho_arquivo = os.path.join(diretorio, arquivo)
+
+        # Verifica se é um arquivo regular
+        if os.path.isfile(caminho_arquivo):
+            # Obter a data de modificação do arquivo
+            ultima_modificacao = os.path.getmtime(caminho_arquivo)
+
+            # Apaga arquivos antigos
+            if ultima_modificacao < limite:
+                print(f"Apagando {arquivo}...")
+                os.remove(caminho_arquivo)
+
+    print("\nLimpeza concluída.")
 
 
 def replace_divs(html):

@@ -1,5 +1,5 @@
 import os
-
+from datetime import datetime
 from pyBiblioteca import conectBD, grava_log, delete_log, somentenumero
 from dotenv import load_dotenv
 
@@ -39,6 +39,23 @@ def find_unidade_postgres(Unidade):
 
     return Unidade
 
+def listaProcessamento(source, Unidade):
+    with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
+        db = con.cursor()
+
+        datanow = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+        sqlInsert = f"INSERT INTO leitores.tb_whatszap_processamento (sourcefile, unidade, datanow) VALUES ('%s', %s, '%s')";
+
+        try:
+            db.execute(sqlInsert, (source, Unidade, datanow))
+            con.commit()
+        except:
+            db.execute("rollback")
+            pass
+
+    db.close()
+    con.close()
 
 def roolBackPostgres(ar_id):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:

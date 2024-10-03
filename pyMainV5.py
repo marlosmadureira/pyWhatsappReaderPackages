@@ -12,7 +12,7 @@ from pyBibliotecaV5 import checkFolder, StatusServidor, printTimeData, unzipBase
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, contar_arquivos_zip, \
     openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json
 from pyGravandoDados import sendDataPostgres
-from pyPostgresql import find_unidade_postgres
+from pyPostgresql import find_unidade_postgres, listaProcessamento
 from pyGetSendApi import sendDataJsonServer
 from pySendElement import sendMessageElement, getroomIdElement
 
@@ -44,6 +44,8 @@ def process(source):
     fileDados = {}
 
     source, Unidade = getUnidadeFileName(source)
+
+    listaProcessamento(source, Unidade)
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)

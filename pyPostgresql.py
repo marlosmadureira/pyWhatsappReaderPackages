@@ -45,7 +45,7 @@ def listaProcessamento(source, Unidade):
 
         datanow = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-        sqlInsert = f"INSERT INTO leitores.tb_whatszap_processamento (sourcefile, unidade, datanow) VALUES ('%s', %s, '%s')";
+        sqlInsert = f"INSERT INTO leitores.tb_whatszap_processamento (sourcefile, unidade, datanow) VALUES (%s, %s, %s)";
 
         try:
             db.execute(sqlInsert, (source, Unidade, datanow))

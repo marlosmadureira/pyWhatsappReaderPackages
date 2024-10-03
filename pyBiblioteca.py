@@ -16,6 +16,7 @@ load_dotenv()
 
 APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
+DIRLOG = os.getenv("DIRLOG")
 
 DebugMode = False
 
@@ -70,7 +71,7 @@ def delete_log(nome_arquivo):
 
 
 def grava_log(content, arquivo):
-    arquivo = f"log/{arquivo}"
+    arquivo = f"{DIRLOG}{arquivo}"
     with open(arquivo, "a") as text_file:
         text_file.write('{}\n'.format(content) + '\n')
     text_file.close()

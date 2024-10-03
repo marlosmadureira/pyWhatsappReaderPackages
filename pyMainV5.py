@@ -45,11 +45,11 @@ def process(source):
 
     source, Unidade = getUnidadeFileName(source)
 
-    listaProcessamento(source, Unidade)
-
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
     bsHtml = parsetHTLMFileString(folderZip)
+
+    listaProcessamento(fileName, Unidade)
 
     dataType = None
 

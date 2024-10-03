@@ -6,7 +6,7 @@
 SCRIPT_DIR="/opt/pyWhatsappReaderPackages"
 
 # NOME DA PRINCIPAL DA APLICAÇÃO
-SCRIPT_NAME="pyMain.py"
+SCRIPT_NAME="pyMainV5.py"
 
 # NO DO SERVIÇO
 SCRIPT_SERVICE="pyWhatsappReaderPackages"

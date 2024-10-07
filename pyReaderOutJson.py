@@ -271,6 +271,8 @@ def parse_dynamic_sentence_parameters(content):
     # Dicionário para armazenar os resultados
     results = {}
 
+    grava_log(sentence, 'SaidaTxt.txt')
+
     # Iterar sobre os padrões e encontrar as correspondências
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)

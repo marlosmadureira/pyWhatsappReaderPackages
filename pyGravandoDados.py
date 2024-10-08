@@ -74,29 +74,30 @@ def sendDataPostgres(Dados, type, Out):
 
             try:
                 db.execute(sqlTratamento)
-                queryTratamento = db.fetchone()
+                queryTratamento = db.fetchall()
             except:
                 pass
 
-            if queryTratamento is not None and queryTratamento[0] > 0:
-                apli_id = queryTratamento[0]
-                linh_id = queryTratamento[1]
-                conta_id = somentenumero(queryTratamento[2])
+            if queryTratamento is not None:
+                for dado in queryTratamento:
+                    apli_id = dado[0]
+                    linh_id = dado[1]
+                    conta_id = somentenumero(dado[2])
 
-                sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = %s WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
+                    sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = %s WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
 
-                if executaSql:
-                    try:
-                        db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
+                    if executaSql:
+                        try:
+                            db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
 
-                        if PrintSql:
-                            indice += 1
-                            print(f"2 {indice} - {db.query}")
+                            if PrintSql:
+                                indice += 1
+                                print(f"2 {indice} - {db.query}")
 
-                        con.commit()
-                    except:
-                        db.execute("rollback")
-                        pass
+                            con.commit()
+                        except:
+                            db.execute("rollback")
+                            pass
 
             sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = {Unidade} AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
 

@@ -94,11 +94,11 @@ def openJson(file):
             dados = json.load(arquivo)
         return dados
     except FileNotFoundError:
-        print(f"Erro: O arquivo '{file}' não foi encontrado.")
+        print_color(f"Erro: O arquivo '{file}' não foi encontrado.", 31)
     except json.JSONDecodeError as e:
-        print(f"Erro: Arquivo '{file}' não é um JSON válido. Detalhes: {e}")
+        print_color(f"Erro: Arquivo '{file}' não é um JSON válido. Detalhes: {e}",31)
     except Exception as e:
-        print(f"Erro inesperado ao tentar abrir o arquivo '{file}': {e}")
+        print_color(f"Erro inesperado ao tentar abrir o arquivo '{file}': {e}",31)
     return None
 
 

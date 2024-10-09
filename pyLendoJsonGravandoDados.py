@@ -142,10 +142,10 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
                 if queryExiste is None:
 
-                    if 'DADOS' in type:
+                    if 'DADOS' == type:
                         sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}') RETURNING ar_id;"
 
-                    if 'PRTT' in type:
+                    if 'PRTT' == type:
                         sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id;"
 
                     ar_id = None
@@ -169,7 +169,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
                     if ar_id is not None:
 
-                        if 'DADOS' in type:
+                        if 'DADOS' == type:
 
                             if Dados['Dados'].get('EmailAddresses'):
                                 EmailAddresses = Dados['Dados'].get('EmailAddresses')
@@ -574,7 +574,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                         db.execute("rollback")
                                         pass
 
-                        if 'PRTT' in type:
+                        if 'PRTT' == type:
                             if Dados['Prtt'].get('msgLogs'):
                                 msgLogs = Dados['Prtt']['msgLogs']
 
@@ -841,9 +841,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
             else:
 
-                print_color(f"Info = {type} {queryLinId}", 33)
-
-                if "GDADOS" in type:
+                if "GDADOS" == type:
                     sqlGrupo = f"SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id FROM interceptacao.tbobje_whatsappgrupos, interceptacao.tbobje_intercepta WHERE tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = {Unidade} AND tbobje_whatsappgrupos.grupo_id ILIKE '%{AccountIdentifier}%'"
                     indice += 1
                     try:
@@ -994,28 +992,30 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
                     if queryExiste is None and queryExiste[0] > 0:
 
-                        if "GDADOS" in type:
+                        if "GDADOS" == type:
                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)"
 
-                        if 'DADOS' in type:
+                        if 'DADOS' == type:
                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1)"
 
-                        if 'PRTT' in type:
+                        if 'PRTT' == type:
                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
 
-                        if executaSql:
-                            indice += 1
-                            try:
-                                db.execute(sqlInsert)
+                        print_color(f"DETALHES {type} {sqlInsert}", 33)
 
-                                if PrintSql:
-                                    print_color(f"25S {indice} - {sqlInsert}", 32)
-
-                                con.commit()
-                            except:
-                                print_color(f"25E {indice} - {sqlInsert}", 31)
-                                db.execute("rollback")
-                                pass
+                        # if executaSql:
+                        #     indice += 1
+                        #     try:
+                        #         db.execute(sqlInsert)
+                        #
+                        #         if PrintSql:
+                        #             print_color(f"25S {indice} - {sqlInsert}", 32)
+                        #
+                        #         con.commit()
+                        #     except:
+                        #         print_color(f"25E {indice} - {sqlInsert}", 31)
+                        #         db.execute("rollback")
+                        #         pass
 
 
         else:
@@ -1035,8 +1035,7 @@ if __name__ == '__main__':
 
     previous_files = get_files_in_dir(DIRNOVOS)
 
-    dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp Arquivo Json na Pasta ZipUploads\n")
 
     while True:
         time.sleep(3)

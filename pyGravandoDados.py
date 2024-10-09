@@ -1,6 +1,6 @@
-import json, os
+import os
 
-from pyBibliotecaV5 import conectBD, somentenumero, openJson
+from pyBibliotecaV5 import conectBD, somentenumero, print_color
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,7 +13,7 @@ DB_PASS = os.getenv("DB_PASS")
 executaSql = True
 PrintSql = True
 
-def sendDataPostgres(Dados, type, Out):
+def sendDataPostgres(Dados, type):
     indice = 0
 
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
@@ -66,16 +66,17 @@ def sendDataPostgres(Dados, type, Out):
 
         if AccountIdentifier is not None and Unidade is not None:
 
-            sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
-
-            if PrintSql:
-                indice += 1
-                print(f"1 {indice} - {sqlTratamento}")
-
+            sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL"
+            indice += 1
             try:
                 db.execute(sqlTratamento)
+
+                if PrintSql:
+                    print_color(f"1S {indice} - {sqlTratamento}", 32)
+
                 queryTratamento = db.fetchall()
-            except:
+            except Exception as e:
+                print_color(f"1E {indice} - {sqlTratamento} {e}", 31)
                 pass
 
             if queryTratamento is not None:
@@ -87,81 +88,80 @@ def sendDataPostgres(Dados, type, Out):
                     sqlUpdate = f"UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = %s WHERE conta_zap IS NULL AND apli_id = %s AND linh_id = %s"
 
                     if executaSql:
+                        indice += 1
                         try:
                             db.execute(sqlUpdate, (conta_id, apli_id, linh_id))
 
                             if PrintSql:
-                                indice += 1
-                                print(f"2 {indice} - {db.query}")
+                                print_color(f"2S {indice} - {db.query}", 32)
 
                             con.commit()
-                        except:
+                        except Exception as e:
+                            print_color(f"2E {indice} - {db.query} {e}", 31)
                             db.execute("rollback")
                             pass
 
             sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = {Unidade} AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
 
-            if PrintSql:
-                indice += 1
-                print(f"3 {indice} - {sqllinh_id}")
-
             queryLinId = None
-
+            indice += 1
             try:
                 db.execute(sqllinh_id)
-                queryLinId = db.fetchone()
-            except:
-                pass
 
+                if PrintSql:
+                    print_color(f"3S {indice} - {sqllinh_id}", 32)
+
+                queryLinId = db.fetchone()
+            except Exception as e:
+                print_color(f"3E {indice} - {sqllinh_id} {e}", 31)
+                pass
 
             if queryLinId is not None and queryLinId[0] > 0:
 
                 linh_id = queryLinId[0]
 
                 sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = {linh_id} AND ar_arquivo = '{FileName}' AND ar_dtgerado = '{DateRange}'"
-
-                if PrintSql:
-                    indice += 1
-                    print(f"4 {indice} - {sqlexistente}")
-
+                indice += 1
                 try:
                     db.execute(sqlexistente)
+                    if PrintSql:
+                        print_color(f"4S {indice} - {sqlexistente}", 32)
+
                     queryExiste = db.fetchone()
-                except:
+                except Exception as e:
+                    print_color(f"4E {indice} - {sqlexistente} {e}", 31)
                     pass
 
                 if queryExiste is None:
 
-                    if 'DADOS' in type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}') RETURNING ar_id;"
+                    if 'DADOS' == type:
+                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}') RETURNING ar_id"
 
-                        if PrintSql:
-                            indice += 1
-                            print(f"5 {indice} - {sqlInsert}")
-
-                    if 'PRTT' in type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id;"
-
-                        if PrintSql:
-                            indice += 1
-                            print(f"6 {indice} - {sqlInsert}")
+                    if 'PRTT' == type:
+                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id"
 
                     ar_id = None
 
                     if executaSql:
+                        indice += 1
                         try:
                             db.execute(sqlInsert)
+
+                            if PrintSql:
+                                print_color(f"5S {indice} - {sqlInsert}", 32)
+
                             con.commit()
                             result = db.fetchone()
                             if result is not None and result[0] is not None:
                                 ar_id = result[0]
-                        except:
+                        except Exception as e:
+                            print_color(f"5E {indice} - {sqlInsert} {e}", 31)
                             db.execute("rollback")
                             pass
 
                     if ar_id is not None:
 
-                        if 'DADOS' in type:
+                        if 'DADOS' == type:
 
                             if Dados['Dados'].get('EmailAddresses'):
                                 EmailAddresses = Dados['Dados'].get('EmailAddresses')
@@ -169,20 +169,18 @@ def sendDataPostgres(Dados, type, Out):
                                 sqlUpdate = f"UPDATE leitores.tb_whatszap_arquivo SET ar_email_addresses = %s WHERE ar_id = %s"
 
                                 if executaSql:
+                                    indice += 1
                                     try:
                                         db.execute(sqlUpdate, (EmailAddresses, ar_id))
 
                                         if PrintSql:
-                                            indice += 1
-                                            print(f"7 {indice} - {db.query}")
+                                            print_color(f"6S {indice} - {db.query}", 32)
 
                                         con.commit()
-                                    except:
+                                    except Exception as e:
+                                        print_color(f"6E {indice} - {db.query} {e}", 31)
                                         db.execute("rollback")
                                         pass
-
-                                if Out:
-                                    print(f"{EmailAddresses}")
 
                             if Dados['Dados'].get('ipAddresses'):
                                 ipAddresses = Dados['Dados']['ipAddresses']
@@ -199,24 +197,22 @@ def sendDataPostgres(Dados, type, Out):
                                             dadoTime = None
 
                                         if dadoIPAddress is not None and dadoTime is not None:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s)";
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     dadoIPAddress, dadoTime, AccountIdentifier, ar_id, linh_id))
 
                                                     if PrintSql:
-                                                        indice += 1
-                                                        print(f"8 {indice} - {db.query}")
+                                                        print_color(f"7S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"7E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
-
-                                if Out:
-                                    print(f"{ipAddresses}")
 
                             if Dados['Dados'].get('connectionInfo'):
                                 connectionInfo = Dados['Dados']['connectionInfo']
@@ -266,9 +262,10 @@ def sendDataPostgres(Dados, type, Out):
                                 else:
                                     dadoLastIP = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                 if executaSql:
+                                    indice += 1
                                     try:
                                         db.execute(sqlInsert,
                                                    (dadoServiceStart, dadoDeviceType, dadoAppVersion,
@@ -278,16 +275,13 @@ def sendDataPostgres(Dados, type, Out):
                                                     dadoDeviceOSBuildNumber, AccountIdentifier))
 
                                         if PrintSql:
-                                            indice += 1
-                                            print(f"9 {indice} - {db.query}")
+                                            print_color(f"8S {indice} - {db.query}", 32)
 
                                         con.commit()
-                                    except:
+                                    except Exception as e:
+                                        print_color(f"8E {indice} - {db.query} {e}", 31)
                                         db.execute("rollback")
                                         pass
-
-                                if Out:
-                                    print(f"{connectionInfo}")
 
                             if Dados['Dados'].get('webInfo'):
                                 webInfo = Dados['Dados']['webInfo']
@@ -316,9 +310,10 @@ def sendDataPostgres(Dados, type, Out):
                                 else:
                                     Availability = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s);"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s)"
 
                                 if executaSql:
+                                    indice += 1
                                     try:
                                         db.execute(sqlInsert, (
                                         dadoVersion, dadoPlatform, dadoOnlineSince, dadoInactiveSince,
@@ -326,16 +321,13 @@ def sendDataPostgres(Dados, type, Out):
                                         AccountIdentifier))
 
                                         if PrintSql:
-                                            indice += 1
-                                            print(f"10 {indice} - {db.query}")
+                                            print_color(f"9S {indice} - {db.query}", 32)
 
                                         con.commit()
-                                    except:
+                                    except Exception as e:
+                                        print_color(f"9E {indice} - {db.query} {e}", 31)
                                         db.execute("rollback")
                                         pass
-
-                                if Out:
-                                    print(f"{webInfo}")
 
                             if Dados['Dados'].get('groupsInfo'):
                                 if Dados['Dados']['groupsInfo'].get('ownedGroups'):
@@ -379,9 +371,10 @@ def sendDataPostgres(Dados, type, Out):
                                             else:
                                                 dadoSubject = None
 
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                         dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation,
@@ -391,16 +384,13 @@ def sendDataPostgres(Dados, type, Out):
                                                         AccountIdentifier))
 
                                                     if PrintSql:
-                                                        indice += 1
-                                                        print(f"11 {indice} - {db.query}")
+                                                        print_color(f"10S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"10E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
-
-                                    if Out:
-                                        print(f"{ownedGroups}")
 
                                 if Dados['Dados']['groupsInfo'].get('ParticipatingGroups'):
                                     ParticipatingGroups = Dados['Dados']['groupsInfo']['ParticipatingGroups']
@@ -443,9 +433,10 @@ def sendDataPostgres(Dados, type, Out):
                                             else:
                                                 dadoSubject = None
 
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                         dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation,
@@ -455,66 +446,58 @@ def sendDataPostgres(Dados, type, Out):
                                                         AccountIdentifier))
 
                                                     if PrintSql:
-                                                        indice += 1
-                                                        print(f"12 {indice} - {db.query}")
+                                                        print_color(f"11S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"11E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
-
-                                    if Out:
-                                        print(f"{ParticipatingGroups}")
 
                             if Dados['Dados'].get('addressBookInfo'):
                                 if Dados['Dados']['addressBookInfo'][0].get('Symmetriccontacts'):
                                     symmetricContacts = Dados['Dados']['addressBookInfo'][0]['Symmetriccontacts']
                                     if len(symmetricContacts) > 0:
                                         for contacts in symmetricContacts:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     contacts, 'S', AccountIdentifier, ar_id, linh_id, contacts, 'S',
                                                     AccountIdentifier))
 
                                                     if PrintSql:
-                                                        indice += 1
-                                                        print(f"13 {indice} - {db.query}")
-
+                                                        print_color(f"12S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"12E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
-
-                                    if Out:
-                                        print(f"{symmetricContacts}")
 
                                 if Dados['Dados']['addressBookInfo'][0].get('Asymmetriccontacts'):
                                     asymmetricContacts = Dados['Dados']['addressBookInfo'][0]['Asymmetriccontacts']
                                     if len(asymmetricContacts) > 0:
                                         for contacts in asymmetricContacts:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                         contacts, 'A', AccountIdentifier, ar_id, linh_id, contacts, 'A',
                                                         AccountIdentifier))
 
                                                     if PrintSql:
-                                                        indice += 1
-                                                        print(f"14 {indice} - {db.query}")
+                                                        print_color(f"13S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"13E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
-
-                                    if Out:
-                                        print(f"{asymmetricContacts}")
 
                             # FALTA AMOSTRA
                             if Dados['Dados'].get('ncmecReportsInfo'):
@@ -531,17 +514,11 @@ def sendDataPostgres(Dados, type, Out):
 
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
 
-                                if Out:
-                                    print(f"{Dados['Dados'].get('ncmecReportsInfo')}")
-
                             # FALTA AMOSTRA
                             if Dados['Dados'].get('smallmediumbusinessinfo'):
                                 smallMediumBusiness = Dados['Dados']['smallmediumbusinessinfo']
 
                                 print(f"FALTA PROGRAMAR LOGICA GRAVAR BANCO")
-
-                                if Out:
-                                    print(f"{smallMediumBusiness}")
 
                             if Dados['Dados'].get('deviceinfo'):
                                 if Dados['Dados']['deviceinfo'].get('AppVersion'):
@@ -569,9 +546,10 @@ def sendDataPostgres(Dados, type, Out):
                                 else:
                                     DeviceModel = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_deviceinfo (dev_appversion, dev_osversion, dev_buildnumber, dev_manufacturer, dev_devicemodel, ar_id, linh_id, telefone) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_deviceinfo (dev_appversion, dev_osversion, dev_buildnumber, dev_manufacturer, dev_devicemodel, ar_id, linh_id, telefone) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
 
                                 if executaSql:
+                                    indice += 1
                                     try:
                                         db.execute(sqlInsert, (
                                             AppVersion, OSVersion, OSBuildNumber, DeviceManufacturer, DeviceModel,
@@ -580,18 +558,15 @@ def sendDataPostgres(Dados, type, Out):
                                             AccountIdentifier))
 
                                         if PrintSql:
-                                            indice += 1
-                                            print(f"15 {indice} - {db.query}")
+                                            print_color(f"14S {indice} - {db.query}", 32)
 
                                         con.commit()
-                                    except:
+                                    except Exception as e:
+                                        print_color(f"14E {indice} - {db.query} {e}", 31)
                                         db.execute("rollback")
                                         pass
 
-                                if Out:
-                                    print(f"{Dados['Dados'].get('deviceinfo')}")
-
-                        if 'PRTT' in type:
+                        if 'PRTT' == type:
                             if Dados['Prtt'].get('msgLogs'):
                                 msgLogs = Dados['Prtt']['msgLogs']
 
@@ -653,72 +628,93 @@ def sendDataPostgres(Dados, type, Out):
 
                                     if prttGroupId == None:
                                         if prttSender == AccountIdentifier:
-                                            TipoDirecaoMsg = "Enviou";
+                                            TipoDirecaoMsg = "Enviou"
                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
                                                     prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
                                                     prttMessageSize, prttType, prttMessageStyle, AccountIdentifier,
                                                     ar_id, linh_id))
+
+                                                    if PrintSql:
+                                                        print_color(f"15S {indice} - {db.query}", 32)
+
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"15E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
                                         else:
-                                            TipoDirecaoMsg = "Recebeu";
+                                            TipoDirecaoMsg = "Recebeu"
                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients,
                                                     prttSender, prttSenderIp, prttSenderPort, prttSenderDevice,
                                                     prttMessageSize, prttType, prttMessageStyle, AccountIdentifier,
                                                     ar_id, linh_id))
+
+                                                    if PrintSql:
+                                                        print_color(f"16S {indice} - {db.query}", 32)
+
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
                                     else:
                                         if prttSender == AccountIdentifier:
-                                            TipoDirecaoMsg = "Enviou";
+                                            TipoDirecaoMsg = "Enviou"
                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
                                                     prttRecipients, prttGroupId, prttSenderIp, prttSenderPort,
                                                     prttSenderDevice, prttMessageSize, prttType, prttMessageStyle,
                                                     AccountIdentifier, ar_id, linh_id))
+
+                                                    if PrintSql:
+                                                        print_color(f"16S {indice} - {db.query}", 32)
+
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
                                         else:
-                                            TipoDirecaoMsg = "Recebeu";
+                                            TipoDirecaoMsg = "Recebeu"
                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients,
                                                     prttSender, prttGroupId, prttSenderIp, prttSenderPort,
                                                     prttSenderDevice, prttMessageSize, prttType, prttMessageStyle,
                                                     AccountIdentifier, ar_id, linh_id))
+
+                                                    if PrintSql:
+                                                        print_color(f"16S {indice} - {db.query}", 32)
+
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
-
-                                if Out:
-                                    print(f"{msgLogs}")
 
                             if Dados['Prtt'].get('callLogs'):
                                 callLogs = Dados['Prtt']['callLogs']
@@ -774,9 +770,9 @@ def sendDataPostgres(Dados, type, Out):
                                                 prttEmediaType = None
 
                                             if prttcallCreator == AccountIdentifier:
-                                                TipoDirecaoCall = "EFETUOU";
+                                                TipoDirecaoCall = "EFETUOU"
                                             else:
-                                                TipoDirecaoCall = "RECEBEU";
+                                                TipoDirecaoCall = "RECEBEU"
 
                                             if evento.get('PhoneNumber'):
                                                 prttPhoneNumber = evento['PhoneNumber']
@@ -794,14 +790,20 @@ def sendDataPostgres(Dados, type, Out):
                                                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                                     if executaSql:
+                                                        indice += 1
                                                         try:
                                                             db.execute(sqlInsert, (
                                                             prttcallID, prttcallCreator, prttEtype, prttEtimestamp,
                                                             prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort,
                                                             prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id,
                                                             linh_id, TipoDirecaoCall))
+
+                                                            if PrintSql:
+                                                                print_color(f"17S {indice} - {db.query}",32)
+
                                                             con.commit()
-                                                        except:
+                                                        except Exception as e:
+                                                            print_color(f"17E {indice} - {db.query} {e}", 31)
                                                             db.execute("rollback")
                                                             pass
 
@@ -809,36 +811,40 @@ def sendDataPostgres(Dados, type, Out):
                                                 sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                                 if executaSql:
+                                                    indice += 1
                                                     try:
                                                         db.execute(sqlInsert, (
                                                         prttcallID, prttcallCreator, prttEtype, prttEtimestamp,
                                                         prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort,
                                                         prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id,
                                                         linh_id, TipoDirecaoCall))
+
+                                                        if PrintSql:
+                                                            print_color(f"17S {indice} - {db.query}", 32)
+
                                                         con.commit()
-                                                    except:
+                                                    except Exception as e:
+                                                        print_color(f"17E {indice} - {db.query} {e}", 31)
                                                         db.execute("rollback")
                                                         pass
 
-                                if Out:
-                                    print(f"{callLogs}")
-
                 else:
-                    print(f"\nARQUIVO EXISTNTE {FileName}")
+                    print_color(f"\nARQUIVO EXISTENTE {FileName}", 33)
 
             else:
 
-                if type == "GDADOS":
+                if "GDADOS" == type:
                     sqlGrupo = f"SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id FROM interceptacao.tbobje_whatsappgrupos, interceptacao.tbobje_intercepta WHERE tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = {Unidade} AND tbobje_whatsappgrupos.grupo_id ILIKE '%{AccountIdentifier}%'"
-
-                    if PrintSql:
-                        indice += 1
-                        print(f"16 {indice} - {sqlGrupo}")
-
+                    indice += 1
                     try:
                         db.execute(sqlGrupo)
+
+                        if PrintSql:
+                            print_color(f"16S {indice} - {sqlGrupo}", 32)
+
                         queryGrupo = db.fetchone()
-                    except:
+                    except Exception as e:
+                        print_color(f"16E {indice} - {sqlGrupo} {e}", 31)
                         pass
 
                     if queryGrupo is not None and queryGrupo[0] > 0:
@@ -847,49 +853,53 @@ def sendDataPostgres(Dados, type, Out):
                         linh_id = queryGrupo[1]
 
                         sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 2 AND linh_id = {linh_id} AND ar_arquivo = '{FileName}'"
-
-                        if PrintSql:
-                            indice += 1
-                            print(f"17 {indice} - {sqlexistente}")
+                        indice += 1
 
                         try:
                             db.execute(sqlexistente)
-                            queryExiste = db.fetchone()
-                        except:
-                            pass
-
-                        if queryExiste is None and queryExiste[0] > 0:
-
-                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1, '{EmailAddresses}') RETURNING ar_id;"
 
                             if PrintSql:
-                                indice += 1
-                                print(f"18 {indice} - {sqlInsert}")
+                                print_color(f"18S {indice} - {sqlexistente}", 32)
+
+                            queryExiste = db.fetchone()
+                        except Exception as e:
+                            print_color(f"18E {indice} - {sqlexistente} {e}", 31)
+                            pass
+
+                        if queryExiste is None:
+
+                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1, '{EmailAddresses}') RETURNING ar_id"
+                            indice += 1
 
                             if executaSql:
                                 try:
                                     db.execute(sqlInsert)
+
+                                    if PrintSql:
+                                        print_color(f"19S {indice} - {sqlInsert}", 32)
+
                                     con.commit()
                                     result = db.fetchone()
                                     if result is not None and result[0] is not None:
                                         ar_id = result[0]
                                     else:
                                         ar_id = None
-                                except:
+                                except Exception as e:
+                                    print_color(f"19E {indice} - {sqlInsert} {e}", 31)
                                     db.execute("rollback")
                                     pass
 
                             if ar_id is not None:
+                                indice += 1
                                 sqlIdentificador = f"SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = {Unidade} AND tbmembros_whats.grupo_id ILIKE '%{AccountIdentifier}%'"
-
-                                if PrintSql:
-                                    indice += 1
-                                    print(f"19 {indice} - {sqlIdentificador}")
 
                                 try:
                                     db.execute(sqlIdentificador)
+                                    if PrintSql:
+                                        print_color(f"20S {indice} - {sqlIdentificador}", 32)
                                     queryIdentificador = db.fetchone()
-                                except:
+                                except Exception as e:
+                                    print_color(f"20E {indice} - {sqlIdentificador} {e}", 31)
                                     pass
 
                                 if queryIdentificador is None and queryIdentificador[0] > 0:
@@ -898,80 +908,105 @@ def sendDataPostgres(Dados, type, Out):
                                     # Processar GroupParticipants
                                     if Dados['GDados']['groupsInfo'].get('GroupParticipants'):
                                         for registro in Dados['GDados']['groupsInfo']['GroupParticipants']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (AccountIdentifier.strip(), somentenumero(registro), 'N', 'A', identificador))
 
                                                     if PrintSql:
-                                                        indice += 1
-                                                        print(f"20 {indice} - {db.query}")
+                                                        print_color(f"21S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"21E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
                                     # Processar GroupAdministrators
                                     if Dados['GDados']['groupsInfo'].get('GroupAdministrators'):
                                         for registro in Dados['GDados']['groupsInfo']['GroupAdministrators']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
+
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     AccountIdentifier.strip(), somentenumero(registro), 'S', 'A',
                                                     identificador))
 
                                                     if PrintSql:
-                                                        indice += 1
-                                                        print(f"21 {indice} - {db.query}")
+                                                        print_color(f"22S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"22E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
                                     # Processar Participants
                                     if Dados['GDados']['groupsInfo'].get('Participants'):
                                         for registro in Dados['GDados']['groupsInfo']['Participants']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
+                                                indice += 1
                                                 try:
                                                     db.execute(sqlInsert, (
                                                     AccountIdentifier.strip(), somentenumero(registro), 'N', 'A',
                                                     identificador))
 
                                                     if PrintSql:
-                                                        indice += 1
-                                                        print(f"22 {indice} - {db.query}")
+                                                        print_color(f"23S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
+                                                except Exception as e:
+                                                    print_color(f"23E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
                 else:
 
-                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id;"
+                    sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE telefone = '{AccountIdentifier}' AND ar_arquivo = '{FileName}'"
+                    indice += 1
+                    try:
+                        db.execute(sqlexistente)
 
-                    if PrintSql:
-                        indice += 1
-                        print(f"23 {indice} - {sqlInsert}")
+                        if PrintSql:
+                            print_color(f"24S {indice} - {sqlexistente}", 32)
 
-                    if executaSql:
+                        queryExiste = db.fetchone()
+                    except Exception as e:
+                        print_color(f"24E {indice} - {sqlexistente} {e}", 31)
+                        pass
+
+                    if queryExiste is None:
                         try:
-                            db.execute(sqlInsert)
-                            con.commit()
-                            result = db.fetchone()
-                            if result is not None and result[0] is not None:
-                                ar_id = result[0]
-                            else:
-                                ar_id = None
-                        except:
-                            db.execute("rollback")
-                            pass
+                            if "GDADOS" == type:
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)"
+
+                            if 'DADOS' == type:
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1)"
+
+                            if 'PRTT' == type:
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
+                        except Exception as e:
+                            print_color(f"{e}", 31)
+
+                        if executaSql:
+                            indice += 1
+                            try:
+                                db.execute(sqlInsert)
+
+                                if PrintSql:
+                                    print_color(f"25S {indice} - {sqlInsert}", 32)
+
+                                con.commit()
+                            except:
+                                print_color(f"25E {indice} - {sqlInsert}", 31)
+                                db.execute("rollback")
+                                pass
 
 
         else:
@@ -979,21 +1014,3 @@ def sendDataPostgres(Dados, type, Out):
 
     db.close()
     con.close()
-
-# if __name__ == '__main__':
-#     # dataType = "DADOS"
-#     dataType = "PRTT"
-#     # dataType = "GDADOS"
-#
-#     DebugMode = False
-#     Out = False
-#
-#     fileName = f"log/Log_PRTT_Out_380390691797908.json"
-#
-#     Dados = None
-#
-#     if os.path.exists(fileName):
-#         Dados = openJson(fileName)
-#
-#     if Dados is not None:
-#         sendDataPostgres(Dados, dataType, Out)

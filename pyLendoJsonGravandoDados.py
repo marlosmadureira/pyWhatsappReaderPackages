@@ -978,28 +978,44 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                     pass
                 else:
 
-                    if "GDADOS" in type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)"
+                    sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_arquivo = '{FileName}'"
+                    indice += 1
 
-                    if 'DADOS' in type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1)"
+                    try:
+                        db.execute(sqlexistente)
 
-                    if 'PRTT' in type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
+                        if PrintSql:
+                            print_color(f"24S {indice} - {sqlexistente}", 32)
 
-                    if executaSql:
-                        indice += 1
-                        try:
-                            db.execute(sqlInsert)
+                        queryExiste = db.fetchone()
+                    except:
+                        print_color(f"24E {indice} - {sqlexistente}", 31)
+                        pass
 
-                            if PrintSql:
-                                print_color(f"24S {indice} - {sqlInsert}", 32)
+                    if queryExiste is None and queryExiste[0] > 0:
 
-                            con.commit()
-                        except:
-                            print_color(f"24E {indice} - {sqlInsert}", 31)
-                            db.execute("rollback")
-                            pass
+                        if "GDADOS" in type:
+                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)"
+
+                        if 'DADOS' in type:
+                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1)"
+
+                        if 'PRTT' in type:
+                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
+
+                        if executaSql:
+                            indice += 1
+                            try:
+                                db.execute(sqlInsert)
+
+                                if PrintSql:
+                                    print_color(f"25S {indice} - {sqlInsert}", 32)
+
+                                con.commit()
+                            except:
+                                print_color(f"25E {indice} - {sqlInsert}", 31)
+                                db.execute("rollback")
+                                pass
 
 
         else:

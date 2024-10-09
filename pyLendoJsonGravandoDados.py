@@ -1000,7 +1000,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                             if 'PRTT' == type:
                                 sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
                         except Exception as e:
-                            print(f"{e}")
+                            print_color(f"{e}", 31)
 
                         if executaSql:
                             indice += 1

@@ -74,7 +74,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
         if AccountIdentifier is not None and Unidade is not None:
 
-            sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL;"
+            sqlTratamento = f"SELECT apli_id, linh_id, conta_id FROM linha_imei.tbaplicativo_linhafone WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL"
             indice += 1
             try:
                 db.execute(sqlTratamento)
@@ -143,10 +143,10 @@ def sendDataPostgres(Dados, type, pathnamefile):
                 if queryExiste is None:
 
                     if 'DADOS' == type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}') RETURNING ar_id;"
+                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1, '{EmailAddresses}') RETURNING ar_id"
 
                     if 'PRTT' == type:
-                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id;"
+                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1, '{EmailAddresses}') RETURNING ar_id"
 
                     ar_id = None
 
@@ -205,7 +205,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                             dadoTime = None
 
                                         if dadoIPAddress is not None and dadoTime is not None:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s)";
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_iptime (ip_ip, ip_tempo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
                                                 indice += 1
@@ -270,7 +270,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                 else:
                                     dadoLastIP = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                 if executaSql:
                                     indice += 1
@@ -318,7 +318,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                 else:
                                     Availability = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s);"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_weinfo (we_version, we_platform, we_onlinesince, we_inactivesince, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s)"
 
                                 if executaSql:
                                     indice += 1
@@ -379,7 +379,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                             else:
                                                 dadoSubject = None
 
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
                                                 indice += 1
@@ -441,7 +441,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                             else:
                                                 dadoSubject = None
 
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_grupoinfo (grouptype, linkedmediafile, thumbnail, id_msg, creation, size, description, subject, telefone, ar_id, imggrupo, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
                                                 indice += 1
@@ -467,7 +467,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                     symmetricContacts = Dados['Dados']['addressBookInfo'][0]['Symmetriccontacts']
                                     if len(symmetricContacts) > 0:
                                         for contacts in symmetricContacts:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
                                                 indice += 1
@@ -489,7 +489,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                     asymmetricContacts = Dados['Dados']['addressBookInfo'][0]['Asymmetriccontacts']
                                     if len(asymmetricContacts) > 0:
                                         for contacts in asymmetricContacts:
-                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_agenda (ag_telefone, ag_tipo, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
                                                 indice += 1
@@ -554,7 +554,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                 else:
                                     DeviceModel = None
 
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_deviceinfo (dev_appversion, dev_osversion, dev_buildnumber, dev_manufacturer, dev_devicemodel, ar_id, linh_id, telefone) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_deviceinfo (dev_appversion, dev_osversion, dev_buildnumber, dev_manufacturer, dev_devicemodel, ar_id, linh_id, telefone) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
 
                                 if executaSql:
                                     indice += 1
@@ -636,7 +636,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
                                     if prttGroupId == None:
                                         if prttSender == AccountIdentifier:
-                                            TipoDirecaoMsg = "Enviou";
+                                            TipoDirecaoMsg = "Enviou"
                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
@@ -658,7 +658,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                     pass
 
                                         else:
-                                            TipoDirecaoMsg = "Recebeu";
+                                            TipoDirecaoMsg = "Recebeu"
                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
@@ -681,7 +681,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
                                     else:
                                         if prttSender == AccountIdentifier:
-                                            TipoDirecaoMsg = "Enviou";
+                                            TipoDirecaoMsg = "Enviou"
                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
@@ -703,7 +703,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                     pass
 
                                         else:
-                                            TipoDirecaoMsg = "Recebeu";
+                                            TipoDirecaoMsg = "Recebeu"
                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                             if executaSql:
@@ -778,9 +778,9 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                 prttEmediaType = None
 
                                             if prttcallCreator == AccountIdentifier:
-                                                TipoDirecaoCall = "EFETUOU";
+                                                TipoDirecaoCall = "EFETUOU"
                                             else:
-                                                TipoDirecaoCall = "RECEBEU";
+                                                TipoDirecaoCall = "RECEBEU"
 
                                             if evento.get('PhoneNumber'):
                                                 prttPhoneNumber = evento['PhoneNumber']
@@ -876,7 +876,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
                         if queryExiste is None:
 
-                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1, '{EmailAddresses}') RETURNING ar_id;"
+                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1, '{EmailAddresses}') RETURNING ar_id"
                             indice += 1
 
                             if executaSql:
@@ -916,7 +916,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                     # Processar GroupParticipants
                                     if Dados['GDados']['groupsInfo'].get('GroupParticipants'):
                                         for registro in Dados['GDados']['groupsInfo']['GroupParticipants']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
                                                 indice += 1
@@ -935,7 +935,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                     # Processar GroupAdministrators
                                     if Dados['GDados']['groupsInfo'].get('GroupAdministrators'):
                                         for registro in Dados['GDados']['groupsInfo']['GroupAdministrators']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
                                                 indice += 1
@@ -957,7 +957,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                     # Processar Participants
                                     if Dados['GDados']['groupsInfo'].get('Participants'):
                                         for registro in Dados['GDados']['groupsInfo']['Participants']:
-                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s);"
+                                            sqlInsert = f"INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES (%s, %s, %s, %s, %s)"
 
                                             if executaSql:
                                                 indice += 1

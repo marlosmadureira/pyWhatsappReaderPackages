@@ -88,6 +88,41 @@ def getUnidadeFileName(nome_original):
 
     return FileName, Unidade
 
+
+def localizar_erro_json(file_path):
+    with open(file_path, 'r', encoding='utf-8') as arquivo:
+        for i, linha in enumerate(arquivo, start=1):
+            try:
+                json.loads(linha)
+            except json.JSONDecodeError as e:
+                print(f"Erro na linha {i}: {e}")
+                return i
+
+def corrigir_json(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as arquivo:
+            conteudo = arquivo.read()
+
+        # Corrigir strings não terminadas
+        conteudo_corrigido = re.sub(r'(?<!\\)"(?![,\s:}])', r'\"', conteudo)
+
+        # Salvar o arquivo corrigido para revisão
+        with open('arquivo_corrigido.json', 'w', encoding='utf-8') as arquivo_corrigido:
+            arquivo_corrigido.write(conteudo_corrigido)
+
+        # Tentar carregar o JSON corrigido
+        dados = json.loads(conteudo_corrigido)
+        print("JSON carregado e corrigido com sucesso!")
+        return dados
+
+    except json.JSONDecodeError as e:
+        print(f"Erro ao tentar carregar o JSON corrigido: {e}")
+        return None
+
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+        return None
+
 def openJson(file):
     try:
         with open(file, 'r', encoding='utf-8') as arquivo:

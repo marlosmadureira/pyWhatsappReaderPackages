@@ -1,6 +1,6 @@
 import os, time
 
-from pyBibliotecaLendoJsonGravandoDados import conectBD, checkFolder, somentenumero, get_files_in_dir, openJson, delete_log, print_color
+from pyBibliotecaLendoJsonGravandoDados import conectBD, checkFolder, somentenumero, get_files_in_dir, openJson, delete_log, print_color, localizar_erro_json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -837,7 +837,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         pass
 
                 else:
-                    print(f"\nARQUIVO EXISTNTE {FileName}")
+                    print_color(f"\nARQUIVO EXISTENTE {FileName}", 33)
 
             else:
 

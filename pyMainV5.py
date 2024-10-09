@@ -146,7 +146,7 @@ def process(source):
                                 31)
                 else:
                     print_color(
-                        f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
+                        f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
                         31)
 
                 if EventoGravaBanco:
@@ -365,7 +365,7 @@ def process(source):
                                 31)
                 else:
                     print_color(
-                        f"\n================= ENVIO PHP/PYTHON DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
+                        f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} =================",
                         31)
 
                 if EventoGravaBanco:

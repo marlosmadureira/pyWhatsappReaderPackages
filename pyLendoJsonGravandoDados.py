@@ -976,7 +976,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                     pass
                 else:
 
-                    sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_arquivo = '{FileName}'"
+                    sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE telefone = '{AccountIdentifier}' AND ar_arquivo = '{FileName}'"
                     indice += 1
                     try:
                         db.execute(sqlexistente)
@@ -1001,8 +1001,6 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                 sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
                         except Exception as e:
                             print(f"{e}")
-
-                        print_color(f"DETALHES3 {type} {sqlInsert} {pathnamefile}", 33)
 
                         if executaSql:
                             indice += 1

@@ -83,8 +83,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                     print_color(f"1S {indice} - {sqlTratamento}", 32)
 
                 queryTratamento = db.fetchall()
-            except:
-                print_color(f"1E {indice} - {sqlTratamento}", 31)
+            except Exception as e:
+                print_color(f"1E {indice} - {sqlTratamento} {e}", 31)
                 pass
 
             if queryTratamento is not None:
@@ -104,8 +104,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                 print_color(f"2S {indice} - {db.query}", 32)
 
                             con.commit()
-                        except:
-                            print_color(f"2E {indice} - {db.query}", 31)
+                        except Exception as e:
+                            print_color(f"2E {indice} - {db.query} {e}", 31)
                             db.execute("rollback")
                             pass
 
@@ -120,8 +120,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                     print_color(f"3S {indice} - {sqllinh_id}", 32)
 
                 queryLinId = db.fetchone()
-            except:
-                print_color(f"3E {indice} - {sqllinh_id}", 31)
+            except Exception as e:
+                print_color(f"3E {indice} - {sqllinh_id} {e}", 31)
                 pass
 
             if queryLinId is not None and queryLinId[0] > 0:
@@ -136,8 +136,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                         print_color(f"4S {indice} - {sqlexistente}", 32)
 
                     queryExiste = db.fetchone()
-                except:
-                    print_color(f"4E {indice} - {sqlexistente}", 31)
+                except Exception as e:
+                    print_color(f"4E {indice} - {sqlexistente} {e}", 31)
                     pass
 
                 if queryExiste is None:
@@ -162,8 +162,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                             result = db.fetchone()
                             if result is not None and result[0] is not None:
                                 ar_id = result[0]
-                        except:
-                            print_color(f"5E {indice} - {sqlInsert}", 31)
+                        except Exception as e:
+                            print_color(f"5E {indice} - {sqlInsert} {e}", 31)
                             db.execute("rollback")
                             pass
 
@@ -185,8 +185,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                             print_color(f"6S {indice} - {db.query}", 32)
 
                                         con.commit()
-                                    except:
-                                        print_color(f"6E {indice} - {db.query}", 31)
+                                    except Exception as e:
+                                        print_color(f"6E {indice} - {db.query} {e}", 31)
                                         db.execute("rollback")
                                         pass
 
@@ -217,8 +217,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"7S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"7E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"7E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -286,8 +286,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                             print_color(f"8S {indice} - {db.query}", 32)
 
                                         con.commit()
-                                    except:
-                                        print_color(f"8E {indice} - {db.query}", 31)
+                                    except Exception as e:
+                                        print_color(f"8E {indice} - {db.query} {e}", 31)
                                         db.execute("rollback")
                                         pass
 
@@ -332,8 +332,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                             print_color(f"9S {indice} - {db.query}", 32)
 
                                         con.commit()
-                                    except:
-                                        print_color(f"9E {indice} - {db.query}", 31)
+                                    except Exception as e:
+                                        print_color(f"9E {indice} - {db.query} {e}", 31)
                                         db.execute("rollback")
                                         pass
 
@@ -395,8 +395,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"10S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"10E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"10E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -457,8 +457,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"11S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"11E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"11E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -480,8 +480,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"12S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"12E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"12E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -502,8 +502,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"13S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"13E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"13E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -569,8 +569,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                             print_color(f"14S {indice} - {db.query}", 32)
 
                                         con.commit()
-                                    except:
-                                        print_color(f"14E {indice} - {db.query}", 31)
+                                    except Exception as e:
+                                        print_color(f"14E {indice} - {db.query} {e}", 31)
                                         db.execute("rollback")
                                         pass
 
@@ -652,8 +652,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"15S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"15E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"15E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -674,8 +674,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"16S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"16E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -697,8 +697,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"16S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"16E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -719,8 +719,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"16S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"16E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -810,8 +810,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                                 print_color(f"17S {indice} - {db.query}",32)
 
                                                             con.commit()
-                                                        except:
-                                                            print_color(f"17E {indice} - {db.query}", 31)
+                                                        except Exception as e:
+                                                            print_color(f"17E {indice} - {db.query} {e}", 31)
                                                             db.execute("rollback")
                                                             pass
 
@@ -831,8 +831,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                             print_color(f"17S {indice} - {db.query}", 32)
 
                                                         con.commit()
-                                                    except:
-                                                        print_color(f"17E {indice} - {db.query}", 31)
+                                                    except Exception as e:
+                                                        print_color(f"17E {indice} - {db.query} {e}", 31)
                                                         db.execute("rollback")
                                                         pass
 
@@ -851,8 +851,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                             print_color(f"16S {indice} - {sqlGrupo}", 32)
 
                         queryGrupo = db.fetchone()
-                    except:
-                        print_color(f"16E {indice} - {sqlGrupo}", 31)
+                    except Exception as e:
+                        print_color(f"16E {indice} - {sqlGrupo} {e}", 31)
                         pass
 
                     if queryGrupo is not None and queryGrupo[0] > 0:
@@ -870,8 +870,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                 print_color(f"18S {indice} - {sqlexistente}", 32)
 
                             queryExiste = db.fetchone()
-                        except:
-                            print_color(f"18E {indice} - {sqlexistente}", 31)
+                        except Exception as e:
+                            print_color(f"18E {indice} - {sqlexistente} {e}", 31)
                             pass
 
                         if queryExiste is None:
@@ -892,8 +892,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                         ar_id = result[0]
                                     else:
                                         ar_id = None
-                                except:
-                                    print_color(f"19E {indice} - {sqlInsert}", 31)
+                                except Exception as e:
+                                    print_color(f"19E {indice} - {sqlInsert} {e}", 31)
                                     db.execute("rollback")
                                     pass
 
@@ -906,8 +906,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                     if PrintSql:
                                         print_color(f"20S {indice} - {sqlIdentificador}", 32)
                                     queryIdentificador = db.fetchone()
-                                except:
-                                    print_color(f"20E {indice} - {sqlIdentificador}", 31)
+                                except Exception as e:
+                                    print_color(f"20E {indice} - {sqlIdentificador} {e}", 31)
                                     pass
 
                                 if queryIdentificador is None and queryIdentificador[0] > 0:
@@ -927,8 +927,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"21S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"21E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"21E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -949,8 +949,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"22S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"22E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"22E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
 
@@ -970,8 +970,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"23S {indice} - {db.query}", 32)
 
                                                     con.commit()
-                                                except:
-                                                    print_color(f"23E {indice} - {db.query}", 31)
+                                                except Exception as e:
+                                                    print_color(f"23E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
                 else:
@@ -985,38 +985,38 @@ def sendDataPostgres(Dados, type, pathnamefile):
                             print_color(f"24S {indice} - {sqlexistente}", 32)
 
                         queryExiste = db.fetchone()
-                    except:
-                        print_color(f"24E {indice} - {sqlexistente}", 31)
+                    except Exception as e:
+                        print_color(f"24E {indice} - {sqlexistente} {e}", 31)
                         pass
 
-                    print_color(f"DETALHES {queryExiste} {type} {pathnamefile}", 33)
-
                     if queryExiste is None:
+                        try:
+                            if "GDADOS" == type:
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)"
 
-                        if "GDADOS" == type:
-                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)"
+                            if 'DADOS' == type:
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1)"
 
-                        if 'DADOS' == type:
-                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1)"
+                            if 'PRTT' == type:
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
+                        except Exception as e:
+                            print(f"{e}")
 
-                        if 'PRTT' == type:
-                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
+                        print_color(f"DETALHES3 {type} {sqlInsert} {pathnamefile}", 33)
 
-                        print_color(f"DETALHES {type} {sqlInsert} {pathnamefile}", 33)
+                        if executaSql:
+                            indice += 1
+                            try:
+                                db.execute(sqlInsert)
 
-                        # if executaSql:
-                        #     indice += 1
-                        #     try:
-                        #         db.execute(sqlInsert)
-                        #
-                        #         if PrintSql:
-                        #             print_color(f"25S {indice} - {sqlInsert}", 32)
-                        #
-                        #         con.commit()
-                        #     except:
-                        #         print_color(f"25E {indice} - {sqlInsert}", 31)
-                        #         db.execute("rollback")
-                        #         pass
+                                if PrintSql:
+                                    print_color(f"25S {indice} - {sqlInsert}", 32)
+
+                                con.commit()
+                            except:
+                                print_color(f"25E {indice} - {sqlInsert}", 31)
+                                db.execute("rollback")
+                                pass
 
 
         else:
@@ -1057,7 +1057,8 @@ if __name__ == '__main__':
 
             if removed_files:
                 print(f'\nArquivos removidos: {removed_files}')
-        except Exception as inst:
+        except Exception as e:
+            print_color(f"{e}", 31)
             pass
 
         previous_files = current_files

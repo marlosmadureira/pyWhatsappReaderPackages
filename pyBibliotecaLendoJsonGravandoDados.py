@@ -89,9 +89,17 @@ def getUnidadeFileName(nome_original):
     return FileName, Unidade
 
 def openJson(file):
-    with open(file, 'r', encoding='utf-8') as arquivo:
-        dados = json.load(arquivo)
-    return dados
+    try:
+        with open(file, 'r', encoding='utf-8') as arquivo:
+            dados = json.load(arquivo)
+        return dados
+    except FileNotFoundError:
+        print(f"Erro: O arquivo '{file}' não foi encontrado.")
+    except json.JSONDecodeError as e:
+        print(f"Erro: Arquivo '{file}' não é um JSON válido. Detalhes: {e}")
+    except Exception as e:
+        print(f"Erro inesperado ao tentar abrir o arquivo '{file}': {e}")
+    return None
 
 
 def clean_html(html_text):

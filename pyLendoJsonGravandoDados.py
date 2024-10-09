@@ -874,7 +874,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                             print_color(f"18E {indice} - {sqlexistente}", 31)
                             pass
 
-                        if queryExiste is None and queryExiste[0] > 0:
+                        if queryExiste is None:
 
                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1, '{EmailAddresses}') RETURNING ar_id;"
                             indice += 1
@@ -978,7 +978,6 @@ def sendDataPostgres(Dados, type, pathnamefile):
 
                     sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_arquivo = '{FileName}'"
                     indice += 1
-
                     try:
                         db.execute(sqlexistente)
 
@@ -990,7 +989,9 @@ def sendDataPostgres(Dados, type, pathnamefile):
                         print_color(f"24E {indice} - {sqlexistente}", 31)
                         pass
 
-                    if queryExiste is None and queryExiste[0] > 0:
+                    print_color(f"DETALHES {queryExiste} {type} {pathnamefile}", 33)
+
+                    if queryExiste is None:
 
                         if "GDADOS" == type:
                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)"
@@ -1001,7 +1002,7 @@ def sendDataPostgres(Dados, type, pathnamefile):
                         if 'PRTT' == type:
                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
 
-                        print_color(f"DETALHES {type} {sqlInsert}", 33)
+                        print_color(f"DETALHES {type} {sqlInsert} {pathnamefile}", 33)
 
                         # if executaSql:
                         #     indice += 1

@@ -420,7 +420,6 @@ def process(source):
 
             grava_log(json_formatado, readerJsonFile)
 
-
         filePath = DIRERROS + fileName
 
         if not os.path.exists(filePath):

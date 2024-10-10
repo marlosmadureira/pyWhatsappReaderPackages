@@ -267,12 +267,7 @@ def sendDataPostgres(Dados, type):
                                 if executaSql:
                                     indice += 1
                                     try:
-                                        db.execute(sqlInsert,
-                                                   (dadoServiceStart, dadoDeviceType, dadoAppVersion,
-                                                    dadoDeviceOSBuildNumber, dadoConnectionState, dadoOnlineSince,
-                                                    dadoPushName, dadoLastSeen, AccountIdentifier, ar_id, linh_id,
-                                                    dadoServiceStart, dadoDeviceType, dadoAppVersion,
-                                                    dadoDeviceOSBuildNumber, AccountIdentifier))
+                                        db.execute(sqlInsert, (dadoServiceStart, dadoDeviceType, dadoAppVersion, dadoDeviceOSBuildNumber, dadoConnectionState, dadoOnlineSince, dadoPushName, dadoLastSeen, AccountIdentifier, ar_id, linh_id))
 
                                         if PrintSql:
                                             print_color(f"8S {indice} - {db.query}", 32)
@@ -315,10 +310,8 @@ def sendDataPostgres(Dados, type):
                                 if executaSql:
                                     indice += 1
                                     try:
-                                        db.execute(sqlInsert, (
-                                        dadoVersion, dadoPlatform, dadoOnlineSince, dadoInactiveSince,
-                                        AccountIdentifier, ar_id, linh_id, dadoVersion, dadoPlatform,
-                                        AccountIdentifier))
+                                        db.execute(sqlInsert, (dadoVersion, dadoPlatform, dadoOnlineSince, dadoInactiveSince,
+                                        AccountIdentifier, ar_id, linh_id))
 
                                         if PrintSql:
                                             print_color(f"9S {indice} - {db.query}", 32)
@@ -376,12 +369,7 @@ def sendDataPostgres(Dados, type):
                                             if executaSql:
                                                 indice += 1
                                                 try:
-                                                    db.execute(sqlInsert, (
-                                                        dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation,
-                                                        dadoSize, dadoDescription, dadoSubject, AccountIdentifier,
-                                                        ar_id,
-                                                        dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID,
-                                                        AccountIdentifier))
+                                                    db.execute(sqlInsert, (dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation, dadoSize, dadoDescription, dadoSubject, AccountIdentifier, ar_id, dadoPicture, linh_id))
 
                                                     if PrintSql:
                                                         print_color(f"10S {indice} - {db.query}", 32)
@@ -438,12 +426,7 @@ def sendDataPostgres(Dados, type):
                                             if executaSql:
                                                 indice += 1
                                                 try:
-                                                    db.execute(sqlInsert, (
-                                                        dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation,
-                                                        dadoSize, dadoDescription, dadoSubject, AccountIdentifier,
-                                                        ar_id,
-                                                        dadoPicture, linh_id, dadoTipoGroup, dadoCreation, dadoID,
-                                                        AccountIdentifier))
+                                                    db.execute(sqlInsert, (dadoTipoGroup, pathFile, dadoThumbnail, dadoID, dadoCreation, dadoSize, dadoDescription, dadoSubject, AccountIdentifier, ar_id, dadoPicture, linh_id))
 
                                                     if PrintSql:
                                                         print_color(f"11S {indice} - {db.query}", 32)
@@ -464,9 +447,7 @@ def sendDataPostgres(Dados, type):
                                             if executaSql:
                                                 indice += 1
                                                 try:
-                                                    db.execute(sqlInsert, (
-                                                    contacts, 'S', AccountIdentifier, ar_id, linh_id, contacts, 'S',
-                                                    AccountIdentifier))
+                                                    db.execute(sqlInsert, (contacts, 'S', AccountIdentifier, ar_id, linh_id))
 
                                                     if PrintSql:
                                                         print_color(f"12S {indice} - {db.query}", 32)
@@ -486,9 +467,7 @@ def sendDataPostgres(Dados, type):
                                             if executaSql:
                                                 indice += 1
                                                 try:
-                                                    db.execute(sqlInsert, (
-                                                        contacts, 'A', AccountIdentifier, ar_id, linh_id, contacts, 'A',
-                                                        AccountIdentifier))
+                                                    db.execute(sqlInsert, (contacts, 'A', AccountIdentifier, ar_id, linh_id))
 
                                                     if PrintSql:
                                                         print_color(f"13S {indice} - {db.query}", 32)
@@ -551,11 +530,7 @@ def sendDataPostgres(Dados, type):
                                 if executaSql:
                                     indice += 1
                                     try:
-                                        db.execute(sqlInsert, (
-                                            AppVersion, OSVersion, OSBuildNumber, DeviceManufacturer, DeviceModel,
-                                            ar_id,
-                                            linh_id, AccountIdentifier, AppVersion, OSVersion, OSBuildNumber,
-                                            AccountIdentifier))
+                                        db.execute(sqlInsert, (AppVersion, OSVersion, OSBuildNumber, DeviceManufacturer, DeviceModel, ar_id, linh_id, AccountIdentifier))
 
                                         if PrintSql:
                                             print_color(f"14S {indice} - {db.query}", 32)

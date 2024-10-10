@@ -886,7 +886,7 @@ if __name__ == '__main__':
         added_files = current_files - previous_files
         removed_files = previous_files - current_files
 
-        limpar_arquivos_antigos(DIRLOG, dias=10)
+        limpar_arquivos_antigos(DIRLOG, dias=5)
 
         try:
             if added_files:

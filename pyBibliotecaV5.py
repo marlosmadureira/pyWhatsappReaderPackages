@@ -22,7 +22,7 @@ DIRLOG = os.getenv("DIRLOG")
 DebugMode = False
 
 
-def limpar_arquivos_antigos(diretorio, dias=10):
+def limpar_arquivos_antigos(diretorio, dias=5):
     # Obter o timestamp atual
     agora = time.time()
     limite = agora - dias * 86400  # 86400 segundos = 1 dia

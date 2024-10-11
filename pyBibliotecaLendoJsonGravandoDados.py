@@ -147,9 +147,29 @@ def remove_duplicates_call_logs(call_logs):
         call_tuple = (call['CallId'], call['CallCreator'])
         if call_tuple not in seen:
             seen.add(call_tuple)
+
+            # Verifica e remove duplicatas dentro de Events
+            if 'Events' in call:
+                call['Events'] = remove_duplicates_events(call['Events'])
+
             unique_calls.append(call)
 
     return unique_calls
+
+
+# Função para remover duplicatas de Events
+def remove_duplicates_events(events):
+    seen = set()
+    unique_events = []
+
+    for event in events:
+        event_tuple = (
+        event['Timestamp'], event['Type'], event['From'], event['To'], event['FromIp'], event['FromPort'])
+        if event_tuple not in seen:
+            seen.add(event_tuple)
+            unique_events.append(event)
+
+    return unique_events
 
 def openJson(file):
     try:

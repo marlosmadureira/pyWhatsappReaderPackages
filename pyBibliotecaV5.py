@@ -21,6 +21,54 @@ DIRLOG = os.getenv("DIRLOG")
 
 DebugMode = False
 
+
+# Função para remover duplicatas de msgLogs
+def remove_duplicates_msg_logs(msg_logs):
+    seen = set()
+    unique_logs = []
+
+    for log in msg_logs:
+        log_tuple = (log['Timestamp'], log.get('MessageId'), log['Sender'], log['Recipients'], log['SenderIp'])
+        if log_tuple not in seen:
+            seen.add(log_tuple)
+            unique_logs.append(log)
+
+    return unique_logs
+
+
+# Função para remover duplicatas de callLogs
+def remove_duplicates_call_logs(call_logs):
+    seen = set()
+    unique_calls = []
+
+    for call in call_logs:
+        call_tuple = (call['CallId'], call['CallCreator'])
+        if call_tuple not in seen:
+            seen.add(call_tuple)
+
+            # Verifica e remove duplicatas dentro de Events
+            if 'Events' in call:
+                call['Events'] = remove_duplicates_events(call['Events'])
+
+            unique_calls.append(call)
+
+    return unique_calls
+
+
+# Função para remover duplicatas de Events
+def remove_duplicates_events(events):
+    seen = set()
+    unique_events = []
+
+    for event in events:
+        event_tuple = (
+        event['Timestamp'], event['Type'], event['From'], event['To'], event['FromIp'], event['FromPort'])
+        if event_tuple not in seen:
+            seen.add(event_tuple)
+            unique_events.append(event)
+
+    return unique_events
+
 def espaco_livre_no_hd(diretorio):
     total, usado, livre = shutil.disk_usage(diretorio)
 

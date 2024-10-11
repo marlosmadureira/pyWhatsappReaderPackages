@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV5 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, contar_arquivos_zip, \
-    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos, apagar_arquivos, espaco_livre_no_hd
+    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos, apagar_arquivos, espaco_livre_no_hd, remove_duplicates_msg_logs, remove_duplicates_call_logs
 from pyGravandoDados import sendDataPostgres
 from pyPostgresql import find_unidade_postgres, listaProcessamento
 from pyGetSendApi import sendDataJsonServer
@@ -316,6 +316,14 @@ def process(source):
 
                     if "groupsInfo" in fileProcess["Prtt"]:
                         del fileProcess["Prtt"]["groupsInfo"]
+
+                    # Verificação e processamento de msgLogs
+                    if 'msgLogs' in fileProcess['Prtt']:
+                        fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
+
+                    # Verificação e processamento de callLogs
+                    if 'callLogs' in fileProcess['Prtt']:
+                        fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(fileProcess['Prtt']['callLogs'])
 
                 if flagGDados:
                     dataType = "GDADOS"

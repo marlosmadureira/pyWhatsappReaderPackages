@@ -123,10 +123,44 @@ def corrigir_json(file_path):
         print(f"Erro inesperado: {e}")
         return None
 
+
+# Função para remover duplicatas de msgLogs
+def remove_duplicates_msg_logs(msg_logs):
+    seen = set()
+    unique_logs = []
+
+    for log in msg_logs:
+        log_tuple = (log['Timestamp'], log.get('MessageId'), log['Sender'], log['Recipients'], log['SenderIp'])
+        if log_tuple not in seen:
+            seen.add(log_tuple)
+            unique_logs.append(log)
+
+    return unique_logs
+
+
+# Função para remover duplicatas de callLogs
+def remove_duplicates_call_logs(call_logs):
+    seen = set()
+    unique_calls = []
+
+    for call in call_logs:
+        call_tuple = (call['CallId'], call['CallCreator'])
+        if call_tuple not in seen:
+            seen.add(call_tuple)
+            unique_calls.append(call)
+
+    return unique_calls
+
 def openJson(file):
     try:
         with open(file, 'r', encoding='utf-8') as arquivo:
             dados = json.load(arquivo)
+            if 'msgLogs' in dados['Prtt']:
+                dados['Prtt']['msgLogs'] = remove_duplicates_msg_logs(dados['Prtt']['msgLogs'])
+
+            # Verificação e processamento de callLogs
+            if 'callLogs' in dados['Prtt']:
+                dados['Prtt']['callLogs'] = remove_duplicates_call_logs(dados['Prtt']['callLogs'])
         return dados
     except FileNotFoundError:
         print_color(f"Erro: O arquivo '{file}' não foi encontrado.", 31)

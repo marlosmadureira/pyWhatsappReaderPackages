@@ -638,7 +638,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"15E {indice} - {db.query} {e}", 31)
                                                         db.execute("rollback")
                                                         pass
-
+                                            else:
+                                                print_color(f"Repedito", 31)
                                         else:
                                             TipoDirecaoMsg = "Recebeu"
                                             check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
@@ -667,7 +668,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"16E {indice} - {db.query} {e}", 31)
                                                         db.execute("rollback")
                                                         pass
-
+                                            else:
+                                                print_color(f"Repedito", 31)
                                     else:
                                         if prttSender == AccountIdentifier:
                                             TipoDirecaoMsg = "Enviou"
@@ -697,7 +699,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"16E {indice} - {db.query} {e}", 31)
                                                         db.execute("rollback")
                                                         pass
-
+                                            else:
+                                                print_color(f"Repedito", 31)
                                         else:
                                             TipoDirecaoMsg = "Recebeu"
 
@@ -727,6 +730,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                         print_color(f"16E {indice} - {db.query} {e}", 31)
                                                         db.execute("rollback")
                                                         pass
+                                            else:
+                                                print_color(f"Repedito", 31)
 
                             if Dados['Prtt'].get('callLogs'):
                                 callLogs = Dados['Prtt']['callLogs']
@@ -829,7 +834,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                                 print_color(f"17E {indice} - {db.query} {e}", 31)
                                                                 db.execute("rollback")
                                                                 pass
-
+                                                    else:
+                                                        print_color(f"Repedito", 31)
                                             else:
                                                 check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
                                                 db.execute(check_query,
@@ -861,7 +867,8 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                             print_color(f"17E {indice} - {db.query} {e}", 31)
                                                             db.execute("rollback")
                                                             pass
-
+                                                    else:
+                                                        print_color(f"Repedito", 31)
                 else:
                     print_color(f"\nARQUIVO EXISTENTE {FileName}", 33)
 

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV5 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, contar_arquivos_zip, \
-    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos
+    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos, apagar_arquivos, espaco_livre_no_hd
 from pyGravandoDados import sendDataPostgres
 from pyPostgresql import find_unidade_postgres, listaProcessamento
 from pyGetSendApi import sendDataJsonServer
@@ -38,7 +38,10 @@ def get_files_in_dir(path):
 
 
 def process(source):
-    # countdown(1)
+    if espaco_livre_no_hd(f"/") < 10:
+        apagar_arquivos(DIRLOG)
+    else:
+        limpar_arquivos_antigos(DIRLOG, dias=5)
 
     fileProcess = {}
     fileDados = {}
@@ -885,8 +888,6 @@ if __name__ == '__main__':
         current_files = get_files_in_dir(DIRNOVOS)
         added_files = current_files - previous_files
         removed_files = previous_files - current_files
-
-        limpar_arquivos_antigos(DIRLOG, dias=5)
 
         try:
             if added_files:

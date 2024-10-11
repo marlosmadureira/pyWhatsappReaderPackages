@@ -671,11 +671,11 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                     else:
                                         if prttSender == AccountIdentifier:
                                             TipoDirecaoMsg = "Enviou"
-                                            check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
+                                            check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
                                             db.execute(check_query,
                                                        (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
                                                         prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                        prttMessageSize, prttType, prttMessageStyle))
+                                                        prttMessageSize, prttType, prttMessageStyle,prttGroupId))
                                             result = db.fetchone()
 
                                             if result is None:
@@ -701,11 +701,11 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                         else:
                                             TipoDirecaoMsg = "Recebeu"
 
-                                            check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
+                                            check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
                                             db.execute(check_query,
                                                        (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
                                                         prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                        prttMessageSize, prttType, prttMessageStyle))
+                                                        prttMessageSize, prttType, prttMessageStyle, prttGroupId))
                                             result = db.fetchone()
 
                                             if result is None:

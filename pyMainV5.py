@@ -317,13 +317,13 @@ def process(source):
                     if "groupsInfo" in fileProcess["Prtt"]:
                         del fileProcess["Prtt"]["groupsInfo"]
 
-                    # Verificação e processamento de msgLogs
-                    if 'msgLogs' in fileProcess['Prtt']:
-                        fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
-
                     # Verificação e processamento de callLogs
                     if 'callLogs' in fileProcess['Prtt']:
                         fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(fileProcess['Prtt']['callLogs'])
+
+                    # Verificação e processamento de msgLogs
+                    if 'msgLogs' in fileProcess['Prtt']:
+                        fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
 
                 if flagGDados:
                     dataType = "GDADOS"
@@ -420,7 +420,7 @@ def process(source):
 
     except Exception as inst:
 
-        print_color(f"Location: process - Files Open, error: {str(inst)} File: {str(source)}", 31)
+        print_color(f"Error: {str(inst)} File: {str(source)}", 31)
 
         if FileJsonLog:
             readerJsonFile = f'Log_{dataType}_Out_Except_{os.path.splitext(fileName)[0]}.json'
@@ -454,6 +454,7 @@ def process(source):
         if is_valid_json(fileProcess):
             sendDataPostgres(fileProcess, dataType, Out)
 
+
     if DebugMode:
         print("\nMovendo de: ", source)
         print("Para: ", DIRLIDOS)
@@ -484,6 +485,8 @@ def parse_dynamic_sentence_parameters(content):
 
     # Dicionário para armazenar os resultados
     results = {}
+
+    # grava_log(content, 'Arquivo.txt')
 
     # Iterar sobre os padrões e encontrar as correspondências
     for key, pattern in patterns.items():

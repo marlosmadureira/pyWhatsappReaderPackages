@@ -28,7 +28,13 @@ def remove_duplicates_msg_logs(msg_logs):
     unique_logs = []
 
     for log in msg_logs:
-        log_tuple = (log['Timestamp'], log.get('MessageId'), log['Sender'], log['Recipients'], log['SenderIp'])
+        log_tuple = (
+            log.get('Timestamp'),
+            log.get('MessageId'),
+            log.get('Sender', None),  # Usa None como valor padrão se 'Sender' não existir
+            log.get('Recipients', None),  # Usa None como valor padrão se 'Recipients' não existir
+            log.get('SenderIp', None)  # Usa None como valor padrão se 'SenderIp' não existir
+        )
         if log_tuple not in seen:
             seen.add(log_tuple)
             unique_logs.append(log)

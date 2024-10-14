@@ -609,129 +609,218 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                     else:
                                         prttMessageSize = None
 
+                                    # if prttGroupId == None:
+                                    #     if prttSender == AccountIdentifier:
+                                    #         TipoDirecaoMsg = "Enviou"
+                                    #         check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
+                                    #         db.execute(check_query,
+                                    #                    (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                    #                     prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                    #                     prttMessageSize, prttType, prttMessageStyle))
+                                    #         result = db.fetchone()
+                                    #
+                                    #         if result is None:
+                                    #             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                    #             if executaSql:
+                                    #                 indice += 1
+                                    #                 try:
+                                    #                     db.execute(sqlInsert, (
+                                    #                     prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                    #                     prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                    #                     prttMessageSize, prttType, prttMessageStyle, AccountIdentifier,
+                                    #                     ar_id, linh_id))
+                                    #
+                                    #                     if PrintSql:
+                                    #                         print_color(f"15S {indice} - {db.query}", 32)
+                                    #
+                                    #                     con.commit()
+                                    #                 except Exception as e:
+                                    #                     print_color(f"15E {indice} - {db.query} {e}", 31)
+                                    #                     db.execute("rollback")
+                                    #                     pass
+                                    #         else:
+                                    #             print_color(f"Repedito", 31)
+                                    #     else:
+                                    #         TipoDirecaoMsg = "Recebeu"
+                                    #         check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
+                                    #         db.execute(check_query,
+                                    #                    (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                    #                     prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                    #                     prttMessageSize, prttType, prttMessageStyle))
+                                    #         result = db.fetchone()
+                                    #
+                                    #         if result is None:
+                                    #             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                    #             if executaSql:
+                                    #                 indice += 1
+                                    #                 try:
+                                    #                     db.execute(sqlInsert, (
+                                    #                     prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients,
+                                    #                     prttSender, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                    #                     prttMessageSize, prttType, prttMessageStyle, AccountIdentifier,
+                                    #                     ar_id, linh_id))
+                                    #
+                                    #                     if PrintSql:
+                                    #                         print_color(f"16S {indice} - {db.query}", 32)
+                                    #
+                                    #                     con.commit()
+                                    #                 except Exception as e:
+                                    #                     print_color(f"16E {indice} - {db.query} {e}", 31)
+                                    #                     db.execute("rollback")
+                                    #                     pass
+                                    #         else:
+                                    #             print_color(f"Repedito", 31)
+                                    # else:
+                                    #     if prttSender == AccountIdentifier:
+                                    #         TipoDirecaoMsg = "Enviou"
+                                    #         check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
+                                    #         db.execute(check_query,
+                                    #                    (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                    #                     prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                    #                     prttMessageSize, prttType, prttMessageStyle,prttGroupId))
+                                    #         result = db.fetchone()
+                                    #
+                                    #         if result is None:
+                                    #             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                    #             if executaSql:
+                                    #                 indice += 1
+                                    #                 try:
+                                    #                     db.execute(sqlInsert, (
+                                    #                     prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                    #                     prttRecipients, prttGroupId, prttSenderIp, prttSenderPort,
+                                    #                     prttSenderDevice, prttMessageSize, prttType, prttMessageStyle,
+                                    #                     AccountIdentifier, ar_id, linh_id))
+                                    #
+                                    #                     if PrintSql:
+                                    #                         print_color(f"16S {indice} - {db.query}", 32)
+                                    #
+                                    #                     con.commit()
+                                    #                 except Exception as e:
+                                    #                     print_color(f"16E {indice} - {db.query} {e}", 31)
+                                    #                     db.execute("rollback")
+                                    #                     pass
+                                    #         else:
+                                    #             print_color(f"Repedito", 31)
+                                    #     else:
+                                    #         TipoDirecaoMsg = "Recebeu"
+                                    #
+                                    #         check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
+                                    #         db.execute(check_query,
+                                    #                    (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                    #                     prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                    #                     prttMessageSize, prttType, prttMessageStyle, prttGroupId))
+                                    #         result = db.fetchone()
+                                    #
+                                    #         if result is None:
+                                    #             sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                    #             if executaSql:
+                                    #                 indice += 1
+                                    #                 try:
+                                    #                     db.execute(sqlInsert, (
+                                    #                     prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients,
+                                    #                     prttSender, prttGroupId, prttSenderIp, prttSenderPort,
+                                    #                     prttSenderDevice, prttMessageSize, prttType, prttMessageStyle,
+                                    #                     AccountIdentifier, ar_id, linh_id))
+                                    #
+                                    #                     if PrintSql:
+                                    #                         print_color(f"16S {indice} - {db.query}", 32)
+                                    #
+                                    #                     con.commit()
+                                    #                 except Exception as e:
+                                    #                     print_color(f"16E {indice} - {db.query} {e}", 31)
+                                    #                     db.execute("rollback")
+                                    #                     pass
+                                    #         else:
+                                    #             print_color(f"Repedito", 31)
                                     if prttGroupId == None:
                                         if prttSender == AccountIdentifier:
                                             TipoDirecaoMsg = "Enviou"
-                                            check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
-                                            db.execute(check_query,
-                                                       (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                        prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                        prttMessageSize, prttType, prttMessageStyle))
-                                            result = db.fetchone()
-
-                                            if result is None:
-                                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                                                if executaSql:
-                                                    indice += 1
-                                                    try:
-                                                        db.execute(sqlInsert, (
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                            if executaSql:
+                                                indice += 1
+                                                try:
+                                                    db.execute(sqlInsert, (
                                                         prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                        prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                        prttMessageSize, prttType, prttMessageStyle, AccountIdentifier,
+                                                        prttRecipients, prttSenderIp, prttSenderPort,
+                                                        prttSenderDevice,
+                                                        prttMessageSize, prttType, prttMessageStyle,
+                                                        AccountIdentifier,
                                                         ar_id, linh_id))
 
-                                                        if PrintSql:
-                                                            print_color(f"15S {indice} - {db.query}", 32)
+                                                    if PrintSql:
+                                                        print_color(f"15S {indice} - {db.query}", 32)
 
-                                                        con.commit()
-                                                    except Exception as e:
-                                                        print_color(f"15E {indice} - {db.query} {e}", 31)
-                                                        db.execute("rollback")
-                                                        pass
-                                            else:
-                                                print_color(f"Repedito", 31)
+                                                    con.commit()
+                                                except Exception as e:
+                                                    print_color(f"15E {indice} - {db.query} {e}", 31)
+                                                    db.execute("rollback")
+                                                    pass
                                         else:
                                             TipoDirecaoMsg = "Recebeu"
-                                            check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
-                                            db.execute(check_query,
-                                                       (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                        prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                        prttMessageSize, prttType, prttMessageStyle))
-                                            result = db.fetchone()
-
-                                            if result is None:
-                                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                                                if executaSql:
-                                                    indice += 1
-                                                    try:
-                                                        db.execute(sqlInsert, (
-                                                        prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients,
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                            if executaSql:
+                                                indice += 1
+                                                try:
+                                                    db.execute(sqlInsert, (
+                                                        prttTimestamp, prttMessageId, TipoDirecaoMsg,
+                                                        prttRecipients,
                                                         prttSender, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                        prttMessageSize, prttType, prttMessageStyle, AccountIdentifier,
+                                                        prttMessageSize, prttType, prttMessageStyle,
+                                                        AccountIdentifier,
                                                         ar_id, linh_id))
 
-                                                        if PrintSql:
-                                                            print_color(f"16S {indice} - {db.query}", 32)
+                                                    if PrintSql:
+                                                        print_color(f"16S {indice} - {db.query}", 32)
 
-                                                        con.commit()
-                                                    except Exception as e:
-                                                        print_color(f"16E {indice} - {db.query} {e}", 31)
-                                                        db.execute("rollback")
-                                                        pass
-                                            else:
-                                                print_color(f"Repedito", 31)
+                                                    con.commit()
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
+                                                    db.execute("rollback")
+                                                    pass
                                     else:
                                         if prttSender == AccountIdentifier:
                                             TipoDirecaoMsg = "Enviou"
-                                            check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
-                                            db.execute(check_query,
-                                                       (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                        prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                        prttMessageSize, prttType, prttMessageStyle,prttGroupId))
-                                            result = db.fetchone()
-
-                                            if result is None:
-                                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                                                if executaSql:
-                                                    indice += 1
-                                                    try:
-                                                        db.execute(sqlInsert, (
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                            if executaSql:
+                                                indice += 1
+                                                try:
+                                                    db.execute(sqlInsert, (
                                                         prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
                                                         prttRecipients, prttGroupId, prttSenderIp, prttSenderPort,
-                                                        prttSenderDevice, prttMessageSize, prttType, prttMessageStyle,
+                                                        prttSenderDevice, prttMessageSize, prttType,
+                                                        prttMessageStyle,
                                                         AccountIdentifier, ar_id, linh_id))
 
-                                                        if PrintSql:
-                                                            print_color(f"16S {indice} - {db.query}", 32)
+                                                    if PrintSql:
+                                                        print_color(f"16S {indice} - {db.query}", 32)
 
-                                                        con.commit()
-                                                    except Exception as e:
-                                                        print_color(f"16E {indice} - {db.query} {e}", 31)
-                                                        db.execute("rollback")
-                                                        pass
-                                            else:
-                                                print_color(f"Repedito", 31)
+                                                    con.commit()
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
+                                                    db.execute("rollback")
+                                                    pass
                                         else:
                                             TipoDirecaoMsg = "Recebeu"
-
-                                            check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
-                                            db.execute(check_query,
-                                                       (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                        prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                        prttMessageSize, prttType, prttMessageStyle, prttGroupId))
-                                            result = db.fetchone()
-
-                                            if result is None:
-                                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                                                if executaSql:
-                                                    indice += 1
-                                                    try:
-                                                        db.execute(sqlInsert, (
-                                                        prttTimestamp, prttMessageId, TipoDirecaoMsg, prttRecipients,
+                                            sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                            if executaSql:
+                                                indice += 1
+                                                try:
+                                                    db.execute(sqlInsert, (
+                                                        prttTimestamp, prttMessageId, TipoDirecaoMsg,
+                                                        prttRecipients,
                                                         prttSender, prttGroupId, prttSenderIp, prttSenderPort,
-                                                        prttSenderDevice, prttMessageSize, prttType, prttMessageStyle,
+                                                        prttSenderDevice, prttMessageSize, prttType,
+                                                        prttMessageStyle,
                                                         AccountIdentifier, ar_id, linh_id))
 
-                                                        if PrintSql:
-                                                            print_color(f"16S {indice} - {db.query}", 32)
+                                                    if PrintSql:
+                                                        print_color(f"16S {indice} - {db.query}", 32)
 
-                                                        con.commit()
-                                                    except Exception as e:
-                                                        print_color(f"16E {indice} - {db.query} {e}", 31)
-                                                        db.execute("rollback")
-                                                        pass
-                                            else:
-                                                print_color(f"Repedito", 31)
+                                                    con.commit()
+                                                except Exception as e:
+                                                    print_color(f"16E {indice} - {db.query} {e}", 31)
+                                                    db.execute("rollback")
+                                                    pass
 
                             if Dados['Prtt'].get('callLogs'):
                                 callLogs = Dados['Prtt']['callLogs']
@@ -796,6 +885,80 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                             else:
                                                 prttPhoneNumber = None
 
+                                            # if evento.get('Participants'):
+                                            #     Participants = evento['Participants']
+                                            #     for eventoParticipante in Participants:
+                                            #         if eventoParticipante.get('PhoneNumber'):
+                                            #             prttPhoneNumber = eventoParticipante['PhoneNumber']
+                                            #         else:
+                                            #             prttPhoneNumber = None
+                                            #
+                                            #         check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
+                                            #         db.execute(check_query,
+                                            #                    (
+                                            #                        prttcallID, prttcallCreator, prttEtype,
+                                            #                        prttEtimestamp,
+                                            #                        prttEsolicitante, prttEatendente, prttEsolIP,
+                                            #                        prttEsolPort,
+                                            #                        prttEmediaType, prttPhoneNumber, TipoDirecaoCall))
+                                            #         result = db.fetchone()
+                                            #
+                                            #         if result is None:
+                                            #             sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                            #
+                                            #             if executaSql:
+                                            #                 indice += 1
+                                            #                 try:
+                                            #                     db.execute(sqlInsert, (
+                                            #                     prttcallID, prttcallCreator, prttEtype, prttEtimestamp,
+                                            #                     prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort,
+                                            #                     prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id,
+                                            #                     linh_id, TipoDirecaoCall))
+                                            #
+                                            #                     if PrintSql:
+                                            #                         print_color(f"17S {indice} - {db.query}",32)
+                                            #
+                                            #                     con.commit()
+                                            #                 except Exception as e:
+                                            #                     print_color(f"17E {indice} - {db.query} {e}", 31)
+                                            #                     db.execute("rollback")
+                                            #                     pass
+                                            #         else:
+                                            #             print_color(f"Repedito", 31)
+                                            # else:
+                                            #     check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
+                                            #     db.execute(check_query,
+                                            #                (
+                                            #                    prttcallID, prttcallCreator, prttEtype,
+                                            #                    prttEtimestamp,
+                                            #                    prttEsolicitante, prttEatendente, prttEsolIP,
+                                            #                    prttEsolPort,
+                                            #                    prttEmediaType, prttPhoneNumber, TipoDirecaoCall))
+                                            #     result = db.fetchone()
+                                            #
+                                            #     if result is None:
+                                            #         sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                            #
+                                            #         if executaSql:
+                                            #             indice += 1
+                                            #             try:
+                                            #                 db.execute(sqlInsert, (
+                                            #                 prttcallID, prttcallCreator, prttEtype, prttEtimestamp,
+                                            #                 prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort,
+                                            #                 prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id,
+                                            #                 linh_id, TipoDirecaoCall))
+                                            #
+                                            #                 if PrintSql:
+                                            #                     print_color(f"17S {indice} - {db.query}", 32)
+                                            #
+                                            #                 con.commit()
+                                            #             except Exception as e:
+                                            #                 print_color(f"17E {indice} - {db.query} {e}", 31)
+                                            #                 db.execute("rollback")
+                                            #                 pass
+                                            #         else:
+                                            #             print_color(f"Repedito", 31)
+
                                             if evento.get('Participants'):
                                                 Participants = evento['Participants']
                                                 for eventoParticipante in Participants:
@@ -804,50 +967,6 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                     else:
                                                         prttPhoneNumber = None
 
-                                                    check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
-                                                    db.execute(check_query,
-                                                               (
-                                                                   prttcallID, prttcallCreator, prttEtype,
-                                                                   prttEtimestamp,
-                                                                   prttEsolicitante, prttEatendente, prttEsolIP,
-                                                                   prttEsolPort,
-                                                                   prttEmediaType, prttPhoneNumber, TipoDirecaoCall))
-                                                    result = db.fetchone()
-
-                                                    if result is None:
-                                                        sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-
-                                                        if executaSql:
-                                                            indice += 1
-                                                            try:
-                                                                db.execute(sqlInsert, (
-                                                                prttcallID, prttcallCreator, prttEtype, prttEtimestamp,
-                                                                prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort,
-                                                                prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id,
-                                                                linh_id, TipoDirecaoCall))
-
-                                                                if PrintSql:
-                                                                    print_color(f"17S {indice} - {db.query}",32)
-
-                                                                con.commit()
-                                                            except Exception as e:
-                                                                print_color(f"17E {indice} - {db.query} {e}", 31)
-                                                                db.execute("rollback")
-                                                                pass
-                                                    else:
-                                                        print_color(f"Repedito", 31)
-                                            else:
-                                                check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
-                                                db.execute(check_query,
-                                                           (
-                                                               prttcallID, prttcallCreator, prttEtype,
-                                                               prttEtimestamp,
-                                                               prttEsolicitante, prttEatendente, prttEsolIP,
-                                                               prttEsolPort,
-                                                               prttEmediaType, prttPhoneNumber, TipoDirecaoCall))
-                                                result = db.fetchone()
-
-                                                if result is None:
                                                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
                                                     if executaSql:
@@ -860,15 +979,33 @@ def sendDataPostgres(Dados, type, pathnamefile):
                                                             linh_id, TipoDirecaoCall))
 
                                                             if PrintSql:
-                                                                print_color(f"17S {indice} - {db.query}", 32)
+                                                                print_color(f"17S {indice} - {db.query}",32)
 
                                                             con.commit()
                                                         except Exception as e:
                                                             print_color(f"17E {indice} - {db.query} {e}", 31)
                                                             db.execute("rollback")
                                                             pass
-                                                    else:
-                                                        print_color(f"Repedito", 31)
+                                            else:
+                                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+                                                if executaSql:
+                                                    indice += 1
+                                                    try:
+                                                        db.execute(sqlInsert, (
+                                                        prttcallID, prttcallCreator, prttEtype, prttEtimestamp,
+                                                        prttEsolicitante, prttEatendente, prttEsolIP, prttEsolPort,
+                                                        prttEmediaType, prttPhoneNumber, AccountIdentifier, ar_id,
+                                                        linh_id, TipoDirecaoCall))
+
+                                                        if PrintSql:
+                                                            print_color(f"17S {indice} - {db.query}", 32)
+
+                                                        con.commit()
+                                                    except Exception as e:
+                                                        print_color(f"17E {indice} - {db.query} {e}", 31)
+                                                        db.execute("rollback")
+                                                        pass
                 else:
                     print_color(f"\nARQUIVO EXISTENTE {FileName}", 33)
 

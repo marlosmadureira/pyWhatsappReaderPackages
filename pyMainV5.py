@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV5 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, contar_arquivos_zip, \
-    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos, apagar_arquivos, espaco_livre_no_hd, remove_duplicates_msg_logs, remove_duplicates_call_logs
+    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs
 from pyGravandoDados import sendDataPostgres
 from pyPostgresql import find_unidade_postgres, listaProcessamento
 from pyGetSendApi import sendDataJsonServer
@@ -38,10 +38,7 @@ def get_files_in_dir(path):
 
 
 def process(source):
-    if espaco_livre_no_hd(f"/") < 10:
-        apagar_arquivos(DIRLOG)
-    else:
-        limpar_arquivos_antigos(DIRLOG, dias=5)
+    limpar_arquivos_antigos(DIRLOG, dias=5)
 
     fileProcess = {}
     fileDados = {}

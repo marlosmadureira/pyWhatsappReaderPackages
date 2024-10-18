@@ -75,26 +75,6 @@ def remove_duplicates_events(events):
 
     return unique_events
 
-def espaco_livre_no_hd(diretorio):
-    total, usado, livre = shutil.disk_usage(diretorio)
-
-    print(f"\nTotal = {total}  Usado = {usado}  Livre = {livre}")
-
-    return livre // (2**30)  # Converte para GB
-
-def apagar_arquivos(diretorio):
-    for arquivo in os.listdir(diretorio):
-        caminho_arquivo = os.path.join(diretorio, arquivo)
-        try:
-            if os.path.isfile(caminho_arquivo) or os.path.islink(caminho_arquivo):
-                os.unlink(caminho_arquivo)  # Deleta o arquivo
-                print(f'{arquivo} apagado com sucesso.')
-            elif os.path.isdir(caminho_arquivo):
-                shutil.rmtree(caminho_arquivo)  # Deleta o diretório e todo o seu conteúdo
-                print(f'Diretório {arquivo} apagado com sucesso.')
-        except Exception as e:
-            print(f'Erro ao deletar {arquivo}: {e}')
-
 def limpar_arquivos_antigos(diretorio, dias=5):
     # Obter o timestamp atual
     agora = time.time()

@@ -9,11 +9,9 @@ import shutil
 from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
-    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, contar_arquivos_zip, \
-    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml
-from pyGravandoDados import sendDataPostgres
+    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log,  \
+    remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, SaveParameters
 from pyPostgresql import find_unidade_postgres, listaProcessamento
-from pyGetSendApi import sendDataJsonServer
 from pySendElement import sendMessageElement, getroomIdElement
 
 # Configs
@@ -69,12 +67,30 @@ def process(source):
                     parsed_json_parameters['AccountIdentifier'] = AccountIdentifier
                     fileProcess = parsed_json_parameters
 
-                    if len(AccountIdentifier) > 16:
-                        print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
+                    fileProcess['FileName'] = fileName
+                    fileProcess['Unidade'] = Unidade
+                    fileProcess['NomeUnidade'] = NomeUnidade
 
-                        fileProcess['FileName'] = fileName
-                        fileProcess['Unidade'] = Unidade
-                        fileProcess['NomeUnidade'] = NomeUnidade
+                    flagGDados = False
+                    flagPrtt = False
+                    flagDados = False
+
+                    if len(AccountIdentifier) > 16:
+                        flagGDados = True
+                        dataType = "GDADOS"
+
+                    if 'Message Log' in bsHtml or 'Call Logs' in bsHtml:
+                        flagPrtt = True
+                        dataType = "PRTT"
+
+                    if 'Ncmec Reports' in bsHtml or 'Emails' in bsHtml or 'Connection Info' in bsHtml or 'Web Info' in bsHtml or 'Groups Info' in bsHtml or 'Address Book Info' in bsHtml or 'Small Medium Business' in bsHtml or 'Device Info' in bsHtml:
+                        flagDados = True
+                        dataType = "DADOS"
+
+                    fileId = SaveParameters(fileProcess, dataType)
+
+                    if flagGDados:
+                        print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
 
                         parsed_json_group = parse_dynamic_sentence_group_participants(bsHtml)
 
@@ -102,9 +118,6 @@ def process(source):
                                 f"\n=========================== PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
                                 33)
 
-                            if is_valid_json(fileProcess):
-                                sendDataPostgres(fileProcess, dataType)
-
                             removeFolderFiles(folderZip)
 
                             filePath = DIRLIDOS + fileName
@@ -123,7 +136,7 @@ def process(source):
                             f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
                             35)
                     else:
-                        if 'Message Log' in bsHtml or 'Call Logs' in bsHtml:
+                        if flagPrtt:
                             parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
                             if parsed_json_messages is not None:
                                 fileDados['msgLogs'] = parsed_json_messages
@@ -151,12 +164,8 @@ def process(source):
                             if 'msgLogs' in fileProcess['Prtt']:
                                 fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
 
-                        if 'Ncmec Reports'in bsHtml or 'Emails' in bsHtml or 'Connection Info' in bsHtml or 'Web Info' in bsHtml or 'Groups Info' in bsHtml or 'Address Book Info' in bsHtml or 'Small Medium Business' in bsHtml or 'Device Info' in bsHtml:
+                        if flagDados:
                             print_color(f'QUEBRA DE CONTA {AccountIdentifier} DADOS', 92)
-
-                            fileProcess['FileName'] = fileName
-                            fileProcess['Unidade'] = Unidade
-                            fileProcess['NomeUnidade'] = NomeUnidade
 
                             parsed_json_books = parse_dynamic_sentence_books(bsHtml)
                             if parsed_json_books is not None:
@@ -205,26 +214,10 @@ def process(source):
                             print_color(
                                 f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
                                 33)
-
-                            if is_valid_json(fileProcess):
-                                sendDataPostgres(fileProcess, dataType)
                         else:
                             print_color(
                                 f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
                                 31)
-
-                        removeFolderFiles(folderZip)
-
-                        filePath = DIRLIDOS + fileName
-
-                        if not os.path.exists(filePath):
-                            shutil.move(source, DIRLIDOS)
-                        else:
-                            delete_log(source)
-
-                        print_color(
-                            f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
-                            35)
                 else:
                     print_color(f"Erro Arquivo: {fileName} Unidade: {Unidade}", 31)
             else:
@@ -261,10 +254,18 @@ def process(source):
             else:
                 os.remove(source)
 
-            removeFolderFiles(folderZip)
+    removeFolderFiles(folderZip)
 
-            if is_valid_json(fileProcess):
-                sendDataPostgres(fileProcess, dataType)
+    filePath = DIRLIDOS + fileName
+
+    if not os.path.exists(filePath):
+        shutil.move(source, DIRLIDOS)
+    else:
+        delete_log(source)
+
+    print_color(
+        f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
+        35)
 
     if DebugMode:
         print("\nMovendo de: ", source)

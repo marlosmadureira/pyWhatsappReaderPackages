@@ -19,8 +19,13 @@ APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 DIRLOG = os.getenv("DIRLOG")
 
-DebugMode = False
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
 
+DebugMode = False
+PrintSql = True
 
 # Função para remover duplicatas de msgLogs
 def remove_duplicates_msg_logs(msg_logs):
@@ -335,3 +340,67 @@ def get_size(path):
     #     return round(size / (1024 * 1024), 2)  # f"{round(size / (1024 * 1024), 2)} MB"
     # elif size < 1024 * 1024 * 1024 * 1024:
     #     return round(size / (1024 * 1024 * 1024), 2)  # f"{round(size / (1024 * 1024 * 1024), 2)} GB"
+
+def SaveParameters(fileProcess, dataType):
+    indice = 0
+
+    Service = fileProcess.get('Service', None)
+    InternalTicketNumber = fileProcess.get('InternalTicketNumber', None)
+    AccountIdentifier = fileProcess.get('AccountIdentifier', None)
+    AccountType = fileProcess.get('AccountType', None)
+    Generated = fileProcess.get('UserGenerated', None)
+    DateRange = fileProcess.get('DateRange', None)
+    FileName = fileProcess.get('FileName', None)
+    Unidade = fileProcess.get('Unidade', None)
+    NomeUnidade = fileProcess.get('NomeUnidade', None)
+
+    with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
+        db = con.cursor()
+
+        sqllinh_id = f"SELECT tbaplicativo_linhafone.linh_id FROM interceptacao.tbobje_intercepta, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.status = 'A' AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = {Unidade} AND tbaplicativo_linhafone.conta_zap = '{AccountIdentifier}' GROUP BY tbaplicativo_linhafone.linh_id"
+
+        queryLinId = None
+        indice += 1
+        try:
+            db.execute(sqllinh_id)
+
+            if PrintSql:
+                print_color(f"3S {indice} - {sqllinh_id}", 32)
+
+            queryLinId = db.fetchone()
+        except Exception as e:
+            print_color(f"3E {indice} - {sqllinh_id} {e}", 31)
+            pass
+
+        if queryLinId is not None and queryLinId[0] > 0:
+
+            linh_id = queryLinId[0]
+
+            sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = {linh_id} AND ar_arquivo = '{FileName}' AND ar_dtgerado = '{DateRange}'"
+            indice += 1
+            try:
+                db.execute(sqlexistente)
+                if PrintSql:
+                    print_color(f"4S {indice} - {sqlexistente}", 32)
+
+                queryExiste = db.fetchone()
+            except Exception as e:
+                print_color(f"4E {indice} - {sqlexistente} {e}", 31)
+                pass
+
+            if queryExiste is None:
+                if 'DADOS' == dataType:
+                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1) RETURNING ar_id"
+
+                if 'PRTT' == dataType:
+                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1) RETURNING ar_id"
+
+                if "GDADOS" == dataType:
+                    sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1) RETURNING ar_id"
+            else:
+                print(f"{queryExiste[0]}")
+        else:
+            print_color(f"\nLinha Não Localizada {AccountIdentifier}", 31)
+
+    db.close()
+    con.close()

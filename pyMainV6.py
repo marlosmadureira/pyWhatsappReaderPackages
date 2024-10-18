@@ -123,6 +123,34 @@ def process(source):
                             f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
                             35)
                     else:
+                        if 'Message Log' in bsHtml or 'Call Logs' in bsHtml:
+                            parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
+                            if parsed_json_messages is not None:
+                                fileDados['msgLogs'] = parsed_json_messages
+
+                            parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
+                            if parsed_json_calls is not None:
+                                fileDados['callLogs'] = parsed_json_calls
+
+                            dataType = "PRTT"
+                            fileProcess['dataType'] = dataType
+                            fileProcess["Prtt"] = fileDados
+
+                            if "webInfo" in fileProcess["Prtt"]:
+                                del fileProcess["Prtt"]["webInfo"]
+
+                            if "groupsInfo" in fileProcess["Prtt"]:
+                                del fileProcess["Prtt"]["groupsInfo"]
+
+                            # Verificação e processamento de callLogs
+                            if 'callLogs' in fileProcess['Prtt']:
+                                fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(
+                                    fileProcess['Prtt']['callLogs'])
+
+                            # Verificação e processamento de msgLogs
+                            if 'msgLogs' in fileProcess['Prtt']:
+                                fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
+
                         if 'Ncmec Reports'in bsHtml or 'Emails' in bsHtml or 'Connection Info' in bsHtml or 'Web Info' in bsHtml or 'Groups Info' in bsHtml or 'Address Book Info' in bsHtml or 'Small Medium Business' in bsHtml or 'Device Info' in bsHtml:
                             print_color(f'QUEBRA DE CONTA {AccountIdentifier} DADOS', 92)
 
@@ -161,34 +189,6 @@ def process(source):
                             dataType = "DADOS"
                             fileProcess['dataType'] = dataType
                             fileProcess["Dados"] = fileDados
-
-                        if 'Message Log' in bsHtml or 'Call Logs' in bsHtml:
-                            parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
-                            if parsed_json_messages is not None:
-                                fileDados['msgLogs'] = parsed_json_messages
-
-                            parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
-                            if parsed_json_calls is not None:
-                                fileDados['callLogs'] = parsed_json_calls
-
-                            dataType = "PRTT"
-                            fileProcess['dataType'] = dataType
-                            fileProcess["Prtt"] = fileDados
-
-                            if "webInfo" in fileProcess["Prtt"]:
-                                del fileProcess["Prtt"]["webInfo"]
-
-                            if "groupsInfo" in fileProcess["Prtt"]:
-                                del fileProcess["Prtt"]["groupsInfo"]
-
-                            # Verificação e processamento de callLogs
-                            if 'callLogs' in fileProcess['Prtt']:
-                                fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(
-                                    fileProcess['Prtt']['callLogs'])
-
-                            # Verificação e processamento de msgLogs
-                            if 'msgLogs' in fileProcess['Prtt']:
-                                fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
 
                         if DebugMode:
                             print_color(f"{json.dumps(fileProcess, indent=4)}", 34)

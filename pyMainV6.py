@@ -97,8 +97,6 @@ def process(source):
                         if DebugMode:
                             print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
 
-                        EventoGravaBanco = None
-
                         if Executar:
                             if FileJsonLog:
                                 readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'

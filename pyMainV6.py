@@ -305,6 +305,9 @@ def parse_dynamic_sentence_parameters(content):
         if match:
             results[remover_espacos_regex(key)] = match.group(1).strip()
 
+
+
+
     if len(results) > 0:
         return results
     else:

@@ -89,135 +89,138 @@ def process(source):
 
                     fileId = SaveParameters(fileProcess, dataType)
 
-                    if flagGDados:
-                        print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
+                    if fileId is not None:
+                        if flagGDados:
+                            print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
 
-                        parsed_json_group = parse_dynamic_sentence_group_participants(bsHtml)
+                            parsed_json_group = parse_dynamic_sentence_group_participants(bsHtml)
 
-                        if parsed_json_group is not None:
-                            fileDados['groupsInfo'] = parsed_json_group
-
-                        dataType = "GDADOS"
-                        fileProcess['dataType'] = dataType
-                        fileProcess["GDados"] = fileDados
-
-                        if DebugMode:
-                            print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
-
-                        if Executar:
-                            if FileJsonLog:
-                                readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
-
-                                json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-
-                                delete_log(readerJsonFile)
-
-                                grava_log(json_formatado, readerJsonFile)
-
-                            print_color(
-                                f"\n=========================== PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
-                                33)
-
-                            removeFolderFiles(folderZip)
-
-                            filePath = DIRLIDOS + fileName
-
-                            if not os.path.exists(filePath):
-                                shutil.move(source, DIRLIDOS)
-                            else:
-                                delete_log(source)
-
-                        else:
-                            print_color(
-                                f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
-                                31)
-
-                        print_color(
-                            f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
-                            35)
-                    else:
-                        if flagPrtt:
-                            parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
-                            if parsed_json_messages is not None:
-                                fileDados['msgLogs'] = parsed_json_messages
-
-                            parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
-                            if parsed_json_calls is not None:
-                                fileDados['callLogs'] = parsed_json_calls
-
-                            dataType = "PRTT"
-                            fileProcess['dataType'] = dataType
-                            fileProcess["Prtt"] = fileDados
-
-                            if "webInfo" in fileProcess["Prtt"]:
-                                del fileProcess["Prtt"]["webInfo"]
-
-                            if "groupsInfo" in fileProcess["Prtt"]:
-                                del fileProcess["Prtt"]["groupsInfo"]
-
-                            # Verificação e processamento de callLogs
-                            if 'callLogs' in fileProcess['Prtt']:
-                                fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(
-                                    fileProcess['Prtt']['callLogs'])
-
-                            # Verificação e processamento de msgLogs
-                            if 'msgLogs' in fileProcess['Prtt']:
-                                fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
-
-                        if flagDados:
-                            print_color(f'QUEBRA DE CONTA {AccountIdentifier} DADOS', 92)
-
-                            parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-                            if parsed_json_books is not None:
-                                fileDados['addressBookInfo'] = parsed_json_books
-
-                            parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-                            if parsed_json_ip_addresses is not None:
-                                fileDados['ipAddresses'] = parsed_json_ip_addresses
-
-                            parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
-                            if parsed_json_connection is not None:
-                                fileDados['connectionInfo'] = parsed_json_connection
-
-                            parsed_json_device = parse_dynamic_sentence_device(bsHtml)
-                            if parsed_json_device is not None:
-                                fileDados['deviceinfo'] = parsed_json_device
-
-                            parsed_json_group = parse_dynamic_sentence_group(bsHtml)
                             if parsed_json_group is not None:
                                 fileDados['groupsInfo'] = parsed_json_group
 
-                            parsed_json_web = parse_dynamic_sentence_web(bsHtml)
-                            if parsed_json_web is not None:
-                                fileDados['webInfo'] = parsed_json_web
-
-                            parsed_json_small = parse_dynamic_sentence_small(bsHtml)
-                            if parsed_json_small is not None:
-                                fileDados['smallmediumbusinessinfo'] = parsed_json_small
-
-                            dataType = "DADOS"
+                            dataType = "GDADOS"
                             fileProcess['dataType'] = dataType
-                            fileProcess["Dados"] = fileDados
+                            fileProcess["GDados"] = fileDados
 
-                        if DebugMode:
-                            print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
+                            if DebugMode:
+                                print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
 
-                        if Executar:
-                            if FileJsonLog:
-                                readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+                            if Executar:
+                                if FileJsonLog:
+                                    readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
 
-                                json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+                                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
 
-                                delete_log(readerJsonFile)
-                                grava_log(json_formatado, readerJsonFile)
+                                    delete_log(readerJsonFile)
+
+                                    grava_log(json_formatado, readerJsonFile)
+
+                                print_color(
+                                    f"\n=========================== PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
+                                    33)
+
+                                removeFolderFiles(folderZip)
+
+                                filePath = DIRLIDOS + fileName
+
+                                if not os.path.exists(filePath):
+                                    shutil.move(source, DIRLIDOS)
+                                else:
+                                    delete_log(source)
+
+                            else:
+                                print_color(
+                                    f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
+                                    31)
 
                             print_color(
-                                f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
-                                33)
+                                f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
+                                35)
                         else:
-                            print_color(
-                                f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
-                                31)
+                            if flagPrtt:
+                                parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
+                                if parsed_json_messages is not None:
+                                    fileDados['msgLogs'] = parsed_json_messages
+
+                                parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
+                                if parsed_json_calls is not None:
+                                    fileDados['callLogs'] = parsed_json_calls
+
+                                dataType = "PRTT"
+                                fileProcess['dataType'] = dataType
+                                fileProcess["Prtt"] = fileDados
+
+                                if "webInfo" in fileProcess["Prtt"]:
+                                    del fileProcess["Prtt"]["webInfo"]
+
+                                if "groupsInfo" in fileProcess["Prtt"]:
+                                    del fileProcess["Prtt"]["groupsInfo"]
+
+                                # Verificação e processamento de callLogs
+                                if 'callLogs' in fileProcess['Prtt']:
+                                    fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(
+                                        fileProcess['Prtt']['callLogs'])
+
+                                # Verificação e processamento de msgLogs
+                                if 'msgLogs' in fileProcess['Prtt']:
+                                    fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
+
+                            if flagDados:
+                                print_color(f'QUEBRA DE CONTA {AccountIdentifier} DADOS', 92)
+
+                                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                                if parsed_json_books is not None:
+                                    fileDados['addressBookInfo'] = parsed_json_books
+
+                                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                                if parsed_json_ip_addresses is not None:
+                                    fileDados['ipAddresses'] = parsed_json_ip_addresses
+
+                                parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
+                                if parsed_json_connection is not None:
+                                    fileDados['connectionInfo'] = parsed_json_connection
+
+                                parsed_json_device = parse_dynamic_sentence_device(bsHtml)
+                                if parsed_json_device is not None:
+                                    fileDados['deviceinfo'] = parsed_json_device
+
+                                parsed_json_group = parse_dynamic_sentence_group(bsHtml)
+                                if parsed_json_group is not None:
+                                    fileDados['groupsInfo'] = parsed_json_group
+
+                                parsed_json_web = parse_dynamic_sentence_web(bsHtml)
+                                if parsed_json_web is not None:
+                                    fileDados['webInfo'] = parsed_json_web
+
+                                parsed_json_small = parse_dynamic_sentence_small(bsHtml)
+                                if parsed_json_small is not None:
+                                    fileDados['smallmediumbusinessinfo'] = parsed_json_small
+
+                                dataType = "DADOS"
+                                fileProcess['dataType'] = dataType
+                                fileProcess["Dados"] = fileDados
+
+                            if DebugMode:
+                                print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
+
+                            if Executar:
+                                if FileJsonLog:
+                                    readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+                                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+
+                                    delete_log(readerJsonFile)
+                                    grava_log(json_formatado, readerJsonFile)
+
+                                print_color(
+                                    f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
+                                    33)
+                            else:
+                                print_color(
+                                    f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
+                                    31)
+                    else:
+                        print_color(f"\nArquivo Não Gravado {AccountIdentifier}", 31)
                 else:
                     print_color(f"Erro Arquivo: {fileName} Unidade: {Unidade}", 31)
             else:

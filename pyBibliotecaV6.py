@@ -389,6 +389,8 @@ def SaveParameters(fileProcess, dataType):
                 pass
 
             if queryExiste is None:
+                ar_id = None
+
                 if 'DADOS' == dataType:
                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1) RETURNING ar_id"
 
@@ -397,6 +399,23 @@ def SaveParameters(fileProcess, dataType):
 
                 if "GDADOS" == dataType:
                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ({linh_id}, '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1) RETURNING ar_id"
+
+                indice += 1
+                try:
+                    db.execute(sqlInsert)
+
+                    if PrintSql:
+                        print_color(f"5S {indice} - {sqlInsert}", 32)
+
+                    con.commit()
+                    result = db.fetchone()
+                    if result is not None and result[0] is not None:
+                        ar_id = result[0]
+                except Exception as e:
+                    print_color(f"5E {indice} - {sqlInsert} {e}", 31)
+                    db.execute("rollback")
+                    pass
+
             else:
                 print(f"{queryExiste[0]}")
         else:
@@ -404,3 +423,5 @@ def SaveParameters(fileProcess, dataType):
 
     db.close()
     con.close()
+
+    return ar_id

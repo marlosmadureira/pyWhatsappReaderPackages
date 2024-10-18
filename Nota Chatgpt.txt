@@ -1,0 +1,49 @@
+import re
+
+def capturar_telefones(texto):
+    # Inicializa listas para os contatos simétricos e assimétricos
+    contatos_simetricos = []
+    contatos_assimetricos = []
+
+    # Expressão regular para capturar números de telefone em cada seção
+    regex_simetrico = r'Symmetric contacts\d+ Total\s*((?:\d{11,13}\s*)+)'
+    regex_assimetrico = r'Asymmetric contacts\s*\d+\s*Total\s*((?:\d{11,13}\s*)+)'
+
+    # Encontrar e processar contatos simétricos
+    simetrico_match = re.search(regex_simetrico, texto)
+    if simetrico_match:
+        numeros_simetricos = simetrico_match.group(1).split()
+        contatos_simetricos.extend(numeros_simetricos)
+
+    # Encontrar e processar contatos assimétricos
+    assimetrico_match = re.search(regex_assimetrico, texto)
+    if assimetrico_match:
+        numeros_assimetricos = assimetrico_match.group(1).split()
+        contatos_assimetricos.extend(numeros_assimetricos)
+
+    return contatos_simetricos, contatos_assimetricos
+
+# Texto de exemplo
+texto = """
+Address Book Info: Address book from target account holder's WhatsApp account
+Asymmetric Contacts: WhatsApp account holders that do not have the target account holder in their WhatsApp address book but the target account holder has them in their WhatsApp address book
+Symmetric Contacts: Account holder and the identified contacts have each other saved/stored in their respective WhatsApp address books
+
+Address Book
+Symmetric contacts17 Total 5517988104766 5517988293549 5517988436071 5517988473206 5517991464641 5517991506441 5517991522966 5517991977678 5517992054790 5517992175506 5517992236182 5517992355939 5517992829053 5517992840833 5517996125606 5517996689247 5517997122598
+
+Asymmetric contacts
+71 Total 551732792200 556292022443 558287107733 5516991060684 5517981016634 5517981031938 5517981350049 5517981365583 5517981467021 5517981543476 5517981593340 5517981601155 5517981644193 5517988007413 5517988026272 5517988100548 5517988124007 5517988216872 5517988335440 5517988350258
+5517988360466 5517991209676 5517991217530 5517991347343 5517991644149 5517991662545 5517991686050 5517991701777 5517991721050 5517991760990 5517991940530 5517992062434 5517992065997 5517992069244 5517992080551 5517992087840 5517992095262 5517992097458 5517992135375 5517992139932 5517992216785
+5517992244504 5517992276962 5517992340902 5517992354598 5517992401954 5517992536065 5517992576722 5517992591290 5517992596797 5517992626215 5517992631947 5517992635202 5517992643297 5517992667263 5517992676015 5517992757323 5517992765558 5517996026857 5517996201537 5517996289946 5517996438027
+5517996576403 5517996582246 5517996665575 5517997138854 5517997357577 5517997628603 5517997677809 5517997761821 5517997812458
+"""
+
+# Captura os telefones
+simetricos, assimetricos = capturar_telefones(texto)
+
+# Exibe os resultados
+print("Symmetric Contacts:")
+print(simetricos)
+print("\nAsymmetric Contacts:")
+print(assimetricos)

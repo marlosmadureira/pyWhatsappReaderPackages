@@ -511,9 +511,15 @@ def parse_dynamic_sentence_books(content):
     # Expressão regular para capturar números de telefone
     phone_number_pattern = r"\b\d{11,}\b"
 
+    # regex_simetrico = r"Symmetric contacts\d+ Total ([\d\s]+)"
+    # regex_assimetrico = r"Asymmetric contacts\d+ Total ([\d\s]+)"
+
+    regex_simetrico = r'Symmetric contacts\d+ Total\s*((?:\d{11,13}\s*)+)'
+    regex_assimetrico = r'Asymmetric contacts\s*\d+\s*Total\s*((?:\d{11,13}\s*)+)'
+
     # Dividir a frase em seções "Symmetric" e "Asymmetric"
-    symmetric_section = re.search(r"Symmetric contacts\d+ Total ([\d\s]+)", sentence)
-    asymmetric_section = re.search(r"Asymmetric contacts\d+ Total ([\d\s]+)", sentence)
+    symmetric_section = re.search(regex_simetrico, sentence)
+    asymmetric_section = re.search(regex_assimetrico, sentence)
 
     symmetric_numbers = []
     asymmetric_numbers = []

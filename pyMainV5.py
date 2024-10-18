@@ -449,7 +449,7 @@ def process(source):
         removeFolderFiles(folderZip)
 
         if is_valid_json(fileProcess):
-            sendDataPostgres(fileProcess, dataType, Out)
+            sendDataPostgres(fileProcess, dataType)
 
 
     if DebugMode:

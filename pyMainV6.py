@@ -28,7 +28,6 @@ DIRLOG = os.getenv("DIRLOG")
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
 DebugMode = False
-Out = False
 Executar = True
 FileJsonLog = True
 
@@ -70,10 +69,6 @@ def process(source):
                     parsed_json_parameters['AccountIdentifier'] = AccountIdentifier
                     fileProcess = parsed_json_parameters
 
-                    if Out:
-                        print("\nRequest Parameters")
-                        print(f"{json.dumps(parsed_json_parameters, indent=4)}")
-
                     if len(AccountIdentifier) > 16:
                         print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
 
@@ -85,10 +80,6 @@ def process(source):
 
                         if parsed_json_group is not None:
                             fileDados['groupsInfo'] = parsed_json_group
-
-                            if Out:
-                                print("\nGroup")
-                                print(f"{json.dumps(parsed_json_group, indent=4)}")
 
                         dataType = "GDADOS"
                         fileProcess['dataType'] = dataType
@@ -143,57 +134,29 @@ def process(source):
                             if parsed_json_books is not None:
                                 fileDados['addressBookInfo'] = parsed_json_books
 
-                                if Out:
-                                    print("\nAddress Book Info")
-                                    print(f"{json.dumps(parsed_json_books, indent=4)}")
-
                             parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
                             if parsed_json_ip_addresses is not None:
                                 fileDados['ipAddresses'] = parsed_json_ip_addresses
-
-                                if Out:
-                                    print("\nIp Addresses")
-                                    print(f"{json.dumps(parsed_json_ip_addresses, indent=4)}")
 
                             parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
                             if parsed_json_connection is not None:
                                 fileDados['connectionInfo'] = parsed_json_connection
 
-                                if Out:
-                                    print("\nConnection")
-                                    print(f"{json.dumps(parsed_json_connection, indent=4)}")
-
                             parsed_json_device = parse_dynamic_sentence_device(bsHtml)
                             if parsed_json_device is not None:
                                 fileDados['deviceinfo'] = parsed_json_device
-
-                                if Out:
-                                    print("\nDevice")
-                                    print(f"{json.dumps(parsed_json_device, indent=4)}")
 
                             parsed_json_group = parse_dynamic_sentence_group(bsHtml)
                             if parsed_json_group is not None:
                                 fileDados['groupsInfo'] = parsed_json_group
 
-                                if Out:
-                                    print("\nGroup")
-                                    print(f"{json.dumps(parsed_json_group, indent=4)}")
-
                             parsed_json_web = parse_dynamic_sentence_web(bsHtml)
                             if parsed_json_web is not None:
                                 fileDados['webInfo'] = parsed_json_web
 
-                                if Out:
-                                    print("\nWeb")
-                                    print(f"{json.dumps(parsed_json_web, indent=4)}")
-
                             parsed_json_small = parse_dynamic_sentence_small(bsHtml)
                             if parsed_json_small is not None:
                                 fileDados['smallmediumbusinessinfo'] = parsed_json_small
-
-                                if Out:
-                                    print("\nSmall")
-                                    print(f"{json.dumps(parsed_json_small, indent=4)}")
 
                             dataType = "DADOS"
                             fileProcess['dataType'] = dataType
@@ -204,17 +167,9 @@ def process(source):
                             if parsed_json_messages is not None:
                                 fileDados['msgLogs'] = parsed_json_messages
 
-                                if Out:
-                                    print("\nMessages")
-                                    print(f"{json.dumps(parsed_json_messages, indent=4)}")
-
                             parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
                             if parsed_json_calls is not None:
                                 fileDados['callLogs'] = parsed_json_calls
-
-                                if Out:
-                                    print("\nCalls")
-                                    print(f"{json.dumps(parsed_json_calls, indent=4)}")
 
                             dataType = "PRTT"
                             fileProcess['dataType'] = dataType
@@ -226,12 +181,12 @@ def process(source):
                             if "groupsInfo" in fileProcess["Prtt"]:
                                 del fileProcess["Prtt"]["groupsInfo"]
 
-                                # Verificação e processamento de callLogs
+                            # Verificação e processamento de callLogs
                             if 'callLogs' in fileProcess['Prtt']:
                                 fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(
                                     fileProcess['Prtt']['callLogs'])
 
-                                # Verificação e processamento de msgLogs
+                            # Verificação e processamento de msgLogs
                             if 'msgLogs' in fileProcess['Prtt']:
                                 fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
 

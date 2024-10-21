@@ -193,6 +193,9 @@ def process(source):
                         f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
                         33)
 
+
+                print_color('PRECISA SER TERMINADO A LOGICA', 32)
+
             else:
                 print_color(
                     f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",

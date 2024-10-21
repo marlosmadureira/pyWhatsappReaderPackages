@@ -110,7 +110,7 @@ def process(source):
 
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
 
-                        delete_log(readerJsonFile)
+                        delete_log(f"{DIRLOG}{readerJsonFile}")
 
                         grava_log(json_formatado, readerJsonFile)
 
@@ -338,7 +338,7 @@ def process(source):
 
                         json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
 
-                        delete_log(readerJsonFile)
+                        delete_log(f"{DIRLOG}{readerJsonFile}")
                         grava_log(json_formatado, readerJsonFile)
 
                     print_color(
@@ -424,7 +424,7 @@ def process(source):
 
             json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
 
-            delete_log(readerJsonFile)
+            delete_log(f"{DIRLOG}{readerJsonFile}")
 
             grava_log(json_formatado, readerJsonFile)
 

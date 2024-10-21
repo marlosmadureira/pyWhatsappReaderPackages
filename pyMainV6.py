@@ -46,7 +46,18 @@ def process(source):
 
     FileHtmls = ListaAllHtml(folderZip)
 
+    flagGDados = None
+    flagPrtt = None
+    flagDados = None
+
+    NomeUnidade = None
+    dataType = None
+
     for FileHtml in FileHtmls:
+        flagGDados = False
+        flagPrtt = False
+        flagDados = False
+
         bsHtml = parsetHTLMFileString(FileHtml)
 
         listaProcessamento(fileName, Unidade)
@@ -70,10 +81,6 @@ def process(source):
                     fileProcess['FileName'] = fileName
                     fileProcess['Unidade'] = Unidade
                     fileProcess['NomeUnidade'] = NomeUnidade
-
-                    flagGDados = False
-                    flagPrtt = False
-                    flagDados = False
 
                     if len(AccountIdentifier) > 16:
                         flagGDados = True
@@ -104,38 +111,6 @@ def process(source):
 
                             if DebugMode:
                                 print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
-
-                            if Executar:
-                                if FileJsonLog:
-                                    readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
-
-                                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-
-                                    delete_log(readerJsonFile)
-
-                                    grava_log(json_formatado, readerJsonFile)
-
-                                print_color(
-                                    f"\n=========================== PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
-                                    33)
-
-                                removeFolderFiles(folderZip)
-
-                                filePath = DIRLIDOS + fileName
-
-                                if not os.path.exists(filePath):
-                                    shutil.move(source, DIRLIDOS)
-                                else:
-                                    delete_log(source)
-
-                            else:
-                                print_color(
-                                    f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
-                                    31)
-
-                            print_color(
-                                f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
-                                35)
                         else:
                             if flagPrtt:
                                 parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
@@ -202,23 +177,6 @@ def process(source):
 
                             if DebugMode:
                                 print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
-
-                            if Executar:
-                                if FileJsonLog:
-                                    readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
-
-                                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-
-                                    delete_log(readerJsonFile)
-                                    grava_log(json_formatado, readerJsonFile)
-
-                                print_color(
-                                    f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
-                                    33)
-                            else:
-                                print_color(
-                                    f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
-                                    31)
                     else:
                         print_color(f"\nArquivo Não Gravado {AccountIdentifier}", 31)
                 else:
@@ -256,6 +214,30 @@ def process(source):
                 os.rename(filePath, new_filename)
             else:
                 os.remove(source)
+
+    if Executar:
+        if FileJsonLog:
+            readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+            json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+
+            delete_log(readerJsonFile)
+            grava_log(json_formatado, readerJsonFile)
+
+        if flagGDados:
+            print_color(
+                f"\n=========================== PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
+                33)
+
+        if flagDados or flagPrtt:
+            print_color(
+                f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
+                33)
+
+    else:
+        print_color(
+            f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
+            31)
 
     removeFolderFiles(folderZip)
 

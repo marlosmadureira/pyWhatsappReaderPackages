@@ -49,153 +49,165 @@ def process(source):
     flagGDados = None
     flagPrtt = None
     flagDados = None
-
-    NomeUnidade = None
     dataType = None
 
+    bsHtml = ""
+
+    listaProcessamento(fileName, Unidade)
+
     for FileHtml in FileHtmls:
-        flagGDados = False
-        flagPrtt = False
-        flagDados = False
+        bsHtml += FileHtml
+        bsHtml += parsetHTLMFileString(FileHtml)
 
-        bsHtml = parsetHTLMFileString(FileHtml)
+    if bsHtml is not None and bsHtml != "" and Unidade is not None:
 
-        listaProcessamento(fileName, Unidade)
+        delete_log(f'{DIRLOG}{os.path.splitext(fileName)[0]}.txt')
+        grava_log(bsHtml, f'{os.path.splitext(fileName)[0]}.txt')
 
-        dataType = None
+        NomeUnidade = find_unidade_postgres(Unidade)
 
-        try:
-            if bsHtml is not None and bsHtml != "" and Unidade is not None:
+        print_color(f'\nDESCOMPACTADO {fileName} DA UNIDADE {NomeUnidade} CODIGO {Unidade} \n', 34)
 
-                NomeUnidade = find_unidade_postgres(Unidade)
+        parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
 
-                print_color(f'\nDESCOMPACTADO {fileName} DA UNIDADE {NomeUnidade} CODIGO {Unidade} \n', 34)
+        if parsed_json_parameters is not None:
+            AccountIdentifier = somentenumero(parsed_json_parameters['AccountIdentifier'])
+            parsed_json_parameters['AccountIdentifier'] = AccountIdentifier
+            fileProcess = parsed_json_parameters
 
-                parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml)
+            fileProcess['FileName'] = fileName
+            fileProcess['Unidade'] = Unidade
+            fileProcess['NomeUnidade'] = NomeUnidade
 
-                if parsed_json_parameters is not None:
-                    AccountIdentifier = somentenumero(parsed_json_parameters['AccountIdentifier'])
-                    parsed_json_parameters['AccountIdentifier'] = AccountIdentifier
-                    fileProcess = parsed_json_parameters
+            if len(AccountIdentifier) > 16:
+                flagGDados = True
+                dataType = "GDADOS"
 
-                    fileProcess['FileName'] = fileName
-                    fileProcess['Unidade'] = Unidade
-                    fileProcess['NomeUnidade'] = NomeUnidade
+            if 'Message Log' in bsHtml or 'Call Logs' in bsHtml:
+                flagPrtt = True
+                dataType = "PRTT"
 
-                    if len(AccountIdentifier) > 16:
-                        flagGDados = True
-                        dataType = "GDADOS"
+            if 'Ncmec Reports' in bsHtml or 'Emails' in bsHtml or 'Connection Info' in bsHtml or 'Web Info' in bsHtml or 'Groups Info' in bsHtml or 'Address Book Info' in bsHtml or 'Small Medium Business' in bsHtml or 'Device Info' in bsHtml:
+                flagDados = True
+                dataType = "DADOS"
 
-                    if 'Message Log' in bsHtml or 'Call Logs' in bsHtml:
-                        flagPrtt = True
-                        dataType = "PRTT"
+            if flagGDados:
+                print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
 
-                    if 'Ncmec Reports' in bsHtml or 'Emails' in bsHtml or 'Connection Info' in bsHtml or 'Web Info' in bsHtml or 'Groups Info' in bsHtml or 'Address Book Info' in bsHtml or 'Small Medium Business' in bsHtml or 'Device Info' in bsHtml:
-                        flagDados = True
-                        dataType = "DADOS"
+                parsed_json_group = parse_dynamic_sentence_group_participants(bsHtml)
 
-                    fileId = SaveParameters(fileProcess, dataType)
+                if parsed_json_group is not None:
+                    fileDados['groupsInfo'] = parsed_json_group
 
-                    if fileId is not None:
-                        if flagGDados:
-                            print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
+                dataType = "GDADOS"
+                fileProcess['dataType'] = dataType
+                fileProcess["GDados"] = fileDados
 
-                            parsed_json_group = parse_dynamic_sentence_group_participants(bsHtml)
-
-                            if parsed_json_group is not None:
-                                fileDados['groupsInfo'] = parsed_json_group
-
-                            dataType = "GDADOS"
-                            fileProcess['dataType'] = dataType
-                            fileProcess["GDados"] = fileDados
-
-                            if DebugMode:
-                                print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
-                        else:
-                            if flagPrtt:
-                                parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
-                                if parsed_json_messages is not None:
-                                    fileDados['msgLogs'] = parsed_json_messages
-
-                                parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
-                                if parsed_json_calls is not None:
-                                    fileDados['callLogs'] = parsed_json_calls
-
-                                dataType = "PRTT"
-                                fileProcess['dataType'] = dataType
-                                fileProcess["Prtt"] = fileDados
-
-                                if "webInfo" in fileProcess["Prtt"]:
-                                    del fileProcess["Prtt"]["webInfo"]
-
-                                if "groupsInfo" in fileProcess["Prtt"]:
-                                    del fileProcess["Prtt"]["groupsInfo"]
-
-                                # Verificação e processamento de callLogs
-                                if 'callLogs' in fileProcess['Prtt']:
-                                    fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(
-                                        fileProcess['Prtt']['callLogs'])
-
-                                # Verificação e processamento de msgLogs
-                                if 'msgLogs' in fileProcess['Prtt']:
-                                    fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
-
-                            if flagDados:
-                                print_color(f'QUEBRA DE CONTA {AccountIdentifier} DADOS', 92)
-
-                                parsed_json_books = parse_dynamic_sentence_books(bsHtml)
-                                if parsed_json_books is not None:
-                                    fileDados['addressBookInfo'] = parsed_json_books
-
-                                parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
-                                if parsed_json_ip_addresses is not None:
-                                    fileDados['ipAddresses'] = parsed_json_ip_addresses
-
-                                parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
-                                if parsed_json_connection is not None:
-                                    fileDados['connectionInfo'] = parsed_json_connection
-
-                                parsed_json_device = parse_dynamic_sentence_device(bsHtml)
-                                if parsed_json_device is not None:
-                                    fileDados['deviceinfo'] = parsed_json_device
-
-                                parsed_json_group = parse_dynamic_sentence_group(bsHtml)
-                                if parsed_json_group is not None:
-                                    fileDados['groupsInfo'] = parsed_json_group
-
-                                parsed_json_web = parse_dynamic_sentence_web(bsHtml)
-                                if parsed_json_web is not None:
-                                    fileDados['webInfo'] = parsed_json_web
-
-                                parsed_json_small = parse_dynamic_sentence_small(bsHtml)
-                                if parsed_json_small is not None:
-                                    fileDados['smallmediumbusinessinfo'] = parsed_json_small
-
-                                dataType = "DADOS"
-                                fileProcess['dataType'] = dataType
-                                fileProcess["Dados"] = fileDados
-
-                            if DebugMode:
-                                print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
-                    else:
-                        print_color(f"\nArquivo Não Gravado {AccountIdentifier}", 31)
-                else:
-                    print_color(f"Erro Arquivo: {fileName} Unidade: {Unidade}", 31)
+                if DebugMode:
+                    print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
             else:
-                print_color(f"Erro Arquivo: {fileName} Unidade: {Unidade}", 31)
+                if flagPrtt:
+                    parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
+                    if parsed_json_messages is not None:
+                        fileDados['msgLogs'] = parsed_json_messages
 
-        except Exception as inst:
+                    parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
+                    if parsed_json_calls is not None:
+                        fileDados['callLogs'] = parsed_json_calls
 
-            print_color(f"Error: {str(inst)} File: {str(source)}", 31)
+                    dataType = "PRTT"
+                    fileProcess['dataType'] = dataType
+                    fileProcess["Prtt"] = fileDados
 
-            if FileJsonLog:
-                readerJsonFile = f'Log_{dataType}_Out_Except_{os.path.splitext(fileName)[0]}.json'
+                    if "webInfo" in fileProcess["Prtt"]:
+                        del fileProcess["Prtt"]["webInfo"]
 
-                json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+                    if "groupsInfo" in fileProcess["Prtt"]:
+                        del fileProcess["Prtt"]["groupsInfo"]
 
-                delete_log(readerJsonFile)
+                    # Verificação e processamento de callLogs
+                    if 'callLogs' in fileProcess['Prtt']:
+                        fileProcess['Prtt']['callLogs'] = remove_duplicates_call_logs(
+                            fileProcess['Prtt']['callLogs'])
 
-                grava_log(json_formatado, readerJsonFile)
+                    # Verificação e processamento de msgLogs
+                    if 'msgLogs' in fileProcess['Prtt']:
+                        fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
+
+                if flagDados:
+                    print_color(f'QUEBRA DE CONTA {AccountIdentifier} DADOS', 92)
+
+                    parsed_json_books = parse_dynamic_sentence_books(bsHtml)
+                    if parsed_json_books is not None:
+                        fileDados['addressBookInfo'] = parsed_json_books
+
+                    parsed_json_ip_addresses = parse_dynamic_sentence_ip_addresses(bsHtml)
+                    if parsed_json_ip_addresses is not None:
+                        fileDados['ipAddresses'] = parsed_json_ip_addresses
+
+                    parsed_json_connection = parse_dynamic_sentence_connection(bsHtml)
+                    if parsed_json_connection is not None:
+                        fileDados['connectionInfo'] = parsed_json_connection
+
+                    parsed_json_device = parse_dynamic_sentence_device(bsHtml)
+                    if parsed_json_device is not None:
+                        fileDados['deviceinfo'] = parsed_json_device
+
+                    parsed_json_group = parse_dynamic_sentence_group(bsHtml)
+                    if parsed_json_group is not None:
+                        fileDados['groupsInfo'] = parsed_json_group
+
+                    parsed_json_web = parse_dynamic_sentence_web(bsHtml)
+                    if parsed_json_web is not None:
+                        fileDados['webInfo'] = parsed_json_web
+
+                    parsed_json_small = parse_dynamic_sentence_small(bsHtml)
+                    if parsed_json_small is not None:
+                        fileDados['smallmediumbusinessinfo'] = parsed_json_small
+
+                    dataType = "DADOS"
+                    fileProcess['dataType'] = dataType
+                    fileProcess["Dados"] = fileDados
+
+                if DebugMode:
+                    print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
+
+            if Executar:
+                if FileJsonLog:
+                    readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
+
+                    json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
+
+                    delete_log(f"{DIRLOG}{readerJsonFile}")
+                    grava_log(json_formatado, readerJsonFile)
+
+                if flagGDados:
+                    print_color(
+                        f"\n=========================== PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
+                        33)
+
+                if flagDados or flagPrtt:
+                    print_color(
+                        f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
+                        33)
+
+            else:
+                print_color(
+                    f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
+                    31)
+
+            removeFolderFiles(folderZip)
+
+            filePath = DIRLIDOS + fileName
+
+            if not os.path.exists(filePath):
+                shutil.move(source, DIRLIDOS)
+            else:
+                delete_log(source)
+
+        else:
+
+            print_color(f"Erro Arquivo: {fileName} Unidade: {Unidade}", 31)
 
             filePath = DIRERROS + fileName
 
@@ -215,38 +227,29 @@ def process(source):
             else:
                 os.remove(source)
 
-    if Executar:
-        if FileJsonLog:
-            readerJsonFile = f'Log_{dataType}_Out_{os.path.splitext(fileName)[0]}.json'
-
-            json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
-
-            delete_log(readerJsonFile)
-            grava_log(json_formatado, readerJsonFile)
-
-        if flagGDados:
-            print_color(
-                f"\n=========================== PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
-                33)
-
-        if flagDados or flagPrtt:
-            print_color(
-                f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
-                33)
-
+            removeFolderFiles(folderZip)
     else:
-        print_color(
-            f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
-            31)
+        print_color(f"Erro Arquivo: {fileName} Unidade: {Unidade}", 31)
 
-    removeFolderFiles(folderZip)
+        filePath = DIRERROS + fileName
 
-    filePath = DIRLIDOS + fileName
+        if not os.path.exists(filePath):
+            shutil.move(source, DIRERROS)
 
-    if not os.path.exists(filePath):
-        shutil.move(source, DIRLIDOS)
-    else:
-        delete_log(source)
+            roomId = getroomIdElement(Unidade)
+
+            if roomId is not None:
+                sendMessageElement(ACCESSTOKEN, roomId, fileName)
+
+            # Novo nome do arquivo
+            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+
+            # Renomeia o arquivo
+            os.rename(filePath, new_filename)
+        else:
+            os.remove(source)
+
+        removeFolderFiles(folderZip)
 
     print_color(
         f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
@@ -283,16 +286,11 @@ def parse_dynamic_sentence_parameters(content):
     # Dicionário para armazenar os resultados
     results = {}
 
-    # grava_log(content, 'Arquivo.txt')
-
     # Iterar sobre os padrões e encontrar as correspondências
     for key, pattern in patterns.items():
         match = re.search(pattern, sentence)
         if match:
             results[remover_espacos_regex(key)] = match.group(1).strip()
-
-
-
 
     if len(results) > 0:
         return results
@@ -433,49 +431,56 @@ def parse_dynamic_sentence_group(content):
     # Remove linhas vazias
     sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
+    # Expressão regular para capturar emojis (faixas Unicode de emojis)
+    emoji_pattern = re.compile("[\U0001F600-\U0001F64F"  # Emojis de rostos e gestos
+                               "\U0001F300-\U0001F5FF"  # Emojis de objetos e símbolos
+                               "\U0001F680-\U0001F6FF"  # Emojis de transporte e mapas
+                               "\U0001F1E0-\U0001F1FF"  # Bandeiras de países
+                               "\U00002600-\U000026FF"  # Diversos símbolos e pictogramas
+                               "\U00002700-\U000027BF"  # Símbolos adicionais
+                               "]+", flags=re.UNICODE)
+
     # Expressões regulares para capturar os campos dos grupos
     group_patterns = {
         "Linked Media File": r"Linked Media File:([\w\\/_\.-]+)",
-        "Thumbnail": r"Thumbnail([\w\s]+)",
+        "Thumbnail": r"Thumbnail.*?\(.*?([\w\\/_\.-]+)\)",
         "ID": r"ID(\d+)",
         "Creation": r"Creation(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
         "Size": r"Size(\d+)",
-        "Subject": r"Subject([\w\s]+)"
+        "Subject": r"Subject([\w\s" + emoji_pattern.pattern + r"]+)"  # Permitir emojis no Subject
     }
 
     # Estruturas para armazenar as informações dos grupos
     owned_groups = []
     participating_groups = []
 
-    # Capturar informações dos grupos Owned
-    owned_section = re.search(r"GroupsOwned.*$", sentence, re.DOTALL)
+    # Dividir os blocos de grupos
+    group_sections = re.split(
+        r"(GroupsOwned|Owned Groups|GroupsOwned Groups|GroupsParticipating|Participating Groups|GroupsParticipating Groups)",
+        sentence)
 
-    if owned_section is None:
-        owned_section = re.search(r"Owned Groups.*$", sentence, re.DOTALL)
+    # Variáveis para controlar a seção atual (Owned ou Participating)
+    current_section = None
 
-    if owned_section:
-        owned_section_text = owned_section.group(0)
-        owned_group = {}
-        for key, pattern in group_patterns.items():
-            match = re.search(pattern, owned_section_text)
-            if match:
-                owned_group[remover_espacos_regex(key)] = match.group(1).strip()
-        owned_groups.append(owned_group)
+    for i, section in enumerate(group_sections):
+        section = section.strip()
 
-    # Capturar informações dos grupos Participating
-    participating_section = re.search(r"GroupsParticipating.*$", sentence, re.DOTALL)
+        if re.match(r"(GroupsOwned|Owned Groups|GroupsOwned Groups)", section):
+            current_section = 'owned'
+        elif re.match(r"(GroupsParticipating|Participating Groups|GroupsParticipating Groups)", section):
+            current_section = 'participating'
+        elif current_section:  # Seção de dados de grupos
+            group_data = {}
 
-    if participating_section is None:
-        participating_section = re.search(r"Participating Groups.*$", sentence, re.DOTALL)
+            for key, pattern in group_patterns.items():
+                match = re.search(pattern, section)
+                if match:
+                    group_data[key] = match.group(1).strip()
 
-    if participating_section:
-        participating_section_text = participating_section.group(0)
-        participating_group = {}
-        for key, pattern in group_patterns.items():
-            match = re.search(pattern, participating_section_text)
-            if match:
-                participating_group[remover_espacos_regex(key)] = match.group(1).strip()
-        participating_groups.append(participating_group)
+            if current_section == 'owned' and group_data:
+                owned_groups.append(group_data)
+            elif current_section == 'participating' and group_data:
+                participating_groups.append(group_data)
 
     # Dicionário para armazenar os resultados
     results = {

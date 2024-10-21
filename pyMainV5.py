@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV5 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, contar_arquivos_zip, \
-    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs
+    openJsonEstruturado, remover_espacos_regex, somentenumero, is_valid_json, limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, remove_duplicate_newlines
 from pyGravandoDados import sendDataPostgres
 from pyPostgresql import find_unidade_postgres, listaProcessamento
 from pyGetSendApi import sendDataJsonServer
@@ -47,7 +47,7 @@ def process(source):
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
-    bsHtml = parsetHTLMFileString(folderZip)
+    bsHtml = remove_duplicate_newlines(parsetHTLMFileString(folderZip))
 
     listaProcessamento(fileName, Unidade)
 

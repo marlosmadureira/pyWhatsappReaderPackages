@@ -433,24 +433,14 @@ def parse_dynamic_sentence_group(content):
     # Remove linhas vazias
     sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
-    # Expressão regular para capturar emojis (faixas Unicode de emojis)
-    emoji_pattern = re.compile("[\U0001F600-\U0001F64F"  # Emojis de rostos e gestos
-                               "\U0001F300-\U0001F5FF"  # Emojis de objetos e símbolos
-                               "\U0001F680-\U0001F6FF"  # Emojis de transporte e mapas
-                               "\U0001F1E0-\U0001F1FF"  # Bandeiras de países
-                               "\U00002600-\U000026FF"  # Diversos símbolos e pictogramas
-                               "\U00002700-\U000027BF"  # Símbolos adicionais
-                               "]+", flags=re.UNICODE)
-
     # Expressões regulares para capturar os campos dos grupos
     group_patterns = {
-        "Linked Media File": r"Linked Media File:([\w\\/_\.-]+)",
-        "Thumbnail": r"Thumbnail.*?\(.*?([\w\\/_\.-]+)\)",
-        "ID": r"ID(\d+)",
-        "Creation": r"Creation(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
-        "Size": r"Size(\d+)",
-        "Subject": r"Subject([\w\s" + emoji_pattern.pattern + r"]+)",  # Permitir emojis no Subject
-        "Picture": r"Picture\s*\(.*?([\w\\/_\.-]+)\)"  # Padrão para capturar 'Picture'
+        "Linked Media File": r"Linked Media File:\s*([\w/_\.-]+)",
+        "Thumbnail": r"Thumbnail\s*\(.*?([\w/_\.-]+)\)",
+        "ID": r"ID\s*(\d+)",
+        "Creation": r"Creation\s*([\d\- :UTC]+)",
+        "Size": r"Size\s*(\d+)",
+        "Subject": r"Subject\s*([\w\s]+(?:\s*[\U0001F600-\U0001F64F]|\s*[\U0001F300-\U0001F5FF]*)*)"
     }
 
     # Estruturas para armazenar as informações dos grupos
@@ -459,18 +449,18 @@ def parse_dynamic_sentence_group(content):
 
     # Dividir os blocos de grupos
     group_sections = re.split(
-        r"(GroupsOwned|Owned Groups|GroupsOwned Groups|GroupsParticipating|Participating Groups|GroupsParticipating Groups)",
+        r"(GroupsOwned|Owned Groups|GroupsParticipating|Participating Groups)",
         sentence)
 
     # Variáveis para controlar a seção atual (Owned ou Participating)
     current_section = None
 
-    for i, section in enumerate(group_sections):
+    for section in group_sections:
         section = section.strip()
 
-        if re.match(r"(GroupsOwned|Owned Groups|GroupsOwned Groups)", section):
+        if re.match(r"(GroupsOwned|Owned Groups)", section):
             current_section = 'owned'
-        elif re.match(r"(GroupsParticipating|Participating Groups|GroupsParticipating Groups)", section):
+        elif re.match(r"(GroupsParticipating|Participating Groups)", section):
             current_section = 'participating'
         elif current_section:  # Seção de dados de grupos
             group_data = {}

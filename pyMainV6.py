@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log,  \
-    remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, SaveParameters
+    remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines
 from pyPostgresql import find_unidade_postgres, listaProcessamento
 from pySendElement import sendMessageElement, getroomIdElement
 
@@ -58,6 +58,8 @@ def process(source):
     for FileHtml in FileHtmls:
         bsHtml += FileHtml
         bsHtml += parsetHTLMFileString(FileHtml)
+
+    bsHtml = remove_duplicate_newlines(bsHtml.replace('![]', ''))
 
     if bsHtml is not None and bsHtml != "" and Unidade is not None:
 
@@ -447,7 +449,8 @@ def parse_dynamic_sentence_group(content):
         "ID": r"ID(\d+)",
         "Creation": r"Creation(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
         "Size": r"Size(\d+)",
-        "Subject": r"Subject([\w\s" + emoji_pattern.pattern + r"]+)"  # Permitir emojis no Subject
+        "Subject": r"Subject([\w\s" + emoji_pattern.pattern + r"]+)",  # Permitir emojis no Subject
+        "Picture": r"Picture\s*\(.*?([\w\\/_\.-]+)\)"  # Padrão para capturar 'Picture'
     }
 
     # Estruturas para armazenar as informações dos grupos
@@ -471,27 +474,30 @@ def parse_dynamic_sentence_group(content):
             current_section = 'participating'
         elif current_section:  # Seção de dados de grupos
             group_data = {}
+            found_data = False
 
             for key, pattern in group_patterns.items():
                 match = re.search(pattern, section)
                 if match:
                     group_data[key] = match.group(1).strip()
+                    found_data = True  # Indica que pelo menos um dado foi encontrado
 
-            if current_section == 'owned' and group_data:
-                owned_groups.append(group_data)
-            elif current_section == 'participating' and group_data:
-                participating_groups.append(group_data)
+            # Adiciona ao grupo correspondente se houver dados
+            if found_data:
+                if current_section == 'owned':
+                    owned_groups.append(group_data)
+                elif current_section == 'participating':
+                    participating_groups.append(group_data)
 
     # Dicionário para armazenar os resultados
     results = {
         "ownedGroups": owned_groups,
-        "ParticipatingGroups": participating_groups
+        "participatingGroups": participating_groups
     }
 
-    if len(owned_groups) > 0 or len(participating_groups) > 0:
-        return results
-    else:
-        return None
+    print(results)
+
+    return results if owned_groups or participating_groups else None
 
 
 def parse_dynamic_sentence_group_participants(content):

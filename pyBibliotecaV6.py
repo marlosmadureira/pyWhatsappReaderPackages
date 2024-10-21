@@ -27,6 +27,10 @@ DB_PASS = os.getenv("DB_PASS")
 DebugMode = False
 PrintSql = True
 
+def remove_duplicate_newlines(text):
+    # Substitui quebras de linha duplicadas por uma única quebra de linha
+    return '\n'.join(line for line in text.splitlines() if line.strip() != '')
+
 # Função para remover duplicatas de msgLogs
 def remove_duplicates_msg_logs(msg_logs):
     seen = set()

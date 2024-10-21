@@ -485,8 +485,6 @@ def parse_dynamic_sentence_group(content):
         "participatingGroups": participating_groups
     }
 
-    print(results)
-
     return results if owned_groups or participating_groups else None
 
 

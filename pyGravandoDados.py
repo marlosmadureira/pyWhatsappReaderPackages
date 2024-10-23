@@ -16,6 +16,8 @@ PrintSql = True
 def sendDataPostgres(Dados, type):
     indice = 0
 
+    ReturnProcess = {}
+
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
 
@@ -160,6 +162,8 @@ def sendDataPostgres(Dados, type):
                             pass
 
                     if ar_id is not None:
+
+                        ReturnProcess['BANCO'] = True
 
                         if 'DADOS' == type:
 
@@ -862,6 +866,7 @@ def sendDataPostgres(Dados, type):
                                                     else:
                                                         print_color(f"Repedito", 31)
                 else:
+                    ReturnProcess['BANCO'] = False
                     print_color(f"\nARQUIVO EXISTENTE {FileName}", 33)
 
             else:
@@ -923,6 +928,8 @@ def sendDataPostgres(Dados, type):
                                     pass
 
                             if ar_id is not None:
+                                ReturnProcess['BANCO'] = True
+
                                 indice += 1
                                 sqlIdentificador = f"SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = {Unidade} AND tbmembros_whats.grupo_id ILIKE '%{AccountIdentifier}%'"
 
@@ -999,6 +1006,8 @@ def sendDataPostgres(Dados, type):
                                                     print_color(f"23E {indice} - {db.query} {e}", 31)
                                                     db.execute("rollback")
                                                     pass
+                            else:
+                                ReturnProcess['BANCO'] = False
                 else:
 
                     sqlexistente = f"SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE telefone = '{AccountIdentifier}' AND ar_arquivo = '{FileName}'"
@@ -1017,13 +1026,13 @@ def sendDataPostgres(Dados, type):
                     if queryExiste is None:
                         try:
                             if "GDADOS" == type:
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES '{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 2, 1)  RETURNING ar_id"
 
                             if 'DADOS' == type:
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1)"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 1, 1)  RETURNING ar_id"
 
                             if 'PRTT' == type:
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)"
+                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES ('{AccountIdentifier}', '{DateRange}', NOW(), '{FileName}', 0, 1)  RETURNING ar_id"
                         except Exception as e:
                             print_color(f"{e}", 31)
 
@@ -1036,13 +1045,21 @@ def sendDataPostgres(Dados, type):
                                     print_color(f"25S {indice} - {sqlInsert}", 32)
 
                                 con.commit()
+                                result = db.fetchone()
+                                if result is not None and result[0] is not None:
+                                    ar_id = result[0]
+                                    ReturnProcess['BANCO'] = True
+                                else:
+                                    ar_id = None
+                                    ReturnProcess['BANCO'] = False
                             except:
                                 print_color(f"25E {indice} - {sqlInsert}", 31)
                                 db.execute("rollback")
                                 pass
-
-
+                    else:
+                        ReturnProcess['BANCO'] = False
         else:
+            ReturnProcess['BANCO'] = False
             print(f"\nNÃO LOCALIZADO A CONTA {AccountIdentifier}\n")
 
     db.close()

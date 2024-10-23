@@ -13,6 +13,7 @@ from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase
     remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines
 from pyPostgresql import find_unidade_postgres, listaProcessamento
 from pySendElement import sendMessageElement, getroomIdElement
+from pyGravandoDados import sendDataPostgres
 
 # Configs
 load_dotenv()
@@ -94,7 +95,7 @@ def process(source):
                 dataType = "DADOS"
 
             if flagGDados:
-                print_color(f'QUEBRA DE GRUPO {AccountIdentifier}', 92)
+                print_color(f'QUEBRA DE {AccountIdentifier} {dataType}', 92)
 
                 parsed_json_group = parse_dynamic_sentence_group_participants(bsHtml)
 
@@ -108,6 +109,8 @@ def process(source):
                 if DebugMode:
                     print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
             else:
+                print_color(f'QUEBRA DE CONTA {AccountIdentifier} {dataType}', 92)
+
                 if flagPrtt:
                     parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
                     if parsed_json_messages is not None:
@@ -137,8 +140,6 @@ def process(source):
                         fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
 
                 if flagDados:
-                    print_color(f'QUEBRA DE CONTA {AccountIdentifier} DADOS', 92)
-
                     parsed_json_books = parse_dynamic_sentence_books(bsHtml)
                     if parsed_json_books is not None:
                         fileDados['addressBookInfo'] = parsed_json_books
@@ -193,8 +194,7 @@ def process(source):
                         f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
                         33)
 
-
-                print_color('PRECISA SER TERMINADO A LOGICA', 32)
+                #returno = sendDataPostgres(fileProcess, dataType)
 
             else:
                 print_color(

@@ -194,7 +194,16 @@ def process(source):
                         f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
                         33)
 
-                #returno = sendDataPostgres(fileProcess, dataType)
+                # returno = sendDataPostgres(fileProcess, dataType)
+                #
+                # if not returno['BANCO']:
+                #     roomId = getroomIdElement(Unidade)
+                #
+                #     if roomId is not None:
+                #         sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                #     print_color(f"\nERRO DE GRAVAÇÃO NO BANCO", 31)
+                # else:
+                #     print_color(f"\nGRAVADO COM SUCESSO", 32)
 
             else:
                 print_color(

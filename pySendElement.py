@@ -11,6 +11,8 @@ def sendMessageElement(accessToken, roomId, mensagem):
     post_data = {
         'msgtype': 'm.text',
         'body': mensagemError,
+        'format': 'org.matrix.custom.html',
+        'formatted_body': mensagemError,
     }
 
     headers = {

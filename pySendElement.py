@@ -1,7 +1,6 @@
 import requests
 import json
 
-
 def sendMessageElement(accessToken, roomId, mensagem):
 
     mensagemError = f'🤖 IntelliBot \n 🚨 ALERTA DE SISTEMA 🚨 \n ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {mensagem}'

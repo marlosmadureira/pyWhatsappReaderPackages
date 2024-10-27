@@ -11,7 +11,7 @@ from datetime import datetime
 from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log,  \
     remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines
-from pyPostgresql import find_unidade_postgres, listaProcessamento
+from pyPostgresql import find_unidade_postgres, listaProcessamento, saveResponse
 from pySendElement import sendMessageElement, getroomIdElement
 from pyGravandoDados import sendDataPostgres
 

@@ -1,6 +1,6 @@
 import os
-from datetime import datetime
-from pyBiblioteca import conectBD, grava_log, delete_log, somentenumero
+from datetime import datetime, timedelta
+from pyBiblioteca import conectBD, grava_log, somentenumero, print_color
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,6 +16,44 @@ APITOKEN = os.getenv("APITOKEN")
 executaSql = True
 logSql = False
 
+def saveResponse(telefone, unidade):
+    # Obter a data atual
+    obje_dtinicio = datetime.now()
+
+    # Somar 15 dias
+    obje_dtfim = obje_dtinicio + timedelta(days=15)
+
+    # Subtrair 2 dias do resultado
+    obje_dtprorr = obje_dtfim - timedelta(days=2)
+
+    with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
+        db = con.cursor()
+
+        sqlDadosObj = f"SELECT tbobje_intercepta.obje_id, tbobje_intercepta.linh_id, tbobje_intercepta.emai_id, tbobje_intercepta.imei_id FROM interceptacao.tbobje_intercepta WHERE tbobje_intercepta.obje_tipo > '2' AND tbobje_intercepta.unid_id = {unidade} AND tbobje_intercepta.obje_id IN (SELECT tbobje_intercepta.obje_id FROM interceptacao.tbobje_intercepta, linha_imei.tblinhafone, linha_imei.tbaplicativo_linhafone WHERE tbobje_intercepta.unid_id = {unidade} AND tblinhafone.linh_id = tbobje_intercepta.linh_id AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tbaplicativo_linhafone.apli_id = 1 AND tbaplicativo_linhafone.conta_zap ILIKE '%{telefone}%') AND tbobje_intercepta.opra_id IN (SELECT tbobje_intercepta.opra_id FROM interceptacao.tbobje_intercepta, interceptacao.tboperadora WHERE tbobje_intercepta.unid_id = {unidade} AND tboperadora.opra_id = tbobje_intercepta.opra_id AND tbobje_intercepta.opra_id = 28)"
+        db.execute(sqlDadosObj)
+        queryDadosObj = db.fetchone()
+
+        if queryDadosObj is not None:
+            Obje_id = queryDadosObj[0]
+            Linh_id = queryDadosObj[1]
+
+            if Obje_id is not None and Linh_id is not None:
+                sqlUpdate = f"UPDATE interceptacao.tbobje_intercepta SET obje_dtinicio = %s, obje_dtprorr = %s, obje_dtfim = %s WHERE tbobje_intercepta = %s"
+                try:
+                    db.execute(sqlUpdate, (obje_dtinicio.strftime("%Y-%m-%d %H:%M:%S"), obje_dtprorr.strftime("%Y-%m-%d %H:%M:%S"), obje_dtfim.strftime("%Y-%m-%d %H:%M:%S"), Obje_id))
+                    con.commit()
+                    print_color(f"{db.query}", 32)
+                except:
+                    print_color(f"{db.query}", 31)
+                    con.rollback()
+                    pass
+            else:
+                print_color(f"Conta Não Localizada Para {telefone} Unidade {unidade}", 31)
+        else:
+            print_color(f"Conta Não Localizada Para {telefone} Unidade {unidade} {sqlDadosObj}", 31)
+
+    db.close()
+    con.close()
 
 def find_unidade_postgres(Unidade):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:

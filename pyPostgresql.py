@@ -1,5 +1,13 @@
 import os
+import json
+import time
+import requests
+
 from datetime import datetime, timedelta
+from requests.auth import HTTPBasicAuth
+from zeep import Client
+from zeep.transports import Transport
+
 from pyBiblioteca import conectBD, grava_log, somentenumero, print_color
 from dotenv import load_dotenv
 
@@ -15,6 +23,58 @@ APITOKEN = os.getenv("APITOKEN")
 
 executaSql = True
 logSql = False
+
+def sql_grupos():
+    with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
+        db = con.cursor()
+
+        sqlDados = f"SELECT tbelementkey.chave FROM interceptacao.tbelementkey WHERE tbelementkey.apple = TRUE"
+        db.execute(sqlDados)
+        queryDados = db.fetchall()
+
+    db.close()
+    con.close()
+
+    return queryDados
+
+def sendMessageElement(mensagem, accessToken):
+    listaroomId = sql_grupos()
+
+    mensagem = f'🤖 IntelliBot \n🚨 ALERTA DE SISTEMA 🚨\n{mensagem}. Caso Ofício Não Pertencer Operação Por Favor Desconsiderar QTC'
+
+    login = 'IntelliBot'
+    password = 'IntelliBot'
+    cpf = '28617756888'
+
+    credLogin = "PM&SP_W&BS&RVIC&"
+    credPassword = "B@nd&i r@nt&s"
+
+    # Definindo o WSDL e configurando o cliente SOAP
+    wsdl = 'http://10.10.10.194/endpoint/index.php?wsdl'
+    session = requests.Session()
+    session.auth = HTTPBasicAuth(credLogin, credPassword)
+    transport = Transport(session=session)
+    client = Client(wsdl=wsdl, transport=transport)
+
+    for roomId in listaroomId:
+        # Preparando os dados
+        dados = json.dumps({
+            'accessToken': accessToken,
+            'roomId': roomId[0],
+            'mensagem': mensagem
+        })
+
+        # Parâmetros
+        parametros = {
+            'login': login,
+            'password': password,
+            'cpf': cpf,
+            'find': dados
+        }
+
+        time.sleep(2)
+
+        client.service.sendmessageelement(parametros)
 
 def saveResponse(telefone, unidade):
     # Obter a data atual

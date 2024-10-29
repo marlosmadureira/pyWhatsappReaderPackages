@@ -5,6 +5,7 @@ import os
 import time
 import re
 import shutil
+import gc
 
 from dotenv import load_dotenv
 from datetime import datetime
@@ -36,6 +37,8 @@ def get_files_in_dir(path):
 
 def process(source):
     limpar_arquivos_antigos(DIRLOG, dias=5)
+
+    gc.collect()
 
     fileProcess = {}
     fileDados = {}

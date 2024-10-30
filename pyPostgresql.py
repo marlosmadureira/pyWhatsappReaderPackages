@@ -28,7 +28,7 @@ def sql_grupos():
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
         db = con.cursor()
 
-        sqlDados = f"SELECT tbelementkey.chave FROM interceptacao.tbelementkey WHERE tbelementkey.apple = TRUE"
+        sqlDados = f"SELECT tbelementkey.chave FROM interceptacao.tbelementkey WHERE tbelementkey.whatsapp = TRUE"
         db.execute(sqlDados)
         queryDados = db.fetchall()
 

@@ -469,8 +469,10 @@ def parse_dynamic_sentence_group(content):
 
     # Dicionário de campos para mapear os dados
     group_keys = [
-        "Picture", "Linked Media File", "Thumbnail", "Thumbnail Linked Media File",
-        "ID", "Creation", "Size", "Subject"
+        remover_espacos_regex(key) for key in [
+            "Picture", "Linked Media File", "Thumbnail", "Thumbnail Linked Media File",
+            "ID", "Creation", "Size", "Subject"
+        ]
     ]
 
     # Divide o conteúdo em seções de grupos
@@ -530,7 +532,7 @@ def parse_dynamic_sentence_group_participants(content):
     for key, numbers in matches:
         # Limpa e separa os números
         cleaned_numbers = re.findall(r'\d+', numbers)
-        results[key].extend(cleaned_numbers)
+        results[remover_espacos_regex(key)].extend(cleaned_numbers)
 
     # Verifica se há resultados e retorna, caso contrário, retorna None
     return results if any(results.values()) else None

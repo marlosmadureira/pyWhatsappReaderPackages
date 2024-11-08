@@ -155,7 +155,8 @@ def process(source):
                 if EventoGravaBanco:
                     removeFolderFiles(folderZip)
 
-                    saveResponse(AccountIdentifier, Unidade)
+                    if flagDados:
+                        saveResponse(AccountIdentifier, Unidade)
 
                     filePath = DIRLIDOS + fileName
 

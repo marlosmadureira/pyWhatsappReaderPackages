@@ -204,11 +204,11 @@ def process(source):
                 if TypeProcess == 1:
                     # Processando com Python
                     returno = sendDataPostgres(fileProcess, dataType)
-                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade)
+                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados)
                 else:
                     # Processando com PHP
                     retornoJson = sendDataJsonServer(fileProcess, dataType)
-                    exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier)
+                    exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados)
 
             else:
                 print_color(
@@ -690,7 +690,7 @@ def parse_dynamic_sentence_calls(content):
     return results if results else None
 
 
-def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier):
+def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados):
 
     EventoGravaBanco = False
 
@@ -722,7 +722,8 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
     if EventoGravaBanco:
         removeFolderFiles(folderZip)
 
-        saveResponse(AccountIdentifier, Unidade)
+        if flagDados:
+            saveResponse(AccountIdentifier, Unidade)
 
         filePath = DIRLIDOS + fileName
 
@@ -752,7 +753,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
         removeFolderFiles(folderZip)
 
 
-def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade):
+def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados):
 
     if not returno['BANCO']:
         roomId = getroomIdElement(Unidade)
@@ -786,7 +787,8 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
     else:
         removeFolderFiles(folderZip)
 
-        saveResponse(AccountIdentifier, Unidade)
+        if flagDados:
+            saveResponse(AccountIdentifier, Unidade)
 
         filePath = DIRLIDOS + fileName
 

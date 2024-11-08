@@ -31,6 +31,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 DebugMode = False
 Executar = True
 FileJsonLog = True
+TypeProcess = 1 # 1 - Python 2 - PHP
 
 def get_files_in_dir(path):
     return set(os.listdir(path))
@@ -199,13 +200,14 @@ def process(source):
                         f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
                         33)
 
-                # Processando com Python
-                returno = sendDataPostgres(fileProcess, dataType)
-                exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier)
-
-                # Processando com PHP
-                # retornoJson = sendDataJsonServer(fileProcess, dataType)
-                # exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source)
+                if TypeProcess == 1:
+                    # Processando com Python
+                    returno = sendDataPostgres(fileProcess, dataType)
+                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier)
+                else:
+                    # Processando com PHP
+                    retornoJson = sendDataJsonServer(fileProcess, dataType)
+                    exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source)
 
             else:
                 print_color(

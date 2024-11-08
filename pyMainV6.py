@@ -752,6 +752,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
 
 
 def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier):
+
     if not returno['BANCO']:
         roomId = getroomIdElement(Unidade)
 

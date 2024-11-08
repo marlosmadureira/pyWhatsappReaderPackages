@@ -31,7 +31,7 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 DebugMode = False
 Executar = True
 FileJsonLog = True
-TypeProcess = 1 # 1 - Python 2 - PHP
+TypeProcess = 2 # 1 - Python 2 - PHP
 
 def get_files_in_dir(path):
     return set(os.listdir(path))

@@ -68,9 +68,8 @@ def process(source):
     bsHtml = remove_duplicate_newlines(bsHtml.replace('![]', ''))
 
     if bsHtml is not None and bsHtml != "" and Unidade is not None:
-
-        delete_log(f'{DIRLOG}{os.path.splitext(fileName)[0]}.txt')
-        grava_log(bsHtml, f'{os.path.splitext(fileName)[0]}.txt')
+        # delete_log(f'{DIRLOG}{os.path.splitext(fileName)[0]}.txt')
+        # grava_log(bsHtml, f'{os.path.splitext(fileName)[0]}.txt')
 
         NomeUnidade = find_unidade_postgres(Unidade)
 

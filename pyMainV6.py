@@ -193,13 +193,13 @@ def process(source):
 
                 if flagGDados:
                     print_color(
-                        f"\n=========================== PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
-                        33)
+                        f"=========================== INICIO PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
+                        35)
 
                 if flagDados or flagPrtt:
                     print_color(
-                        f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
-                        33)
+                        f"=========================== INICIO PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
+                        35)
 
                 if TypeProcess == 1:
                     # Processando com Python
@@ -212,7 +212,7 @@ def process(source):
 
             else:
                 print_color(
-                    f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
+                    f"================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
                     31)
         else:
 
@@ -261,7 +261,7 @@ def process(source):
         removeFolderFiles(folderZip)
 
     print_color(
-        f"\n================================= Fim {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
+        f"================================= FIM PROCESSAMENTO {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
         35)
 
     if DebugMode:

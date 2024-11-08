@@ -204,26 +204,16 @@ def process(source):
                 if TypeProcess == 1:
                     # Processando com Python
                     returno = sendDataPostgres(fileProcess, dataType)
-                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier)
+                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade)
                 else:
                     # Processando com PHP
                     retornoJson = sendDataJsonServer(fileProcess, dataType)
-                    exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source)
+                    exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier)
 
             else:
                 print_color(
                     f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
                     31)
-
-            removeFolderFiles(folderZip)
-
-            filePath = DIRLIDOS + fileName
-
-            if not os.path.exists(filePath):
-                shutil.move(source, DIRLIDOS)
-            else:
-                delete_log(source)
-
         else:
 
             print_color(f"Erro Arquivo: {fileName} Unidade: {Unidade}", 31)
@@ -700,7 +690,7 @@ def parse_dynamic_sentence_calls(content):
     return results if results else None
 
 
-def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source):
+def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier):
 
     EventoGravaBanco = False
 
@@ -729,7 +719,18 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
                 f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                 31)
 
-    if not EventoGravaBanco:
+    if EventoGravaBanco:
+        removeFolderFiles(folderZip)
+
+        saveResponse(AccountIdentifier, Unidade)
+
+        filePath = DIRLIDOS + fileName
+
+        if not os.path.exists(filePath):
+            shutil.move(source, DIRLIDOS)
+        else:
+            delete_log(source)
+    else:
         filePath = DIRERROS + fileName
 
         if not os.path.exists(filePath):
@@ -737,7 +738,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
 
             roomId = getroomIdElement(Unidade)
 
-            if roomId is not None and Executar:
+            if roomId is not None:
                 sendMessageElement(ACCESSTOKEN, roomId, fileName)
 
             # Novo nome do arquivo
@@ -751,7 +752,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
         removeFolderFiles(folderZip)
 
 
-def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier):
+def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade):
 
     if not returno['BANCO']:
         roomId = getroomIdElement(Unidade)
@@ -759,11 +760,23 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier):
         if roomId is not None:
             sendMessageElement(ACCESSTOKEN, roomId, fileName)
 
-        print_color(f"\nERRO DE GRAVAÇÃO NO BANCO", 31)
+        print_color(
+            f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+            31)
     else:
+        removeFolderFiles(folderZip)
+
         saveResponse(AccountIdentifier, Unidade)
 
-        print_color(f"\nGRAVADO COM SUCESSO", 32)
+        filePath = DIRLIDOS + fileName
+
+        if not os.path.exists(filePath):
+            shutil.move(source, DIRLIDOS)
+        else:
+            delete_log(source)
+            print_color(
+                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                32)
 
 
 if __name__ == '__main__':

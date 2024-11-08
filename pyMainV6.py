@@ -11,10 +11,11 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log,  \
-    remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines
+    remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines, openJsonEstruturado, contar_arquivos_zip
 from pyPostgresql import find_unidade_postgres, listaProcessamento, saveResponse
 from pySendElement import sendMessageElement, getroomIdElement
 from pyGravandoDados import sendDataPostgres
+from pyGetSendApi import sendDataJsonServer
 
 # Configs
 load_dotenv()
@@ -198,19 +199,13 @@ def process(source):
                         f"\n=========================== PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
                         33)
 
+                # Processando com Python
                 returno = sendDataPostgres(fileProcess, dataType)
+                exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier)
 
-                if not returno['BANCO']:
-                    roomId = getroomIdElement(Unidade)
-
-                    if roomId is not None:
-                        sendMessageElement(ACCESSTOKEN, roomId, fileName)
-
-                    print_color(f"\nERRO DE GRAVAÇÃO NO BANCO", 31)
-                else:
-                    saveResponse(AccountIdentifier, Unidade)
-
-                    print_color(f"\nGRAVADO COM SUCESSO", 32)
+                # Processando com PHP
+                # retornoJson = sendDataJsonServer(fileProcess, dataType)
+                # exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source)
 
             else:
                 print_color(
@@ -701,6 +696,74 @@ def parse_dynamic_sentence_calls(content):
 
     return results if results else None
 
+def exibirRetornoPHP(retornoJson,fileProcess , fileName, Unidade, NomeUnidade, folderZip, source):
+    if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+
+        Jsondata = json.loads(retornoJson['jsonRetorno'])
+
+        if Jsondata['MostraJsonPython']:
+            print_color(f"\nJSON PROCESSADO", 92)
+            print_color(f"{fileProcess}", 92)
+
+        if Jsondata['RetornoPHP']:
+            print_color(f"\nRETORNO DO PHP", 34)
+            openJsonEstruturado(Jsondata)
+
+        if Jsondata['ExibirTotalPacotesFila']:
+            contar_arquivos_zip(DIRNOVOS)
+
+        if Jsondata['GravaBanco']:
+            print_color(
+                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                32)
+            EventoGravaBanco = True
+        else:
+            print_color(
+                f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                31)
+
+    if EventoGravaBanco:
+        removeFolderFiles(folderZip)
+
+        filePath = DIRLIDOS + fileName
+
+        if not os.path.exists(filePath):
+            shutil.move(source, DIRLIDOS)
+        else:
+            delete_log(source)
+    else:
+        filePath = DIRERROS + fileName
+
+        if not os.path.exists(filePath):
+            shutil.move(source, DIRERROS)
+
+            roomId = getroomIdElement(Unidade)
+
+            if roomId is not None and Executar:
+                sendMessageElement(ACCESSTOKEN, roomId, fileName)
+
+            # Novo nome do arquivo
+            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+
+            # Renomeia o arquivo
+            os.rename(filePath, new_filename)
+        else:
+            os.remove(source)
+
+        removeFolderFiles(folderZip)
+
+def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier):
+    if not returno['BANCO']:
+        roomId = getroomIdElement(Unidade)
+
+        if roomId is not None:
+            sendMessageElement(ACCESSTOKEN, roomId, fileName)
+
+        print_color(f"\nERRO DE GRAVAÇÃO NO BANCO", 31)
+    else:
+        saveResponse(AccountIdentifier, Unidade)
+
+        print_color(f"\nGRAVADO COM SUCESSO", 32)
 
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)

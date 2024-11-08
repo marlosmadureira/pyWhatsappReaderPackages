@@ -185,6 +185,7 @@ def process(source):
                     json_formatado = json.dumps(fileProcess, indent=2, ensure_ascii=False)
 
                     delete_log(f"{DIRLOG}{readerJsonFile}")
+
                     grava_log(json_formatado, readerJsonFile)
 
                 if flagGDados:
@@ -448,56 +449,56 @@ def parse_dynamic_sentence_device(content):
 def parse_dynamic_sentence_group(content):
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', content).strip()
-    # Remove linhas vazias
     sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
-    # Expressões regulares para capturar os campos dos grupos
-    group_patterns = {
-        "Linked Media File": r"Linked Media File:\s*([\w/_\.-]+)",
-        "Thumbnail": r"Thumbnail\s*\(.*?([\w/_\.-]+)\)",
-        "ID": r"ID\s*(\d+)",
-        "Creation": r"Creation\s*([\d\- :UTC]+)",
-        "Size": r"Size\s*(\d+)",
-        "Subject": r"Subject\s*([\w\s]+(?:\s*[\U0001F600-\U0001F64F]|\s*[\U0001F300-\U0001F5FF]*)*)"
-    }
+    # Padrão regex abrangente para capturar todos os campos de cada bloco de informações
+    pattern = re.compile(r"""
+            Picture\s+\((.+?)\)\s+                   # Captura o caminho da imagem 'Picture'
+            Linked\s+Media\s+File:\s*(.+?)\s+        # Captura o caminho do arquivo 'Linked Media File'
+            Thumbnail\s+\((.+?)\)\s+                 # Captura o caminho da imagem 'Thumbnail'
+            Linked\s+Media\s+File:\s*(.+?)\s+        # Captura o caminho do arquivo 'Linked Media File' da thumbnail
+            ID\s*(\d+)\s+                            # Captura o ID numérico
+            Creation\s*(\d{4}\-\d{2}\-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC)\s+  # Captura a data e hora de criação
+            Size\s*(\d+)\s+                          # Captura o tamanho
+            Subject\s*(.+?)(?=\s+Picture|$)          # Captura o assunto até a próxima ocorrência de 'Picture' ou fim do texto
+        """, re.VERBOSE)
 
-    # Estruturas para armazenar as informações dos grupos
+    # Estruturas para armazenar os dados dos grupos
     owned_groups = []
     participating_groups = []
 
-    # Dividir os blocos de grupos
+    # Dicionário de campos para mapear os dados
+    group_keys = [
+        "Picture", "Linked Media File", "Thumbnail", "Thumbnail Linked Media File",
+        "ID", "Creation", "Size", "Subject"
+    ]
+
+    # Divide o conteúdo em seções de grupos
     group_sections = re.split(
         r"(GroupsOwned|Owned Groups|GroupsParticipating|Participating Groups)",
-        sentence)
+        sentence
+    )
 
-    # Variáveis para controlar a seção atual (Owned ou Participating)
     current_section = None
 
     for section in group_sections:
         section = section.strip()
 
+        # Identifica se está nos grupos 'Owned' ou 'Participating'
         if re.match(r"(GroupsOwned|Owned Groups)", section):
             current_section = 'owned'
         elif re.match(r"(GroupsParticipating|Participating Groups)", section):
             current_section = 'participating'
-        elif current_section:  # Seção de dados de grupos
-            group_data = {}
-            found_data = False
+        elif current_section:  # Processa os blocos de dados dentro da seção atual
+            for match in pattern.finditer(section):
+                group_data = {key: match.group(i + 1).strip() for i, key in enumerate(group_keys)}
 
-            for key, pattern in group_patterns.items():
-                match = re.search(pattern, section)
-                if match:
-                    group_data[key] = match.group(1).strip()
-                    found_data = True  # Indica que pelo menos um dado foi encontrado
-
-            # Adiciona ao grupo correspondente se houver dados
-            if found_data:
                 if current_section == 'owned':
                     owned_groups.append(group_data)
                 elif current_section == 'participating':
                     participating_groups.append(group_data)
 
-    # Dicionário para armazenar os resultados
+    # Estrutura final dos resultados
     results = {
         "ownedGroups": owned_groups,
         "participatingGroups": participating_groups

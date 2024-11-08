@@ -613,12 +613,15 @@ def sendDataPostgres(Dados, type):
                                         if prttGroupId == None:
                                             if prttSender == AccountIdentifier:
                                                 TipoDirecaoMsg = "Enviou"
-                                                check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
-                                                db.execute(check_query,
-                                                           (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                            prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                            prttMessageSize, prttType, prttMessageStyle))
-                                                result = db.fetchone()
+
+                                                # check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
+                                                # db.execute(check_query,
+                                                #            (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                                #             prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                                #             prttMessageSize, prttType, prttMessageStyle))
+                                                # result = db.fetchone()
+
+                                                result = None
 
                                                 if result is None:
                                                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -643,12 +646,15 @@ def sendDataPostgres(Dados, type):
                                                     print_color(f"Repedito", 31)
                                             else:
                                                 TipoDirecaoMsg = "Recebeu"
-                                                check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
-                                                db.execute(check_query,
-                                                           (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                            prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                            prttMessageSize, prttType, prttMessageStyle))
-                                                result = db.fetchone()
+
+                                                # check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s"
+                                                # db.execute(check_query,
+                                                #            (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                                #             prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                                #             prttMessageSize, prttType, prttMessageStyle))
+                                                # result = db.fetchone()
+
+                                                result = None
 
                                                 if result is None:
                                                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -674,12 +680,15 @@ def sendDataPostgres(Dados, type):
                                         else:
                                             if prttSender == AccountIdentifier:
                                                 TipoDirecaoMsg = "Enviou"
-                                                check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
-                                                db.execute(check_query,
-                                                           (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                            prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                            prttMessageSize, prttType, prttMessageStyle,prttGroupId))
-                                                result = db.fetchone()
+
+                                                # check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
+                                                # db.execute(check_query,
+                                                #            (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                                #             prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                                #             prttMessageSize, prttType, prttMessageStyle,prttGroupId))
+                                                # result = db.fetchone()
+
+                                                result = None
 
                                                 if result is None:
                                                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -705,12 +714,14 @@ def sendDataPostgres(Dados, type):
                                             else:
                                                 TipoDirecaoMsg = "Recebeu"
 
-                                                check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
-                                                db.execute(check_query,
-                                                           (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
-                                                            prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
-                                                            prttMessageSize, prttType, prttMessageStyle, prttGroupId))
-                                                result = db.fetchone()
+                                                # check_query = f"SELECT * FROM leitores.tb_whatszap_index_zapcontatos_new WHERE datahora = %s AND messageid = %s AND sentido = %s AND alvo = %s AND interlocutor = %s AND senderip = %s AND senderport = %s AND senderdevice = %s AND messagesize = %s AND typemsg = %s AND messagestyle = %s AND groupid = %s"
+                                                # db.execute(check_query,
+                                                #            (prttTimestamp, prttMessageId, TipoDirecaoMsg, prttSender,
+                                                #             prttRecipients, prttSenderIp, prttSenderPort, prttSenderDevice,
+                                                #             prttMessageSize, prttType, prttMessageStyle, prttGroupId))
+                                                # result = db.fetchone()
+
+                                                result = None
 
                                                 if result is None:
                                                     sqlInsert = f"INSERT INTO leitores.tb_whatszap_index_zapcontatos_new (datahora, messageid, sentido, alvo, interlocutor, groupid, senderip, senderport, senderdevice, messagesize, typemsg, messagestyle, telefone, ar_id, linh_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -805,15 +816,17 @@ def sendDataPostgres(Dados, type):
                                                         else:
                                                             prttPhoneNumber = None
 
-                                                        check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
-                                                        db.execute(check_query,
-                                                                   (
-                                                                       prttcallID, prttcallCreator, prttEtype,
-                                                                       prttEtimestamp,
-                                                                       prttEsolicitante, prttEatendente, prttEsolIP,
-                                                                       prttEsolPort,
-                                                                       prttEmediaType, prttPhoneNumber, TipoDirecaoCall))
-                                                        result = db.fetchone()
+                                                        # check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
+                                                        # db.execute(check_query,
+                                                        #            (
+                                                        #                prttcallID, prttcallCreator, prttEtype,
+                                                        #                prttEtimestamp,
+                                                        #                prttEsolicitante, prttEatendente, prttEsolIP,
+                                                        #                prttEsolPort,
+                                                        #                prttEmediaType, prttPhoneNumber, TipoDirecaoCall))
+                                                        # result = db.fetchone()
+
+                                                        result = None
 
                                                         if result is None:
                                                             sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -838,15 +851,17 @@ def sendDataPostgres(Dados, type):
                                                         else:
                                                             print_color(f"Repedito", 31)
                                                 else:
-                                                    check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
-                                                    db.execute(check_query,
-                                                               (
-                                                                   prttcallID, prttcallCreator, prttEtype,
-                                                                   prttEtimestamp,
-                                                                   prttEsolicitante, prttEatendente, prttEsolIP,
-                                                                   prttEsolPort,
-                                                                   prttEmediaType, prttPhoneNumber, TipoDirecaoCall))
-                                                    result = db.fetchone()
+                                                    # check_query = f"SELECT * FROM leitores.tb_whatszap_call_log WHERE call_id = %s AND call_creator = %s AND call_type = %s AND call_timestamp = %s AND call_from = %s AND call_to = %s AND call_from_ip = %s AND call_from_port = %s AND call_media_type = %s AND call_phone_number = %s AND sentido = %s"
+                                                    # db.execute(check_query,
+                                                    #            (
+                                                    #                prttcallID, prttcallCreator, prttEtype,
+                                                    #                prttEtimestamp,
+                                                    #                prttEsolicitante, prttEatendente, prttEsolIP,
+                                                    #                prttEsolPort,
+                                                    #                prttEmediaType, prttPhoneNumber, TipoDirecaoCall))
+                                                    # result = db.fetchone()
+
+                                                    result = None
 
                                                     if result is None:
                                                         sqlInsert = f"INSERT INTO leitores.tb_whatszap_call_log (call_id, call_creator, call_type, call_timestamp, call_from, call_to, call_from_ip, call_from_port, call_media_type, call_phone_number, telefone, ar_id, linh_id, sentido) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"

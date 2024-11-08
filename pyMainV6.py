@@ -763,6 +763,26 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
         print_color(
             f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
             31)
+
+        filePath = DIRERROS + fileName
+
+        if not os.path.exists(filePath):
+            shutil.move(source, DIRERROS)
+
+            roomId = getroomIdElement(Unidade)
+
+            if roomId is not None:
+                sendMessageElement(ACCESSTOKEN, roomId, fileName)
+
+            # Novo nome do arquivo
+            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+
+            # Renomeia o arquivo
+            os.rename(filePath, new_filename)
+        else:
+            os.remove(source)
+
+        removeFolderFiles(folderZip)
     else:
         removeFolderFiles(folderZip)
 

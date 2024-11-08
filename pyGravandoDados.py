@@ -1066,6 +1066,7 @@ def sendDataPostgres(Dados, type):
 
                             print_color(f"Retorno Id File {ar_id}", 32)
                     else:
+                        print_color(f"25F {indice} - ARQUIVO EXISTENTE!", 31)
                         ReturnProcess['BANCO'] = False
         else:
             ReturnProcess['BANCO'] = False

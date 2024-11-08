@@ -699,7 +699,11 @@ def parse_dynamic_sentence_calls(content):
 
     return results if results else None
 
-def exibirRetornoPHP(retornoJson,fileProcess , fileName, Unidade, NomeUnidade, folderZip, source):
+
+def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source):
+
+    EventoGravaBanco = False
+
     if 'MostraJsonPython' in retornoJson['jsonRetorno']:
 
         Jsondata = json.loads(retornoJson['jsonRetorno'])
@@ -725,16 +729,7 @@ def exibirRetornoPHP(retornoJson,fileProcess , fileName, Unidade, NomeUnidade, f
                 f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                 31)
 
-    if EventoGravaBanco:
-        removeFolderFiles(folderZip)
-
-        filePath = DIRLIDOS + fileName
-
-        if not os.path.exists(filePath):
-            shutil.move(source, DIRLIDOS)
-        else:
-            delete_log(source)
-    else:
+    if not EventoGravaBanco:
         filePath = DIRERROS + fileName
 
         if not os.path.exists(filePath):
@@ -755,6 +750,7 @@ def exibirRetornoPHP(retornoJson,fileProcess , fileName, Unidade, NomeUnidade, f
 
         removeFolderFiles(folderZip)
 
+
 def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier):
     if not returno['BANCO']:
         roomId = getroomIdElement(Unidade)
@@ -767,6 +763,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier):
         saveResponse(AccountIdentifier, Unidade)
 
         print_color(f"\nGRAVADO COM SUCESSO", 32)
+
 
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)

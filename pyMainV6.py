@@ -722,8 +722,8 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
     if EventoGravaBanco:
         removeFolderFiles(folderZip)
 
-        if flagDados:
-            saveResponse(AccountIdentifier, Unidade)
+        # if flagDados:
+        #     saveResponse(AccountIdentifier, Unidade)
 
         filePath = DIRLIDOS + fileName
 
@@ -787,8 +787,8 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
     else:
         removeFolderFiles(folderZip)
 
-        if flagDados:
-            saveResponse(AccountIdentifier, Unidade)
+        # if flagDados:
+        #     saveResponse(AccountIdentifier, Unidade)
 
         filePath = DIRLIDOS + fileName
 

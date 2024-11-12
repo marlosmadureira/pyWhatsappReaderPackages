@@ -48,7 +48,7 @@ def process(source):
 
     source, Unidade = getUnidadeFileName(source)
 
-    roomId = getroomIdElement(Unidade)
+    roomIds = getroomIdElement(Unidade)
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
@@ -172,10 +172,11 @@ def process(source):
                     if not os.path.exists(filePath):
                         shutil.move(source, DIRERROS)
 
-                        if roomId is not None:
+                        if roomIds is not None:
                             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                            sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+                            for roomId in roomIds:
+                                sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
                         # Novo nome do arquivo
                         new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -399,10 +400,11 @@ def process(source):
                     if not os.path.exists(filePath):
                         shutil.move(source, DIRERROS)
 
-                        if roomId is not None and Executar:
+                        if roomIds is not None and Executar:
                             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                            sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+                            for roomId in roomIds:
+                                sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
                         # Novo nome do arquivo
                         new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -441,10 +443,11 @@ def process(source):
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
 
-            if roomId is not None:
+            if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+                for roomId in roomIds:
+                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

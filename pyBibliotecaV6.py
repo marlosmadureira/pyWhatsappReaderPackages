@@ -315,6 +315,7 @@ def ListaAllHtml(folderZip):
 
     return FileHtmls, msgElementNewFile
 
+
 def parsetHTLMFileString(FileHtml):
     markdown_content = None
 

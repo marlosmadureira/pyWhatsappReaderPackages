@@ -1,5 +1,15 @@
 import requests
 import json
+import os
+from pyBibliotecaV6 import conectBD
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
 
 def sendMessageElement(accessToken, roomId, mensagem):
 
@@ -33,12 +43,18 @@ def sendMessageElement(accessToken, roomId, mensagem):
 
 
 def getroomIdElement(Unidade):
-    
-    # CPI4 - BAURU
-    if int(Unidade) == int(43):
-        return f'!ihbfspHqeSHyCHnquK:cryptochat.com.br'
-    # CPCHOQUE - SAO PAULO
-    if int(Unidade) == int(33):
-        return f'!aaEuhYgIwsgwpOkTEm:cryptochat.com.br'
+    with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
+        db = con.cursor()
 
-    return None
+        sqlRoons = f"SELECT tbelementkey.chave FROM interceptacao.tbelementkey WHERE tbelementkey.whatsapp = TRUE AND tbelementkey.unid_id = {Unidade}"
+
+        try:
+            db.execute(sqlRoons)
+            queryRoons = db.fetchall()
+        except Exception as e:
+            pass
+
+    db.close()
+    con.close()
+
+    return queryRoons

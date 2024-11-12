@@ -47,17 +47,21 @@ def process(source):
 
     source, Unidade = getUnidadeFileName(source)
 
-    roomId = getroomIdElement(Unidade)
+    roomIds = getroomIdElement(Unidade)
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
 
     FileHtmls, msgElementNewFile = ListaAllHtml(folderZip)
 
-    if msgElementNewFile != "" and roomId is not None:
+    if msgElementNewFile != "" and roomIds is not None:
         msgElement = f"NOVO ARQUIVO WHATSAPP IDENTIFICADO {msgElementNewFile}"
 
-        sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+        for roomId in roomIds:
+            sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+
+    else:
+        roomIds = None
 
     flagGDados = None
     flagPrtt = None
@@ -211,11 +215,11 @@ def process(source):
                 if TypeProcess == 1:
                     # Processando com Python
                     returno = sendDataPostgres(fileProcess, dataType)
-                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados, roomId)
+                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados, roomIds)
                 else:
                     # Processando com PHP
                     retornoJson = sendDataJsonServer(fileProcess, dataType)
-                    exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomId)
+                    exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds)
 
             else:
                 print_color(
@@ -230,10 +234,11 @@ def process(source):
             if not os.path.exists(filePath):
                 shutil.move(source, DIRERROS)
 
-                if roomId is not None:
+                if roomIds is not None:
                     msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                    sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+                    for roomId in roomIds:
+                        sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
                 # Novo nome do arquivo
                 new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -252,10 +257,11 @@ def process(source):
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
 
-            if roomId is not None:
+            if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+                for roomId in roomIds:
+                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -697,7 +703,7 @@ def parse_dynamic_sentence_calls(content):
     return results if results else None
 
 
-def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomId):
+def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds):
 
     EventoGravaBanco = False
 
@@ -744,10 +750,11 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
 
-            if roomId is not None:
+            if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+                for roomId in roomIds:
+                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -760,13 +767,14 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
         removeFolderFiles(folderZip)
 
 
-def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados, roomId):
+def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados, roomIds):
 
     if not returno['BANCO']:
-        if roomId is not None:
+        if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-            sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+            for roomId in roomIds:
+                sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
         print_color(
             f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
@@ -777,10 +785,11 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
 
-            if roomId is not None:
+            if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                sendMessageElement(ACCESSTOKEN, roomId, msgElement)
+                for roomId in roomIds:
+                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

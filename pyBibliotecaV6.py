@@ -302,19 +302,18 @@ def removeFolderFiles(FolderPath):
 
 def ListaAllHtml(folderZip):
     FileHtmls = []
+    msgElementNewFile = ""
+
     # Percorrer a pasta
     for raiz, diretorios, arquivos in os.walk(folderZip):
         for arquivo in arquivos:
             if arquivo.endswith('.html'):
                 FileHtmls.append(f"{raiz}/{arquivo}")
 
-            if arquivo.endswith(
-                    '.html') and arquivo != 'records.html' and arquivo != 'instructions.txt' and 'preservation' not in arquivo:
-                print(arquivo)
+            if arquivo != 'records.html' and arquivo != 'instructions.txt' and 'preservation' not in arquivo:
+                msgElementNewFile += f"{arquivo} "
 
-    exit()
-
-    return FileHtmls
+    return FileHtmls, msgElementNewFile
 
 def parsetHTLMFileString(FileHtml):
     markdown_content = None

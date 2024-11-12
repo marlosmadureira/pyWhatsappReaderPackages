@@ -50,7 +50,13 @@ def process(source):
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
 
-    FileHtmls = ListaAllHtml(folderZip)
+    FileHtmls, msgElementNewFile = ListaAllHtml(folderZip)
+
+    if msgElementNewFile != "":
+        print(f"NOVO ARQUIVO WHATSAPP IDENTIFICADO {msgElementNewFile}")
+
+
+
 
     flagGDados = None
     flagPrtt = None

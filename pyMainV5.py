@@ -173,7 +173,9 @@ def process(source):
                         roomId = getroomIdElement(Unidade)
 
                         if roomId is not None:
-                            sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                            sendMessageElement(ACCESSTOKEN, roomId, msgElement)
 
                         # Novo nome do arquivo
                         new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -400,7 +402,9 @@ def process(source):
                         roomId = getroomIdElement(Unidade)
 
                         if roomId is not None and Executar:
-                            sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                            sendMessageElement(ACCESSTOKEN, roomId, msgElement)
 
                         # Novo nome do arquivo
                         new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -442,7 +446,9 @@ def process(source):
             roomId = getroomIdElement(Unidade)
 
             if roomId is not None:
-                sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                sendMessageElement(ACCESSTOKEN, roomId, msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

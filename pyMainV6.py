@@ -226,7 +226,9 @@ def process(source):
                 roomId = getroomIdElement(Unidade)
 
                 if roomId is not None:
-                    sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                    msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                    sendMessageElement(ACCESSTOKEN, roomId, msgElement)
 
                 # Novo nome do arquivo
                 new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -248,7 +250,9 @@ def process(source):
             roomId = getroomIdElement(Unidade)
 
             if roomId is not None:
-                sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                sendMessageElement(ACCESSTOKEN, roomId, msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -740,7 +744,9 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
             roomId = getroomIdElement(Unidade)
 
             if roomId is not None:
-                sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                sendMessageElement(ACCESSTOKEN, roomId, msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -759,7 +765,9 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
         roomId = getroomIdElement(Unidade)
 
         if roomId is not None:
-            sendMessageElement(ACCESSTOKEN, roomId, fileName)
+            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+            sendMessageElement(ACCESSTOKEN, roomId, msgElement)
 
         print_color(
             f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
@@ -773,7 +781,9 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
             roomId = getroomIdElement(Unidade)
 
             if roomId is not None:
-                sendMessageElement(ACCESSTOKEN, roomId, fileName)
+                msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                sendMessageElement(ACCESSTOKEN, roomId, msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

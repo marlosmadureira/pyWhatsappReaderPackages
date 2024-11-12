@@ -3,7 +3,7 @@ import json
 
 def sendMessageElement(accessToken, roomId, mensagem):
 
-    mensagemError = f'🤖 IntelliBot \n 🚨 ALERTA DE SISTEMA 🚨 \n ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {mensagem}'
+    mensagemError = f'🤖 IntelliBot \n 🚨 ALERTA DE SISTEMA 🚨 \n {mensagem}'
 
     url = f"https://cryptochat.com.br/_matrix/client/r0/rooms/{roomId}/send/m.room.message"
     

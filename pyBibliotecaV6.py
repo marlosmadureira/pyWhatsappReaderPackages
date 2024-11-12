@@ -308,6 +308,12 @@ def ListaAllHtml(folderZip):
             if arquivo.endswith('.html'):
                 FileHtmls.append(f"{raiz}/{arquivo}")
 
+            if arquivo.endswith(
+                    '.html') and arquivo != 'records.html' and arquivo != 'instructions.txt' and 'preservation' not in arquivo:
+                print(arquivo)
+
+    exit()
+
     return FileHtmls
 
 def parsetHTLMFileString(FileHtml):

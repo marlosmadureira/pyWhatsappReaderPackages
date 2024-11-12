@@ -310,7 +310,7 @@ def ListaAllHtml(folderZip):
             if arquivo.endswith('.html'):
                 FileHtmls.append(f"{raiz}/{arquivo}")
 
-            if arquivo != 'records.html' and arquivo != 'instructions.txt' and 'preservation' not in arquivo:
+            if arquivo != 'records.html' and arquivo != 'instructions.txt' and 'preservation' not in arquivo and 'profile' not in arquivo and 'thumbnail' not in arquivo:
                 msgElementNewFile += f"{arquivo} "
 
     return FileHtmls, msgElementNewFile

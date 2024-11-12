@@ -48,6 +48,8 @@ def process(source):
 
     source, Unidade = getUnidadeFileName(source)
 
+    roomId = getroomIdElement(Unidade)
+
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
     bsHtml = remove_duplicate_newlines(parsetHTLMFileString(folderZip))
@@ -169,8 +171,6 @@ def process(source):
 
                     if not os.path.exists(filePath):
                         shutil.move(source, DIRERROS)
-
-                        roomId = getroomIdElement(Unidade)
 
                         if roomId is not None:
                             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
@@ -399,8 +399,6 @@ def process(source):
                     if not os.path.exists(filePath):
                         shutil.move(source, DIRERROS)
 
-                        roomId = getroomIdElement(Unidade)
-
                         if roomId is not None and Executar:
                             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
@@ -442,8 +440,6 @@ def process(source):
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-
-            roomId = getroomIdElement(Unidade)
 
             if roomId is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"

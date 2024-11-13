@@ -38,7 +38,7 @@ def get_files_in_dir(path):
 
 
 def process(source):
-    limpar_arquivos_antigos(DIRLOG, dias=5)
+    limpar_arquivos_antigos(DIRLOG, dias=3)
 
     gc.collect()
 

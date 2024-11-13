@@ -103,8 +103,6 @@ def limpar_arquivos_antigos(diretorio, dias=5):
                 print(f"\nApagando {arquivo}...")
                 os.remove(caminho_arquivo)
 
-    # print("\nLimpeza concluída.")
-
 
 def replace_divs(html):
     html = str

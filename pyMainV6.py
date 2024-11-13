@@ -55,7 +55,7 @@ def process(source):
     FileHtmls, msgElementNewFile = ListaAllHtml(folderZip)
 
     if msgElementNewFile != "" and roomIds is not None:
-        msgElement = f"NOVO ARQUIVO WHATSAPP IDENTIFICADO {msgElementNewFile}"
+        msgElement = f"NOVO ARQUIVO {fileName} WHATSAPP IDENTIFICADO {msgElementNewFile}"
 
         for roomId in roomIds:
             sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)

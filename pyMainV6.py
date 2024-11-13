@@ -274,7 +274,7 @@ def process(source):
         removeFolderFiles(folderZip)
 
     print_color(
-        f"================================= FIM PROCESSAMENTO {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
+        f"\n================================= FIM PROCESSAMENTO {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} =================================",
         35)
 
     if DebugMode:
@@ -827,7 +827,7 @@ if __name__ == '__main__':
     previous_files = get_files_in_dir(DIRNOVOS)
 
     dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V6 13/11/2024\n")
 
     while True:
         time.sleep(3)

@@ -204,12 +204,12 @@ def process(source):
 
                 if flagGDados:
                     print_color(
-                        f"=========================== INICIO PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
+                        f"\n=========================== INICIO PROCESSANDO QUEBRA DE GRUPO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}===========================",
                         35)
 
                 if flagDados or flagPrtt:
                     print_color(
-                        f"=========================== INICIO PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
+                        f"\n=========================== INICIO PROCESSANDO QUEBRA DE CONTA {fileName} Unidade {Unidade} {NomeUnidade} {dataType} ===========================",
                         35)
 
                 if TypeProcess == 1:
@@ -223,7 +223,7 @@ def process(source):
 
             else:
                 print_color(
-                    f"================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
+                    f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
                     31)
         else:
 

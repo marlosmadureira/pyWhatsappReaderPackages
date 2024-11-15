@@ -693,13 +693,35 @@ def parse_dynamic_sentence_calls(content):
             # Verificar se há participantes
             participants = re.findall(participant_pattern, events_section, re.S)
 
+            # for participant in participants:
+            #     participant_data = {
+            #         "PhoneNumber": participant[0].strip(),
+            #         "State": participant[1].strip(),
+            #         "Platform": participant[2].strip()
+            #     }
+            #     event_data["Participants"].append(participant_data)
+            #
+            # result["Events"].append(event_data)
+
+            # Remover duplicados durante a criação
+            # Remover duplicados durante a criação
+            seen_participants = set()
             for participant in participants:
-                participant_data = {
-                    "PhoneNumber": participant[0].strip(),
-                    "State": participant[1].strip(),
-                    "Platform": participant[2].strip()
-                }
-                event_data["Participants"].append(participant_data)
+                phone_number = participant[0].strip()
+                state = participant[1].strip()
+                platform = participant[2].strip()
+
+                # Chave única baseada em todas as três propriedades
+                participant_key = (phone_number, state, platform)
+
+                if participant_key not in seen_participants:
+                    participant_data = {
+                        "PhoneNumber": phone_number,
+                        "State": state,
+                        "Platform": platform
+                    }
+                    event_data["Participants"].append(participant_data)
+                    seen_participants.add(participant_key)
 
             result["Events"].append(event_data)
 

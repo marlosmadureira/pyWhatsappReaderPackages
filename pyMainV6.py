@@ -232,16 +232,16 @@ def process(source):
 
             filePath = DIRERROS + fileName
 
+            if roomIds is not None:
+                msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                print(f"\nEnvio da Menssagem {msgElement}", 33)
+
+                for roomId in roomIds:
+                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+
             if not os.path.exists(filePath):
                 shutil.move(source, DIRERROS)
-
-                if roomIds is not None:
-                    msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
-
-                    print(f"\nEnvio da Menssagem {msgElement}", 33)
-
-                    for roomId in roomIds:
-                        sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
                 # Novo nome do arquivo
                 new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -257,16 +257,16 @@ def process(source):
 
         filePath = DIRERROS + fileName
 
+        if roomIds is not None:
+            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+            print(f"\nEnvio da Menssagem {msgElement}", 33)
+
+            for roomId in roomIds:
+                sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-
-            if roomIds is not None:
-                msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
-
-                print(f"\nEnvio da Menssagem {msgElement}", 33)
-
-                for roomId in roomIds:
-                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -793,14 +793,6 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-
-            if roomIds is not None:
-                msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
-
-                print(f"\nEnvio da Menssagem {msgElement}", 33)
-
-                for roomId in roomIds:
-                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

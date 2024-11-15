@@ -1,7 +1,7 @@
 import requests
 import json
 import os
-from pyBibliotecaV6 import conectBD
+from pyBibliotecaV6 import conectBD, print_color
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -53,6 +53,8 @@ def getroomIdElement(Unidade):
             queryRoons = db.fetchall()
         except Exception as e:
             pass
+
+    print_color(f"\nGrupo de Alerta {queryRoons}", 34)
 
     db.close()
     con.close()

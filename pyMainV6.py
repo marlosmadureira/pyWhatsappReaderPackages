@@ -222,7 +222,6 @@ def process(source):
                     # Processando com PHP
                     retornoJson = sendDataJsonServer(fileProcess, dataType)
                     exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds)
-
             else:
                 print_color(
                     f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
@@ -753,16 +752,16 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
     else:
         filePath = DIRERROS + fileName
 
+        if roomIds is not None:
+            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+            print(f"\nEnvio da Menssagem {msgElement}", 33)
+
+            for roomId in roomIds:
+                sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-
-            if roomIds is not None:
-                msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
-
-                print(f"\nEnvio da Menssagem {msgElement}", 33)
-
-                for roomId in roomIds:
-                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')

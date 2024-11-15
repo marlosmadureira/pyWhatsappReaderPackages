@@ -12,3 +12,13 @@
 # Ver Grafico de Execução
 # mprof plot
 
+Código	Cor	Descrição
+30	Preto	Texto preto
+31	Vermelho	Texto vermelho
+32	Verde	Texto verde
+33	Amarelo	Texto amarelo
+34	Azul	Texto azul
+35	Magenta	Texto magenta
+36	Ciano	Texto ciano
+37	Branco	Texto branco
+90	Cinza claro	Texto cinza claro

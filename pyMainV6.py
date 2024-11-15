@@ -57,6 +57,8 @@ def process(source):
     if msgElementNewFile != "" and roomIds is not None:
         msgElement = f"NOVO ARQUIVO {fileName} WHATSAPP IDENTIFICADO {msgElementNewFile}"
 
+        print(f"\nEnvio da Menssagem {msgElement}", 33)
+
         for roomId in roomIds:
             sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
@@ -237,6 +239,8 @@ def process(source):
                 if roomIds is not None:
                     msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
+                    print(f"\nEnvio da Menssagem {msgElement}", 33)
+
                     for roomId in roomIds:
                         sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
@@ -259,6 +263,8 @@ def process(source):
 
             if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                print(f"\nEnvio da Menssagem {msgElement}", 33)
 
                 for roomId in roomIds:
                     sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -753,6 +759,8 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
             if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
+                print(f"\nEnvio da Menssagem {msgElement}", 33)
+
                 for roomId in roomIds:
                     sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
@@ -773,6 +781,8 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
+            print(f"\nEnvio da Menssagem {msgElement}", 33)
+
             for roomId in roomIds:
                 sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
 
@@ -787,6 +797,8 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
             if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+
+                print(f"\nEnvio da Menssagem {msgElement}", 33)
 
                 for roomId in roomIds:
                     sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)

@@ -52,23 +52,32 @@ def remove_duplicates_msg_logs(msg_logs):
 
 
 # Função para remover duplicatas de callLogs
+# def remove_duplicates_call_logs(call_logs):
+#     seen = set()
+#     unique_calls = []
+#
+#     for call in call_logs:
+#         call_tuple = (call['CallId'], call['CallCreator'])
+#         if call_tuple not in seen:
+#             seen.add(call_tuple)
+#
+#             # Verifica e remove duplicatas dentro de Events
+#             if 'Events' in call:
+#                 call['Events'] = remove_duplicates_events(call['Events'])
+#
+#             unique_calls.append(call)
+#
+#     return unique_calls
+
 def remove_duplicates_call_logs(call_logs):
-    seen = set()
-    unique_calls = []
-
-    for call in call_logs:
-        call_tuple = (call['CallId'], call['CallCreator'])
-        if call_tuple not in seen:
-            seen.add(call_tuple)
-
-            # Verifica e remove duplicatas dentro de Events
-            if 'Events' in call:
-                call['Events'] = remove_duplicates_events(call['Events'])
-
-            unique_calls.append(call)
-
-    return unique_calls
-
+    for log in call_logs:
+        for event in log.get("Events", []):
+            if "Participants" in event:
+                # Usar um dicionário para eliminar duplicatas com base em PhoneNumber
+                unique_participants = {p["PhoneNumber"]: p for p in event["Participants"]}
+                # Atualizar os participantes sem duplicatas
+                event["Participants"] = list(unique_participants.values())
+    return call_logs  # Retorna os call_logs atualizados
 
 # Função para remover duplicatas de Events
 def remove_duplicates_events(events):

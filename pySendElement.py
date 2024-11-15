@@ -54,7 +54,7 @@ def getroomIdElement(Unidade):
         except Exception as e:
             pass
 
-    print_color(f"\nGrupo de Alerta {queryRoons}\n", 33)
+    print_color(f"Grupo de Alerta {queryRoons}\n", 33)
 
     db.close()
     con.close()

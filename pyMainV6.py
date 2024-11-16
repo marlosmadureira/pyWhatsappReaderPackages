@@ -62,6 +62,7 @@ def process(source):
         for roomId in roomIds:
             elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
             print_color(f"{elementLog}", 33)
+            time.sleep(2)
 
     else:
         roomIds = None
@@ -241,6 +242,7 @@ def process(source):
                 for roomId in roomIds:
                     elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                     print_color(f"{elementLog}", 33)
+                    time.sleep(2)
 
             if not os.path.exists(filePath):
                 shutil.move(source, DIRERROS)
@@ -267,6 +269,7 @@ def process(source):
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                 print_color(f"{elementLog}", 33)
+                time.sleep(2)
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
@@ -786,6 +789,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                 print_color(f"{elementLog}", 33)
+                time.sleep(2)
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
@@ -812,6 +816,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                 print_color(f"{elementLog}", 33)
+                time.sleep(2)
 
         print_color(
             f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",

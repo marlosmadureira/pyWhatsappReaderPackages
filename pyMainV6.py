@@ -758,6 +758,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
             print_color(
                 f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                 31)
+            EventoGravaBanco = False
 
     if EventoGravaBanco:
         removeFolderFiles(folderZip)

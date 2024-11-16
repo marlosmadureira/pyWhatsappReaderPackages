@@ -64,9 +64,6 @@ def process(source):
             print_color(f"{elementLog}", 33)
             time.sleep(2)
 
-    else:
-        roomIds = None
-
     flagGDados = None
     flagPrtt = None
     flagDados = None

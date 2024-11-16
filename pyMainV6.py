@@ -60,7 +60,8 @@ def process(source):
         print(f"\nEnvio da Menssagem {msgElement}", 33)
 
         for roomId in roomIds:
-            sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+            elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+            print_color(f"{elementLog}", 33)
 
     else:
         roomIds = None
@@ -238,7 +239,8 @@ def process(source):
                 print(f"\nEnvio da Menssagem {msgElement}", 33)
 
                 for roomId in roomIds:
-                    sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                    elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                    print_color(f"{elementLog}", 33)
 
             if not os.path.exists(filePath):
                 shutil.move(source, DIRERROS)
@@ -263,7 +265,8 @@ def process(source):
             print(f"\nEnvio da Menssagem {msgElement}", 33)
 
             for roomId in roomIds:
-                sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                print_color(f"{elementLog}", 33)
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
@@ -781,7 +784,8 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
             print(f"\nEnvio da Menssagem {msgElement}", 33)
 
             for roomId in roomIds:
-                sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                print_color(f"{elementLog}", 33)
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
@@ -806,7 +810,8 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
             print(f"\nEnvio da Menssagem {msgElement}", 33)
 
             for roomId in roomIds:
-                sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                print_color(f"{elementLog}", 33)
 
         print_color(
             f"\nERRO GRAVAÇÃO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",

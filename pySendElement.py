@@ -34,7 +34,7 @@ def sendMessageElement(accessToken, roomId, mensagem):
         response.raise_for_status()  # Raises a HTTPError for bad responses
         result = response.text
     except requests.exceptions.RequestException as e:
-        result = f'Erro ao enviar a mensagem para o grupo: {e}'
+        print(f'Erro ao enviar a mensagem para o grupo: {e}', 31)
     
     return {
         'data': result,

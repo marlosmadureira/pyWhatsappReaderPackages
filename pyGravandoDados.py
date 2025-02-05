@@ -10,6 +10,11 @@ DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 
+DB_HOST_CALL = os.getenv("DB_HOST_CALL")
+DB_NAME_CALL = os.getenv("DB_NAME_CALL")
+DB_USER_CALL = os.getenv("DB_USER_CALL")
+DB_PASS_CALL = os.getenv("DB_PASS_CALL")
+
 executaSql = True
 PrintSql = True
 

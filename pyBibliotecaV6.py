@@ -24,6 +24,11 @@ DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 
+DB_HOST_CALL = os.getenv("DB_HOST_CALL")
+DB_NAME_CALL = os.getenv("DB_NAME_CALL")
+DB_USER_CALL = os.getenv("DB_USER_CALL")
+DB_PASS_CALL = os.getenv("DB_PASS_CALL")
+
 DebugMode = False
 PrintSql = True
 
@@ -207,6 +212,11 @@ def grava_log(content, arquivo):
 
 def conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS):
     con = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+    return con
+
+
+def conectBDCall(DB_HOST_CALL, DB_NAME_CALL, DB_USER_CALL, DB_PASS_CALL):
+    con = psycopg2.connect(host=DB_HOST_CALL, database=DB_NAME_CALL, user=DB_USER_CALL, password=DB_PASS_CALL)
     return con
 
 

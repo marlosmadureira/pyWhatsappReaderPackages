@@ -456,67 +456,55 @@ def parse_dynamic_sentence_device(content):
 
 
 def parse_dynamic_sentence_group(content):
-    # Remove as barras invertidas e espaços em branco desnecessários
+    # Remove barras invertidas e espaços extras
     sentence = re.sub(r'\\', '', content).strip()
-    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
-    # Padrão regex abrangente para capturar todos os campos de cada bloco de informações
-    pattern = re.compile(r"""
-            Picture\s+\((.+?)\)\s+                   # Captura o caminho da imagem 'Picture'
-            Linked\s+Media\s+File:\s*(.+?)\s+        # Captura o caminho do arquivo 'Linked Media File'
-            Thumbnail\s+\((.+?)\)\s+                 # Captura o caminho da imagem 'Thumbnail'
-            Linked\s+Media\s+File:\s*(.+?)\s+        # Captura o caminho do arquivo 'Linked Media File' da thumbnail
-            ID\s*(\d+)\s+                            # Captura o ID numérico
-            Creation\s*(\d{4}\-\d{2}\-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC)\s+  # Captura a data e hora de criação
-            Size\s*(\d+)\s+                          # Captura o tamanho
-            Subject\s*(.+?)(?=\s+Picture|$)          # Captura o assunto até a próxima ocorrência de 'Picture' ou fim do texto
-        """, re.VERBOSE)
+    # Regex para capturar as seções desejadas
+    owned_section = re.search(r"GroupsOwned\s*(.*?)(?=Participating Groups|Address Book Info|$)", sentence, re.DOTALL)
+    participating_section = re.search(r"Participating Groups\s*(.*?)(?=Address Book Info|$)", sentence, re.DOTALL)
 
-    # Estruturas para armazenar os dados dos grupos
-    owned_groups = []
-    participating_groups = []
-
-    # Dicionário de campos para mapear os dados
-    group_keys = [
-        remover_espacos_regex(key) for key in [
-            "Picture", "Linked Media File", "Thumbnail", "Thumbnail Linked Media File",
-            "ID", "Creation", "Size", "Subject"
-        ]
-    ]
-
-    # Divide o conteúdo em seções de grupos
-    group_sections = re.split(
-        r"(GroupsOwned|Owned Groups|GroupsParticipating|Participating Groups)",
-        sentence
+    # Regex para capturar informações de cada grupo
+    pattern = re.compile(
+        r"(?:Picture \((.*?)\))?\s*"  # Captura 'Picture' opcionalmente
+        r"(?:Linked Media File:(\S+))?\s*"
+        r"(?:Thumbnail(.*?))?\s*"
+        r"(?:ID(\d+))\s*"
+        r"(?:Creation([\d-]+ [\d:]+ UTC))\s*"
+        r"(?:Size(\d+))\s*"
+        r"(?:Description(.+?))?\s*"  # Torna Description opcional
+        r"(?:Subject(.+))"
     )
 
-    current_section = None
+    # Função auxiliar para extrair grupos de uma seção
+    def extract_groups(section_text):
+        groups = []
+        if section_text:
+            # Divide o texto em blocos de grupos
+            group_blocks = re.split(r'(?=Picture|No picture)', section_text)
 
-    for section in group_sections:
-        section = section.strip()
+            for block in group_blocks:
+                if not block.strip():
+                    continue
 
-        # Identifica se está nos grupos 'Owned' ou 'Participating'
-        if re.match(r"(GroupsOwned|Owned Groups)", section):
-            current_section = 'owned'
-        elif re.match(r"(GroupsParticipating|Participating Groups)", section):
-            current_section = 'participating'
-        elif current_section:  # Processa os blocos de dados dentro da seção atual
-            for match in pattern.finditer(section):
-                group_data = {key: match.group(i + 1).strip() for i, key in enumerate(group_keys)}
+                match = pattern.search(block)
+                if match:
+                    group_data = {
+                        "Picture": match.group(1) or "No picture",
+                        "LinkedMediaFile": match.group(2) or "No linked media",
+                        "Thumbnail": match.group(3) or "No thumbnail",
+                        "ID": match.group(4),
+                        "Creation": match.group(5),
+                        "Size": match.group(6),
+                        "Description": match.group(7) or "",  # Valor padrão vazio para Description
+                        "Subject": match.group(8).strip() if match.group(8) else ""
+                    }
+                    groups.append(group_data)
+        return groups
 
-                if current_section == 'owned':
-                    owned_groups.append(group_data)
-                elif current_section == 'participating':
-                    participating_groups.append(group_data)
-
-    # Estrutura final dos resultados
-    results = {
-        "ownedGroups": owned_groups,
-        "participatingGroups": participating_groups
+    return {
+        "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
+        "participatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
     }
-
-    return results if owned_groups or participating_groups else None
-
 
 def parse_dynamic_sentence_group_participants(content):
     # Remove as barras invertidas e espaços em branco desnecessários

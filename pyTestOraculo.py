@@ -1,213 +1,59 @@
 import json
-
-import requests
 import re
-from bs4 import BeautifulSoup
-from time import sleep
 
+def parse_dynamic_sentence_groupNew(content):
+    # Remove barras invertidas e espaços extras
+    sentence = re.sub(r'\\', '', content).strip()
 
-def consulta_ips(ips_para_pesquisa):
-    #urlApi = f'http://ip-api.com/json/{ips_para_pesquisa}?fields=status,city,lat,lon,isp,query&lang=pt-BR'
-    urlApi = f'https://ipinfo.io/{ips_para_pesquisa}/json'
+    # Regex para capturar as seções desejadas
+    owned_section = re.search(r"GroupsOwned\s*(.*?)(?=Participating Groups|Address Book Info|$)", sentence, re.DOTALL)
+    participating_section = re.search(r"Participating Groups\s*(.*?)(?=Address Book Info|$)", sentence, re.DOTALL)
 
-    try:
-        r = requests.get(urlApi)
+    # Regex para capturar informações de cada grupo
+    pattern = re.compile(
+        r"(?:Picture \((.*?)\))?\s*"  # Captura 'Picture' opcionalmente
+        r"(?:Linked Media File:(\S+))?\s*"
+        r"(?:Thumbnail(.*?))?\s*"
+        r"(?:ID(\d+))\s*"
+        r"(?:Creation([\d-]+ [\d:]+ UTC))\s*"
+        r"(?:Size(\d+))\s*"
+        r"(?:Description(.+?))?\s*"  # Torna Description opcional
+        r"(?:Subject(.+))"
+    )
 
-        if r.status_code == 200 and r.text != "" and r.text is not None:
-            Jsondata = json.loads(r.text)
-            print(Jsondata)
-    except requests.exceptions.ConnectionError:
-        print('build http connection failed')
-    except Exception as inst:
-        print(f"Location: sendDataJsonServer, error: {inst}")
+    # Função auxiliar para extrair grupos de uma seção
+    def extract_groups(section_text):
+        groups = []
+        if section_text:
+            # Divide o texto em blocos de grupos
+            group_blocks = re.split(r'(?=Picture|No picture)', section_text)
 
+            for block in group_blocks:
+                if not block.strip():
+                    continue
 
-def getEvents(value_text):
-    # Padrao regex para extrair informações
-    padrao = r"Type(\w+)Timestamp(.*?)From(\d+)To(\d+)From Ip(.*?)From Port(\d+)"
+                match = pattern.search(block)
+                if match:
+                    group_data = {
+                        "Picture": match.group(1) or "No picture",
+                        "LinkedMediaFile": match.group(2) or "No linked media",
+                        "Thumbnail": match.group(3) or "No thumbnail",
+                        "ID": match.group(4),
+                        "Creation": match.group(5),
+                        "Size": match.group(6),
+                        "Description": match.group(7) or "",  # Valor padrão vazio para Description
+                        "Subject": match.group(8).strip() if match.group(8) else ""
+                    }
+                    groups.append(group_data)
+        return groups
 
-    # Procurar todas as correspondências na string
-    correspondencias = re.findall(padrao, value_text)
+    dados = {
+        "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
+        "participatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
+    }
 
-    # Processar cada correspondência
-    informacoes = []
+    print(f"{json.dumps(dados, indent=4)}")
 
-    if 'Participants' in value_text:
-        Participants = getParticipants(value_text)
-    else:
-        Participants = None
+content = "* [Request Parameters](#property-request_parameters) * [Ncmec Reports](#property-ncmec_reports) * [Emails](#property-emails) * [Connection Info](#property-connection_info) * [Web Info](#property-web_info) * [Groups Info](#property-groups_info) * [Address Book Info](#property-address_book_info) * [Small Medium Business](#property-small_medium_business) * [Device Info](#property-device_info) Print Options * By Category All Request Parameters Ncmec Reports Emails Connection Info Web Info Groups Info Address Book Info Small Medium Business Device Info * By Page: Page Range Page Number PrintServiceWhatsApp Internal Ticket Number2898723 Account Identifier\+5511983083370 Account TypeWhatsAppUser Generated2025\-04\-03 19:16:37 UTC Date Range2025\-03\-17 00:00:00 UTC to 2025\-04\-01 23:59:59 UTC  Ncmec Reports DefinitionNCMEC Reports: NCMEC Cybertip information associated with WhatsApp account (if available)  NCMEC CyberTipsNo responsive records located   Emails DefinitionEmails: Account holder's recovery email (if provided by the account holder)  Registered Email AddressesNo responsive records located   Connection Info DefinitionConnection Info: Account connection and device information (if available) App Version: Latest version of WhatsApp running on the account holders mobile device Connection State: Account holder's current connection status Connection Time: Date and time stamp related to account holder's current connection status Device OS Build Number: Mobile device's current operating system Device Type: Account holder's type of device I.E. iPhone, Samsung, Web etc. Inactive Since: Date and time since the account holder has been inactive \- the account holder is not actively using the app but has it running in the background of their mobile device Last Seen: Last date and time the account holder opened and viewed the app before going offline Push Name: Name provided (if available) by the account holder Service Start: Date and time the account holder registered the mobile phone number to start using WhatsApp on their WhatsApp registered devices  ConnectionDevice Id0 Service start2022\-01\-26 18:21:18 UTC Device TypeSMBA App Version2\.25\.8\.85,Smb Device OS Build Numberos: 13, model: motorola rhodep Connection StateOFFLINE Last seen2025\-04\-03 10:24:52 UTC    Web Info DefinitionWeb Info: Information about the account holder's webclient/WhatsApp desktop app (if available) Availability: Status of webclient (if available) Online Since: Date/time of last session initiated on webclient (if available) Platform: Type of device being used (Mac, PC, etc) (if available) Version: Current WhatsApp webclient version (if available)  Web InfoNo responsive records located   Groups Info DefinitionGroups Info: Information about the groups the account holder has created or participates in Creation: Creation date/time of the WhatsApp group Description: User generated description of the WhatsApp group ID: Each WhatsApp groups unique ID Picture: User uploaded WhatsApp group picture Size: Number of WhatsApp users in a WhatsApp group Subject: User generated name of the WhatsApp group  GroupsOwned GroupsPicture (linked_media/profile_picture_3912160352.jpg) Linked Media File:linked\_media/profile\_picture\_3912160352\.jpg ThumbnailNo thumbnail ID120363137690853355 Creation2023\-05\-16 13:45:45 UTC Size6 Description👉 Grupo \*EXCLUSIVO DA MEGA PROMOÇÃO DA ANÁLISE DE COLORAÇÃO!\* 🌈 Agora é a sua Chance de \*descobrir a sua cartela de cores e aprender a destacar sua beleza sem esforço!\* 👑🦵💄💋 Além disso você vai comprar roupas com muito mais facilidade e vai economizar muito nas suas escolhas... 😱 Desde roupas, maquiagem, cabelo, sapato, tudo! 👗👚🩱👠 🗓 A promoção vai acontecer dia \*19/05 às 12:00h\*. ❌Não saia do grupo para não perder o link do \*MEGA DESCONTO\*. 🔐O Grupo Ficará fechado ‼️ SubjectCOLOR DAY MÊS DAS MÃES 🌈🥰  PictureNo picture ThumbnailNo thumbnail ID120363324499739298 Creation2024\-08\-20 09:50:53 UTC Size6 SubjectBolinho da Ana paula❤️❤️  Participating GroupsPicture (linked_media/profile_picture_1704445676.jpg) Linked Media File:linked\_media/profile\_picture\_1704445676\.jpg ThumbnailNo thumbnail ID120363028405011713 Creation2022\-12\-04 23:31:40 UTC Size423 SubjectPerformance 206  Picture (linked_media/profile_picture_2469113048.jpg) Linked Media File:linked\_media/profile\_picture\_2469113048\.jpg ThumbnailNo thumbnail ID120363042438117468 Creation2022\-05\-30 19:04:31 UTC Size107 SubjectExtras Técnicos  Picture (linked_media/profile_picture_2443984650.jpg) Linked Media File:linked\_media/profile\_picture\_2443984650\.jpg ThumbnailNo thumbnail ID120363022685998878 Creation2022\-01\-31 23:15:45 UTC Size309 DescriptionOlá, seja bem vinda (o) ao nosso grupo de revenda vestuário hospitalar 👏🏼😍 Somos fabricantes a 20 anos e agora desde Agosto 2021 estamos com uma filial em BELÉM DO PARÁ e já contamos com mais de 1\.000 clientes espalhados em todo Brasil 🇧🇷 \* veja depoimentos em nosso Instagram @haliraprofissional Nosso objetivo é ajudar você a conquistar a tão sonhada RENDA EXTRA, através da revenda dos nossos produtos que são de extrema qualidade e lucratividade CONSTANTE. Temos mais de 100 estampas disponíveis do PP AO GG e valores que começam a partir de $39,00\. Para conhecer nossos produtos basta ficar no grupo, pois postamos DIARIAMENTE tudo que temos em estoque disponível. Também temos loja física que fica localizado no endereço: TRAVESSA DOIS, 252 \- sala 203 ( bairro castanheira). Então, vem com a gente !? SubjectHALIRA ATACADO 4 🥼🩺🤍🤍  Picture (linked_media/profile_picture_482436922.jpg) Linked Media File:linked\_media/profile\_picture\_482436922\.jpg ThumbnailNo thumbnail ID120363351528245301 Creation2024\-10\-20 13:32:39 UTC Size58 SubjectSub15 EFC  Picture (linked_media/profile_picture_1805563879.jpg) Linked Media File:linked\_media/profile\_picture\_1805563879\.jpg ThumbnailNo thumbnail ID120363042038315949 Creation2022\-08\-17 20:20:17 UTC Size129 DescriptionReceba aqui as novidades em kits e promoções da Ascona!😁 Este grupo ficará sempre silenciado, e somente os administradores podem postar as novidades! Clique aqui para fazer seu pedido: https://bit.ly/39wjmun 🔴 Confie apenas nos administradores do grupo! Nossa equipe nunca vai te pedir nenhuma senha, código e nem fazer ligações indevidas, não pedimos depósito de valores ou pagamentos de quantias em conversas individuais. Caso seja abordado por participantes do grupo de forma indevida por favor nos avise. SubjectAscona Kits \#4  Picture (linked_media/profile_picture_3300052.jpg) Linked Media File:linked\_media/profile\_picture\_3300052\.jpg ThumbnailNo thumbnail ID120363026273265150 Creation2022\-11\-23 11:17:44 UTC Size23 SubjectGRUPO VIP SG \#79  Picture (linked_media/profile_picture_268407563.jpg) Linked Media File:linked\_media/profile\_picture\_268407563\.jpg ThumbnailNo thumbnail ID120363027243877072 Creation2022\-12\-03 00:35:31 UTC Size24 DescriptionVocê está no grupo da \*Mega\-Oferta da Fórmula SB4\.\*, sua NOVA oportunidade de emagrecer ainda no início de 2023\. Aqui você vai saber tudo sobre a \*bebida\* que acelera o emagrecimento e neutraliza o efeito sanfona.🍹 🗓️ No dia 06/02 você vai poder pedir o seu \*SB4 com POTES GRÁTIS (além de outros brindes).\* Nos ajude a te conhecer e trazer condições ainda melhores 👉 https://lp.vita\-science.com/nn16 Subject🔴 Mega Oferta SB4 \#271  Picture (linked_media/profile_picture_197675217.jpg) Linked Media File:linked\_media/profile\_picture\_197675217\.jpg ThumbnailNo thumbnail ID120363024033736862 Creation2022\-01\-28 11:29:18 UTC Size102 SubjectEnfermagem  Picture (linked_media/profile_picture_2972887441.jpg) Linked Media File:linked\_media/profile\_picture\_2972887441\.jpg ThumbnailNo thumbnail ID120363030829752557 Creation2023\-01\-14 00:41:42 UTC Size34 Description💎Comunidade das LEOAS♌️ Vamos te ajudar com: 1\. Dificuldade para perder as gorduras localizadas 2\. Voltar a acelerar o metabolismo 3\. Empinar o bumbum 4\. Barriguinha sem pochete 5\. Voltar a ganhar massa muscular depois dos 35 anos 6\. Você pode enviar sua dúvida sem medo 7\. Dicas de nutrição 8\. Receitas 9\. Trabalho mental e desbloqueio 🎯Tudo isso na comunidade das Leoas♌️ SubjectComunidade As Leoas  Picture (linked_media/profile_picture_1001630714.jpg) Linked Media File:linked\_media/profile\_picture\_1001630714\.jpg ThumbnailNo thumbnail ID120363044542352158 Creation2022\-11\-21 19:28:30 UTC Size410 SubjectGRUPO VIP SG \#62  Picture (linked_media/profile_picture_4047373788.jpg) Linked Media File:linked\_media/profile\_picture\_4047373788\.jpg ThumbnailNo thumbnail ID120363293609251781 Creation2024\-06\-13 15:24:40 UTC Size20 SubjectHopi Hari 🎢  Picture (linked_media/profile_picture_238130312.jpg) Linked Media File:linked\_media/profile\_picture\_238130312\.jpg ThumbnailNo thumbnail ID120363415575269366 Creation2025\-03\-26 12:35:18 UTC Size41 SubjectHopi Hari 2025  Picture (linked_media/profile_picture_708542088.jpg) Linked Media File:linked\_media/profile\_picture\_708542088\.jpg ThumbnailNo thumbnail ID120363378526297660 Creation2025\-02\-04 14:25:17 UTC Size28 SubjectPré I B \- 2025  PictureNo picture ThumbnailNo thumbnail ID120363030689181924 Creation2023\-01\-29 14:05:49 UTC Size2 SubjectTeamGilvan    Address Book Info DefinitionAddress Book Info: Address book from target account holder's WhatsApp account Asymmetric Contacts: WhatsApp account holders that do not have the target account holder in their WhatsApp address book but the target account holder has them in their WhatsApp address book Symmetric Contacts: Account holder and the identified contacts have each other saved/stored in their respective WhatsApp address books  Address BookSymmetric contacts49 Total 553584178533 553584394143 553584482045 553588183033 553588800514 553591185658 553591464041 553591972347 553597196852 553598482478 553598525763 553598667023 553599052668 553599121898 553599612150 5511915563612 5511932157989 5511940362362 5511941377352 5511945615444 5511947226704 5511947493998 5511948285146 5511952882696 5511957995386 5511958397280 5511959257189 5511959819981 5511964399171 5511966170364 5511966314187 5511969446683 5511972608288 5511977998004 5511978060749 5511981584024 5511982741296 5511983051358 5511983064275 5511983431981 5511984486209 5511989402014 5511992498874 5511992891561 5511996037277 5511999490778 5516997349075 5519971051372 5535910039973 Asymmetric contacts640 Total 551120147373 551122536554 551123881110 551128918161 551129664422 551130037727 551131867254 551133888000 551140040066 551140042211 551146382349 551146383064 551146386431 551146396184 553182574307 553191733774 553197735828 553198581776 553284261352 553531001353 553531009588 553534319250 553534352003 553534352016 553534352465 553534354264 553534355322 553584040161 553584050543 553584058401 553584065583 553584076023 553584117099 553584136483 553584145754 553584166079 553584198965 553584219873 553584232745 553584256818 553584264128 553584416486 553584421812 553584433365 553584486946 553584559283 553584582094 553584711046 553584771715 553584774998 553584780793 553584790804 553587001995 553587070812 553587122264 553588162882 553588170909 553588263296 553588296582 553588347694 553588352586 553588412306 553588431597 553588431680 553588639674 553588713945 553588771280 553588834346 553591046309 553591133850 553591134232 553591184370 553591207129 553591242909 553591247997 553591277133 553591293555 553591310773 553591320684 553591416255 553591512624 553591534679 553591538958 553591565228 553591604128 553591733262 553591831999 553591860201 553591874507 553591892539 553591901296 553591911700 553591976036 553591980613 553592027040 553592174973 553592218060 553592250512 553592286687 553592321588 553592325116 553592526809 553592653746 553592773000 553592778843 553597015604 553597102057 553597145903 553597160116 553597183371 553597220184 553597260232 553597303050 553597342879 553597350753 553597354204 553597372628 553597375059 553597378515 553597395090 553597468751 553597472135 553597543700 553597548254 553597552038 553597552849 553597563031 553597580389 553597580727 553597602204 553597651003 553597651915 553597659857 553597667096 553597681724 553597720863 553597729259 553597729593 553597742167 553598008677 553598069776 553598106998 553598124994 553598222735 553598224266 553598272825 553598288230 553598288494 553598301979 553598320925 553598377538 553598380109 553598444735 553598454775 553598467832 553598476439 553598484111 553598539569 553598548853 553598568205 553598639517 553598712614 553598757364 553598788747 553598800826 553598830171 553598934944 553598950705 553598954001 553598987134 553599034642 553599070056 553599100191 553599139111 553599163413 553599191556 553599257376 553599301417 553599313053 553599325996 553599375762 553599386157 553599509961 553599541289 553599553366 553599610775 553599668731 553599692763 553599708788 553599870987 553599890677 553599899820 553791317428 553898596180 553898716615 554184542861 554788129036 554797120281 554885050205 554888629887 555139214004 555180601380 555199163309 556193310050 556286444806 556292865648 556294595621 556599336773 557381284841 557381940627 557388731582 557391227431 557399671270 557597063743 557599999956 558005912591 558171053442 558596557296 558598543354 558881346229 559981023177 5511910170768 5511911096945 5511911595121 5511911972603 5511912058006 5511913236264 5511913321081 5511913471588 5511913495547 5511914807645 5511914879767 5511915162688 5511916987793 5511920001230 5511920019119 5511930087305 5511930108827 5511930150558 5511930150608 5511930547751 5511932028318 5511933103668 5511933203729 5511937159140 5511939486845 5511939537626 5511940104140 5511940106734 5511940144682 5511940182118 5511940239159 5511940324379 5511940330492 5511940349622 5511940565962 5511940619566 5511941539800 5511941753472 5511942080363 5511942140283 5511942304508 5511942535788 5511942598188 5511942810685 5511943041854 5511943195756 5511943414488 5511943416966 5511944686223 5511945018917 5511945125195 5511945139335 5511945271173 5511945305886 5511945340263 5511945354202 5511945518238 5511945546830 5511945568358 5511945644573 5511945735651 5511946065501 5511946287563 5511947064645 5511947177005 5511947179021 5511947194360 5511947195444 5511947196086 5511947236920 5511947370545 5511947379759 5511947415907 5511947640982 5511947667058 5511947811183 5511947827409 5511947963506 5511948076057 5511948250135 5511948253563 5511948284951 5511948517683 5511948552427 5511948934248 5511949115571 5511949220421 5511949269967 5511949316087 5511949477546 5511949519418 5511949743004 5511949989684 5511950579456 5511950621236 5511950873993 5511951266096 5511951545789 5511951577946 5511951665116 5511952032338 5511952177900 5511952240993 5511952263568 5511952282809 5511952531142 5511952782968 5511952882305 5511953045956 5511953551153 5511953567069 5511953692852 5511953763009 5511953869771 5511953881510 5511953915962 5511953943374 5511954110198 5511954343657 5511954612183 5511954697593 5511954932114 5511956108899 5511956406088 5511957055034 5511957450543 5511957883782 5511957886090 5511957900690 5511957910852 5511958009736 5511958062561 5511958100728 5511958113865 5511958131258 5511958173277 5511958270611 5511958558940 5511958603365 5511958649579 5511958813236 5511958904385 5511958980500 5511959031306 5511959104198 5511959244834 5511959275598 5511959439155 5511959706725 5511959756590 5511959785833 5511959940417 5511959995312 5511960681163 5511960724948 5511960766521 5511960900625 5511961078937 5511961339903 5511961371147 5511961790882 5511961815513 5511962051115 5511962616066 5511962810332 5511962850503 5511963072506 5511963321141 5511963347783 5511963551113 5511963644780 5511963670403 5511963698942 5511964043910 5511964087749 5511964362264 5511964375109 5511964378539 5511964392505 5511964484483 5511964914297 5511964976809 5511965893250 5511966042019 5511966165627 5511966165797 5511966187430 5511966289620 5511966463788 5511966494658 5511966896553 5511967182524 5511967329638 5511967912751 5511968314249 5511968336892 5511968495629 5511968543386 5511968614894 5511969559024 5511969670444 5511969781375 5511970215854 5511970229440 5511970261321 5511970406379 5511970565754 5511970862010 5511970868104 5511970935677 5511971958464 5511972093042 5511972471284 5511973108066 5511973335498 5511973408517 5511974152572 5511974169725 5511974185525 5511974379085 5511974583532 5511974745315 5511974751530 5511975007997 5511975158892 5511975189907 5511975635205 5511976076152 5511976155318 5511976199409 5511976691799 5511976697243 5511976758648 5511976889500 5511977096553 5511977198657 5511977364902 5511977450100 5511977607550 5511977655484 5511977745162 5511977780391 5511977786559 5511977865442 5511977875737 5511978061398 5511978255013 5511978635650 5511978770031 5511978858389 5511978898992 5511979543059 5511979560719 5511979647835 5511979702554 5511980358590 5511980414446 5511980640632 5511981024679 5511981120953 5511981194523 5511981265548 5511981614518 5511981662826 5511981686101 5511981707153 5511981997921 5511982105352 5511982118986 5511982171596 5511982302047 5511982605032 5511982678627 5511982733897 5511982835520 5511982848932 5511982857314 5511983007155 5511983053964 5511983514111 5511983528530 5511983674710 5511983716879 5511983744711 5511984042379 5511984071644 5511984167619 5511984178533 5511984231195 5511984270855 5511984336928 5511984659194 5511984788431 5511984835939 5511984917821 5511984922087 5511985015438 5511985082216 5511985131539 5511985140427 5511985261439 5511985351751 5511985355265 5511985432364 5511985476378 5511985512122 5511985564049 5511985596325 5511985817471 5511985821131 5511985881908 5511986121430 5511986283131 5511986375505 5511986407050 5511986412956 5511986449301 5511986493291 5511986547200 5511986811043 5511986888788 5511986897275 5511987062955 5511987086265 5511987344991 5511987518226 5511987813415 5511987830356 5511987841996 5511988138905 5511988278710 5511988353899 5511988454230 5511988458555 5511988465530 5511988472503 5511988504004 5511988636938 5511988825162 5511988843263 5511989044207 5511989220654 5511989293752 5511989634033 5511989775585 5511989809110 5511989871434 5511989945031 5511990034115 5511990045936 5511990158351 5511990230822 5511991138325 5511991206354 5511991741401 5511991886947 5511992264401 5511992455443 5511992667815 5511992678746 5511992686931 5511992863390 5511992936302 5511992941375 5511992962370 5511993201768 5511993252410 5511993690679 5511993780606 5511993850448 5511993910063 5511993971916 5511994000729 5511994079462 5511994181425 5511994242519 5511994255320 5511994310633 5511994373102 5511994526372 5511994576324 5511994635872 5511994666894 5511994712623 5511994793442 5511994857436 5511994867263 5511994928117 5511994935354 5511994947068 5511995032048 5511995408947 5511995452042 5511995610643 5511995752096 5511996010735 5511996837799 5511996947277 5511997186235 5511997533447 5511997566298 5511997705540 5511997953453 5511998365261 5511999843038 5511999878356 5512992025013 5513996304269 5513996858313 5513997504726 5514996742010 5514997161068 5515991432182 5516996167717 5517991939099 5518996051927 5519999198706 5521965607588 5521996019608   Small Medium Business DefinitionSmall Medium Business: Information associated with a Small Medium Business WhatsApp account Address: Business generated address of business Email: Business generated contact email Name: Business generated name of business Websites: Business generated website of business  Small Medium BusinessNameRafaela   Device Info DefinitionDevice Info: Information about account holder's registered device(s) (e.g., phone, iPad, Desktop, etc.) Device ID: Device IDs will appear as 0, 1, 2, 3\. The numbering system is a unique identifier for the user’s linked device. App Version: Account holder's most recent version (including OS Build Number) of the WhatsApp application on the registered device(s) Device Manufacturer: Manufacturer of the device(s) (e.g., Apple, Samsung, Huawei etc.) Device Model: Account holder's current device model OS Version: Current version of device's operating system  Device InfoDevice Id0 App VersionSMBA\-2\.25\.8\.85,Smb OS Version13 OS Build Number Device Manufacturermotorola Device Modelrhodep  "
 
-    for match in correspondencias:
-
-        if 'Type' in match[0]:
-            resultado = match[0].split("Type")
-            Type = resultado[1]
-            MediaType = resultado[0]
-        else:
-            Type = match[0]
-            MediaType = None
-
-        # Criar dicionário com informações
-        info = {
-            'Type': Type,
-            'Timestamp': match[1],
-            'From': match[2],
-            'To': match[3],
-            'From Ip': consulta_ips(match[4]),
-            'From Port': match[5],
-            'Media Type': MediaType,
-            'Participants': Participants
-        }
-
-        informacoes.append(info)
-
-    return informacoes
-
-
-def getParticipants(value_text):
-    padrao = r'Phone Number(\d+)State(\w+)Platform(\w+)'
-    matches = re.findall(padrao, value_text)
-
-    informacoes_separadas = []
-    for match in matches:
-
-        if 'Type' in match[2]:
-            resultado = match[2].split("Type")
-            Platform = resultado[0].replace("Phone", "")
-        else:
-            Platform = match[2].replace("Phone", "")
-
-        informacao = {
-            'Phone Number': match[0],
-            'State': match[1],
-            'Platform': Platform
-        }
-        informacoes_separadas.append(informacao)
-
-    return informacoes_separadas
-
-
-def parse_html(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        soup = BeautifulSoup(file, 'html.parser')
-
-    request_parameters = parse_request_parameters(soup)
-    message_log = parse_message_log(soup)
-    call_logs = parse_call_logs(soup)
-
-    print(call_logs)
-
-    # return {
-    #     'request_parameters': request_parameters,
-    #     'message_log': message_log,
-    #     'call_logs': call_logs
-    # }
-
-
-def parse_request_parameters(soup):
-    content_div = soup.find('div', id='property-request_parameters')
-    data = {}
-    if content_div:
-        div_tables = content_div.find_all('div', class_='div_table', style='font-weight: bold;', recursive=False)
-        for div_table in div_tables:
-            # Aqui, modificamos a extração para capturar corretamente a chave e o valor
-            key_div = div_table.find('div', style='font-weight: bold; display:table;')
-            value_div = key_div.find_next('div', style=lambda
-                value: 'font-weight: normal;' in value and 'display:table-cell;' in value)
-
-            if key_div and value_div:
-                # Removemos o valor do texto da chave para obter apenas a chave pura
-                key = key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip()
-                value = value_div.get_text(strip=True)
-                data[key] = value
-    return data
-
-
-def clean_html(html_text):
-    """Remove tags HTML e espaços extras de uma string HTML."""
-    text = re.sub('<[^>]+>', '', html_text)  # Remove tags HTML
-    text = re.sub('\s+', ' ', text)  # Substitui múltiplos espaços por um único espaço
-    return text.strip()
-
-
-def parse_message_log(soup):
-    message_log_div = soup.find('div', id='property-message_log')
-    messages = []
-
-    if message_log_div:
-        messages = []
-        message_log_div = soup.find('div', id='property-message_log')
-
-        if message_log_div:
-            # Ignora a definição do log de mensagem e foca nos registros de mensagens
-            message_blocks = message_log_div.find_all('div', class_='div_table')[1:]  # Pula a descrição
-
-            for block in message_blocks:
-                message_info = {}
-                detail_blocks = block.find_all('div', class_='div_table', recursive=True)
-
-                for detail_block in detail_blocks:
-                    key_div = detail_block.find('div', style='font-weight: bold; display:table;')
-                    if key_div:
-                        value_div = key_div.find_next('div', style=lambda
-                            value: 'display:table-cell;' in value if value else False)
-                        if value_div:
-                            key_text = clean_html(
-                                key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
-                            value_text = clean_html(value_div.get_text(strip=True))
-
-                            # Evita a sobreposição de chaves, adicionando valores com o mesmo nome de chave
-                            if key_text != "Message":
-                                message_info[key_text] = value_text
-
-                if message_info and message_info not in messages:
-                    messages.append(message_info)
-
-        return messages
-
-
-def parse_call_logs(soup):
-    call_log_div = soup.find('div', id='property-call_logs')
-    call_logs = []
-
-    if call_log_div:
-        call_blocks = call_log_div.find_all('div', class_='div_table')[1:]  # Pula a descrição dos logs de chamada
-
-        for block in call_blocks:
-            call_info = {}
-            detail_blocks = block.find_all('div', class_='div_table', recursive=True)
-
-            for detail_block in detail_blocks:
-                key_div = detail_block.find('div', style='font-weight: bold; display:table;')
-                if key_div:
-                    # Procura pelo próximo div que corresponde ao valor, considerando qualquer estilo após "display:table-cell;"
-                    value_div = key_div.find_next('div', style=lambda
-                        value: 'display:table-cell;' in value if value else False)
-                    if value_div:
-                        key_text = clean_html(
-                            key_div.get_text(strip=True).replace(value_div.get_text(strip=True), '').strip())
-                        value_text = clean_html(value_div.get_text(strip=True))
-                        # key_text = key_div.get_text(strip=True)
-                        # value_text = " ".join(value_div.stripped_strings).replace('\n', ' ').replace('<br/>', '\n')
-
-                        # Trata a possibilidade de múltiplos eventos dentro de uma única chamada
-                        if key_text != "Call":
-                            if 'Call Id' in key_text or 'Call Creator' in key_text:
-                                call_info[key_text] = value_text
-                            elif 'Events' in key_text:
-                                call_info[key_text] = getEvents(value_text)
-
-            if call_info and call_info not in call_logs:
-                call_logs.append(call_info)
-
-    return call_logs
-
-
-# Caminho do arquivo HTML (ajustar conforme necessário)
-# file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/1388347178711117/records.html"
-# file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/853013806245227/records.html"
-file_path = "/home/inteligencia/Documentos/Projetos/Python-Projetos/pyWhatsappReaderPackages/arquivos/extracao/195219527016517/records.html"
-
-# Processar o arquivo e exibir os resultados
-parsed_data = parse_html(file_path)
-print(parsed_data)
+parse_dynamic_sentence_groupNew(content)

@@ -10,8 +10,9 @@ import gc
 from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
-    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log,  \
-    remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines, openJsonEstruturado, contar_arquivos_zip
+    parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log, \
+    remover_espacos_regex, somentenumero, limpar_arquivos_antigos, remove_duplicates_msg_logs, \
+    remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines, openJsonEstruturado, contar_arquivos_zip
 from pyPostgresql import find_unidade_postgres, listaProcessamento, saveResponse
 from pySendElement import sendMessageElement, getroomIdElement
 from pyGravandoDados import sendDataPostgres
@@ -31,7 +32,8 @@ ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 DebugMode = False
 Executar = True
 FileJsonLog = True
-TypeProcess = 2 # 1 - Python 2 - PHP
+TypeProcess = 2  # 1 - Python 2 - PHP
+
 
 def get_files_in_dir(path):
     return set(os.listdir(path))
@@ -174,6 +176,8 @@ def process(source):
                     if parsed_json_device is not None:
                         fileDados['deviceinfo'] = parsed_json_device
 
+                    parse_dynamic_sentence_groupNew(bsHtml)
+
                     parsed_json_group = parse_dynamic_sentence_group(bsHtml)
                     if parsed_json_group is not None:
                         fileDados['groupsInfo'] = parsed_json_group
@@ -216,11 +220,13 @@ def process(source):
                 if TypeProcess == 1:
                     # Processando com Python
                     returno = sendDataPostgres(fileProcess, dataType)
-                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados, roomIds)
+                    exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade,
+                                       flagDados, roomIds)
                 else:
                     # Processando com PHP
                     retornoJson = sendDataJsonServer(fileProcess, dataType)
-                    exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds)
+                    exibirRetornoPHP(retornoJson, fileProcess, fileName, Unidade, NomeUnidade, folderZip, source,
+                                     AccountIdentifier, flagDados, roomIds)
             else:
                 print_color(
                     f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
@@ -455,56 +461,58 @@ def parse_dynamic_sentence_device(content):
         return None
 
 
-# def parse_dynamic_sentence_group(content):
-#     # Remove barras invertidas e espaços extras
-#     sentence = re.sub(r'\\', '', content).strip()
-#
-#     # Regex para capturar as seções desejadas
-#     owned_section = re.search(r"GroupsOwned\s*(.*?)(?=Participating Groups|Address Book Info|$)", sentence, re.DOTALL)
-#     participating_section = re.search(r"Participating Groups\s*(.*?)(?=Address Book Info|$)", sentence, re.DOTALL)
-#
-#     # Regex para capturar informações de cada grupo
-#     pattern = re.compile(
-#         r"(?:Picture \((.*?)\))?\s*"  # Captura 'Picture' opcionalmente
-#         r"(?:Linked Media File:(\S+))?\s*"
-#         r"(?:Thumbnail(.*?))?\s*"
-#         r"(?:ID(\d+))\s*"
-#         r"(?:Creation([\d-]+ [\d:]+ UTC))\s*"
-#         r"(?:Size(\d+))\s*"
-#         r"(?:Description(.+?))?\s*"  # Torna Description opcional
-#         r"(?:Subject(.+))"
-#     )
-#
-#     # Função auxiliar para extrair grupos de uma seção
-#     def extract_groups(section_text):
-#         groups = []
-#         if section_text:
-#             # Divide o texto em blocos de grupos
-#             group_blocks = re.split(r'(?=Picture|No picture)', section_text)
-#
-#             for block in group_blocks:
-#                 if not block.strip():
-#                     continue
-#
-#                 match = pattern.search(block)
-#                 if match:
-#                     group_data = {
-#                         "Picture": match.group(1) or "No picture",
-#                         "LinkedMediaFile": match.group(2) or "No linked media",
-#                         "Thumbnail": match.group(3) or "No thumbnail",
-#                         "ID": match.group(4),
-#                         "Creation": match.group(5),
-#                         "Size": match.group(6),
-#                         "Description": match.group(7) or "",  # Valor padrão vazio para Description
-#                         "Subject": match.group(8).strip() if match.group(8) else ""
-#                     }
-#                     groups.append(group_data)
-#         return groups
-#
-#     return {
-#         "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
-#         "participatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
-#     }
+def parse_dynamic_sentence_groupNew(content):
+    # Remove barras invertidas e espaços extras
+    sentence = re.sub(r'\\', '', content).strip()
+
+    # Regex para capturar as seções desejadas
+    owned_section = re.search(r"GroupsOwned\s*(.*?)(?=Participating Groups|Address Book Info|$)", sentence, re.DOTALL)
+    participating_section = re.search(r"Participating Groups\s*(.*?)(?=Address Book Info|$)", sentence, re.DOTALL)
+
+    # Regex para capturar informações de cada grupo
+    pattern = re.compile(
+        r"(?:Picture \((.*?)\))?\s*"  # Captura 'Picture' opcionalmente
+        r"(?:Linked Media File:(\S+))?\s*"
+        r"(?:Thumbnail(.*?))?\s*"
+        r"(?:ID(\d+))\s*"
+        r"(?:Creation([\d-]+ [\d:]+ UTC))\s*"
+        r"(?:Size(\d+))\s*"
+        r"(?:Description(.+?))?\s*"  # Torna Description opcional
+        r"(?:Subject(.+))"
+    )
+
+    # Função auxiliar para extrair grupos de uma seção
+    def extract_groups(section_text):
+        groups = []
+        if section_text:
+            # Divide o texto em blocos de grupos
+            group_blocks = re.split(r'(?=Picture|No picture)', section_text)
+
+            for block in group_blocks:
+                if not block.strip():
+                    continue
+
+                match = pattern.search(block)
+                if match:
+                    group_data = {
+                        "Picture": match.group(1) or "No picture",
+                        "LinkedMediaFile": match.group(2) or "No linked media",
+                        "Thumbnail": match.group(3) or "No thumbnail",
+                        "ID": match.group(4),
+                        "Creation": match.group(5),
+                        "Size": match.group(6),
+                        "Description": match.group(7) or "",  # Valor padrão vazio para Description
+                        "Subject": match.group(8).strip() if match.group(8) else ""
+                    }
+                    groups.append(group_data)
+        return groups
+
+    dados = {
+        "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
+        "participatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
+    }
+
+    print_color(f"{dados}", 33)
 
 
 def parse_dynamic_sentence_group(content):
@@ -566,6 +574,8 @@ def parse_dynamic_sentence_group(content):
         "ownedGroups": owned_groups,
         "participatingGroups": participating_groups
     }
+
+    print_color(f"{results}", 33)
 
     return results if owned_groups or participating_groups else None
 
@@ -785,8 +795,8 @@ def parse_dynamic_sentence_calls(content):
     return results if results else None
 
 
-def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds):
-
+def exibirRetornoPHP(retornoJson, fileProcess, fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier,
+                     flagDados, roomIds):
     EventoGravaBanco = False
 
     if 'MostraJsonPython' in retornoJson['jsonRetorno']:
@@ -854,8 +864,8 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
         removeFolderFiles(folderZip)
 
 
-def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados, roomIds):
-
+def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip, source, NomeUnidade, flagDados,
+                       roomIds):
     if not returno['BANCO']:
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"

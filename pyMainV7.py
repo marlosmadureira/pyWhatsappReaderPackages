@@ -174,8 +174,7 @@ def process(source):
                     if parsed_json_device is not None:
                         fileDados['deviceinfo'] = parsed_json_device
 
-                    parsed_json_group = parse_dynamic_sentence_groupNew(bsHtml)
-                    #parsed_json_group = parse_dynamic_sentence_group(bsHtml)
+                    parsed_json_group = parse_dynamic_sentence_group(bsHtml)
                     if parsed_json_group is not None:
                         fileDados['groupsInfo'] = parsed_json_group
 
@@ -455,63 +454,7 @@ def parse_dynamic_sentence_device(content):
     else:
         return None
 
-def parse_dynamic_sentence_groupNewOLD(content):
-    # Remove barras invertidas e espaços extras
-    sentence = re.sub(r'\\', '', content).strip()
-
-    # Regex para capturar as seções desejadas
-    owned_section = re.search(r"GroupsOwned\s*(.*?)(?=Participating Groups|Address Book Info|$)", sentence, re.DOTALL)
-    participating_section = re.search(r"Participating Groups\s*(.*?)(?=Address Book Info|$)", sentence, re.DOTALL)
-
-    # Regex para capturar informações de cada grupo
-    pattern = re.compile(
-        r"(?:Picture \((.*?)\))?\s*"  # Captura 'Picture' opcionalmente
-        r"(?:Linked Media File:\s*(linked_media/\S+\.(?:jpg|png)))?\s*"
-        r"(?:Thumbnail\s*(.*?))?\s*(?=ID|Creation|Size|Description|Subject|Picture|$)?\s*"
-        r"(?:ID([\w-]+))\s*"  # <-- Agora aceita alfa-numérico, hífen e underscore
-        r"(?:Creation([\d-]+ [\d:]+ UTC))\s*"
-        r"(?:Size(\d+))\s*"
-        r"(?:Description(.*?))?\s*(?=Subject|Picture|Linked Media File|Thumbnail|ID|Creation|Size|$)"  # mais seguro
-        r"(?:Subject\s*(.*?))\s*(?=Picture|Linked Media File|Thumbnail|ID|Creation|Size|Description|$)"
-        , re.DOTALL
-    )
-
-    # Função auxiliar para extrair grupos de uma seção
-    def extract_groups(section_text):
-        groups = []
-        if section_text:
-            # Divide o texto em blocos de grupos
-            group_blocks = re.split(r'(?=Picture|No picture)', section_text)
-
-            for block in group_blocks:
-                if not block.strip():
-                    continue
-
-                match = pattern.search(block)
-                if match:
-                    group_data = {
-                        "Picture": match.group(1) or "No picture",
-                        "LinkedMediaFile": match.group(2) or "No linked media",
-                        "Thumbnail": match.group(3) or "No thumbnail",
-                        "ID": match.group(4),
-                        "Creation": match.group(5),
-                        "Size": match.group(6),
-                        "Description": match.group(7) or "",  # Valor padrão vazio para Description
-                        "Subject": match.group(8).strip() if match.group(8) else ""
-                    }
-                    groups.append(group_data)
-        return groups
-
-    dados = {
-        "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
-        "participatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
-    }
-
-    print_color(f"{dados}", 33)
-
-    return dados
-
-def parse_dynamic_sentence_groupNew(content):
+def parse_dynamic_sentence_group(content):
     # --- Vetor de ignorados ---
     ignored_patterns = [
         r"WhatsApp Business Record Page\s*\d+"  # ignora "WhatsApp Business Record Page 40"
@@ -579,70 +522,6 @@ def parse_dynamic_sentence_groupNew(content):
 
     print_color(f"{dados}", 33)
     return dados
-
-def parse_dynamic_sentence_group(content):
-    # Remove as barras invertidas e espaços em branco desnecessários
-    sentence = re.sub(r'\\', '', content).strip()
-    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
-
-    # Padrão regex abrangente para capturar todos os campos de cada bloco de informações
-    pattern = re.compile(r"""
-            Picture\s+\((.+?)\)\s+                   # Captura o caminho da imagem 'Picture'
-            Linked\s+Media\s+File:\s*(.+?)\s+        # Captura o caminho do arquivo 'Linked Media File'
-            Thumbnail\s+\((.+?)\)\s+                 # Captura o caminho da imagem 'Thumbnail'
-            Linked\s+Media\s+File:\s*(.+?)\s+        # Captura o caminho do arquivo 'Linked Media File' da thumbnail
-            ID\s*(\d+)\s+                            # Captura o ID numérico
-            Creation\s*(\d{4}\-\d{2}\-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC)\s+  # Captura a data e hora de criação
-            Size\s*(\d+)\s+                          # Captura o tamanho
-            Subject\s*(.+?)(?=\s+Picture|$)          # Captura o assunto até a próxima ocorrência de 'Picture' ou fim do texto
-        """, re.VERBOSE)
-
-    # Estruturas para armazenar os dados dos grupos
-    owned_groups = []
-    participating_groups = []
-
-    # Dicionário de campos para mapear os dados
-    group_keys = [
-        remover_espacos_regex(key) for key in [
-            "Picture", "Linked Media File", "Thumbnail", "Thumbnail Linked Media File",
-            "ID", "Creation", "Size", "Subject"
-        ]
-    ]
-
-    # Divide o conteúdo em seções de grupos
-    group_sections = re.split(
-        r"(GroupsOwned|Owned Groups|GroupsParticipating|Participating Groups)",
-        sentence
-    )
-
-    current_section = None
-
-    for section in group_sections:
-        section = section.strip()
-
-        # Identifica se está nos grupos 'Owned' ou 'Participating'
-        if re.match(r"(GroupsOwned|Owned Groups)", section):
-            current_section = 'owned'
-        elif re.match(r"(GroupsParticipating|Participating Groups)", section):
-            current_section = 'participating'
-        elif current_section:  # Processa os blocos de dados dentro da seção atual
-            for match in pattern.finditer(section):
-                group_data = {key: match.group(i + 1).strip() for i, key in enumerate(group_keys)}
-
-                if current_section == 'owned':
-                    owned_groups.append(group_data)
-                elif current_section == 'participating':
-                    participating_groups.append(group_data)
-
-    # Estrutura final dos resultados
-    results = {
-        "ownedGroups": owned_groups,
-        "participatingGroups": participating_groups
-    }
-
-    print_color(f"{results}", 33)
-
-    return results if owned_groups or participating_groups else None
 
 def parse_dynamic_sentence_group_participants(content):
     # Remove as barras invertidas e espaços em branco desnecessários
@@ -729,49 +608,6 @@ def parse_dynamic_sentence_small(content):
     else:
         return None
 
-def parse_dynamic_sentence_messagesOLD(content):
-    # Remove as barras invertidas e espaços em branco desnecessários
-    sentence = re.sub(r'\\', '', content).strip()
-    # Remove linhas vazias
-    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
-
-    # Expressões regulares para capturar os campos da mensagem
-    message_patterns = {
-        "Timestamp": r"Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)",
-        "Message Id": r"Message Id([\w\d]+)",
-        "Sender": r"Sender(\d+)",
-        "Recipients": r"Recipients(\d+)",
-        "Group Id": r"Group Id([\w\d]+)",
-        "Sender Ip": r"Sender Ip([\d\.:a-fA-F]+)",
-        "Sender Port": r"Sender Port(\d+)",
-        "Sender Device": r"Sender Device([\w]+)",
-        "Type": r"Type([\w]+)",
-        "Message Style": r"Message Style([\w]+)",
-        "Message Size": r"Message Size(\d+)"
-    }
-
-    # Dividir a string em blocos de mensagens individuais usando a presença de 'Timestamp' e 'Message Size' como delimitadores
-    messages = re.findall(r'(Timestamp\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC.*?Message Size\d+)', sentence, re.DOTALL)
-
-    results = []
-
-    for message in messages:
-        # Dicionário para armazenar os resultados
-        result = {}
-        # Iterar sobre os padrões e encontrar as correspondências
-        for key, pattern in message_patterns.items():
-            match = re.search(pattern, message)
-            if match:
-                result[remover_espacos_regex(key)] = match.group(1).strip()
-        # Adicionar apenas se result não estiver vazio
-        if result:
-            results.append(result)
-
-    if len(results) > 0:
-        return results
-    else:
-        return None
-
 def parse_dynamic_sentence_messages(sentence):
     # --- Vetor de ignorados ---
     ignored_patterns = [
@@ -794,6 +630,16 @@ def parse_dynamic_sentence_messages(sentence):
         msg = msg_tuple[0]  # o findall retorna tupla por causa do grupo lookahead
         parsed_msg = {}
 
+        # Timestamp
+        timestamp_match = re.search(r"Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)", msg)
+        if timestamp_match:
+            parsed_msg["Timestamp"] = timestamp_match.group(1)
+
+        # Message Id (alfa-numérico + hífen + underscore)
+        message_id_match = re.search(r"Message Id([\w\-_]+)", msg)
+        if message_id_match:
+            parsed_msg["Message Id"] = message_id_match.group(1)
+
         # Sender (numérico)
         sender_match = re.search(r"Sender(\d+)", msg)
         if sender_match:
@@ -807,35 +653,35 @@ def parse_dynamic_sentence_messages(sentence):
                 r.strip() for r in re.split(r"[,\s]+", recipients_raw) if r.strip()
             ]
 
-        # Sender Device (texto com espaços)
-        sender_device_match = re.search(r"Sender Device([^\n]+)", msg)
-        if sender_device_match:
-            parsed_msg["Sender Device"] = sender_device_match.group(1).strip()
-
-        # Timestamp
-        timestamp_match = re.search(r"Timestamp(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC)", msg)
-        if timestamp_match:
-            parsed_msg["Timestamp"] = timestamp_match.group(1)
-
-        # Message Id (alfa-numérico + hífen + underscore)
-        message_id_match = re.search(r"Message Id([\w\-_]+)", msg)
-        if message_id_match:
-            parsed_msg["Message Id"] = message_id_match.group(1)
+        # Group Id (alfa-numérico + hífen + underscore)
+        group_id_match = re.search(r"Group Id([\w\-_]+)", msg)
+        if group_id_match:
+            parsed_msg["Group Id"] = group_id_match.group(1)
 
         # Sender Ip (IPv4/IPv6)
         sender_ip_match = re.search(r"Sender Ip([\d\.:a-fA-F]+)", msg)
         if sender_ip_match:
             parsed_msg["Sender Ip"] = sender_ip_match.group(1)
 
-        # Message Style (word only)
-        message_style_match = re.search(r"Message Style([\w]+)", msg)
-        if message_style_match:
-            parsed_msg["Message Style"] = message_style_match.group(1)
+        # Message Size (numérico, opcional)
+        port_match = re.search(r"Sender Port(\d+)", msg)
+        if port_match:
+            parsed_msg["Sender Port"] = port_match.group(1)
+
+        # Sender Device (texto com espaços)
+        sender_device_match = re.search(r"Sender Device([^\n]+)", msg)
+        if sender_device_match:
+            parsed_msg["Sender Device"] = sender_device_match.group(1).strip()
 
         # Type (word only)
         type_match = re.search(r"Type([\w]+)", msg)
         if type_match:
             parsed_msg["Type"] = type_match.group(1)
+
+        # Message Style (word only)
+        message_style_match = re.search(r"Message Style([\w]+)", msg)
+        if message_style_match:
+            parsed_msg["Message Style"] = message_style_match.group(1)
 
         # Message Size (numérico, opcional)
         message_size_match = re.search(r"Message Size(\d+)", msg)

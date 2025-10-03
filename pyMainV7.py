@@ -28,14 +28,13 @@ DIRLOG = os.getenv("DIRLOG")
 
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
-DebugMode = False
+DebugMode = True
 Executar = False
 FileJsonLog = True
 TypeProcess = 2 # 1 - Python 2 - PHP
 
 def get_files_in_dir(path):
     return set(os.listdir(path))
-
 
 def process(source):
     limpar_arquivos_antigos(DIRLOG, dias=3)

@@ -70,18 +70,56 @@ def setDateObjetoProrrogue(AccountIdentifier, Unidade, fileName):
     con.close()
 
 
+# def sendDataJsonServer(Dados, type):
+#     payload = {'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados)}
+#     try:
+#         print(f'\nEVENTO POST AGUARDE RESPOSTA DO PHP\n')
+#         r = requests.post(APILINK, data=payload)
+#
+#         if r.status_code == 200 and r.text != "" and r.text is not None:
+#             Jsondata = json.loads(r.text)
+#
+#             return Jsondata
+#     except requests.exceptions.ConnectionError:
+#         print_color(f'\nBuild http Connection Failed {requests.exceptions.ConnectionError}', 31)
+#     except Exception as inst:
+#         errorData = "{Location: sendDataJsonServer, error: " + str(inst) + ", type: " + type + "}"
+#         print_color(f"{errorData}", 31)
 def sendDataJsonServer(Dados, type):
     payload = {'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados)}
     try:
         print(f'\nEVENTO POST AGUARDE RESPOSTA DO PHP\n')
         r = requests.post(APILINK, data=payload)
 
-        if r.status_code == 200 and r.text != "" and r.text is not None:
-            Jsondata = json.loads(r.text)
+        # Debug: Imprimir status e resposta
+        # print(f"Status Code: {r.status_code}")
+        # print(f"Response Text: {r.text[:500]}")
 
-            return Jsondata
-    except requests.exceptions.ConnectionError:
-        print_color(f'\nBuild http Connection Failed {requests.exceptions.ConnectionError}', 31)
+        if r.status_code == 200:
+            response_text = r.text.strip()  # Remove espaços em branco
+
+            if response_text:  # Verifica se não está vazio
+                try:
+                    Jsondata = json.loads(response_text)
+                    return Jsondata
+                except json.JSONDecodeError as e:
+                    print_color(f'\nErro ao fazer parse do JSON: {e}', 31)
+                    print_color(f'Resposta recebida: {response_text[:500]}', 31)
+                    return {'status': 'error', 'message': 'Resposta inválida do servidor'}
+            else:
+                print_color(f'\nResposta vazia do servidor', 31)
+                return {'status': 'error', 'message': 'Resposta vazia'}
+        else:
+            print_color(f'\nStatus code diferente de 200: {r.status_code}', 31)
+            return {'status': 'error', 'message': f'Status code: {r.status_code}'}
+
+    except requests.exceptions.Timeout:
+        print_color(f'\nTimeout na requisição', 31)
+        return {'status': 'error', 'message': 'Timeout'}
+    except requests.exceptions.ConnectionError as e:
+        print_color(f'\nErro de conexão: {e}', 31)
+        return {'status': 'error', 'message': 'Erro de conexão'}
     except Exception as inst:
-        errorData = "{Location: sendDataJsonServer, error: " + str(inst) + ", type: " + type + "}"
-        print_color(f"{errorData}", 31)
+        errorData = f"{{Location: sendDataJsonServer, error: {str(inst)}, type: {type}}}"
+        print_color(errorData, 31)
+        return {'status': 'error', 'message': str(inst), 'type': type}

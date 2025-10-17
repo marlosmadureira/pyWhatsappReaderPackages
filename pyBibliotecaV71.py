@@ -169,7 +169,8 @@ def remover_espacos_regex(texto):
 
 
 def somentenumero(parametro):
-    return re.sub('[^0-9]', '', parametro)
+    texto = parametro if isinstance(parametro, (str, bytes)) else str(parametro or "")
+    return re.sub('[^0-9]', '', texto)
 
 
 def countdown(num_of_secs):

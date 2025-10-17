@@ -10,7 +10,7 @@ import traceback
 
 from dotenv import load_dotenv
 from datetime import datetime
-from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
+from pyBibliotecaV71 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log,  \
     remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines, openJsonEstruturado, contar_arquivos_zip
 from pyPostgresql import find_unidade_postgres, listaProcessamento, saveResponse
@@ -29,7 +29,7 @@ DIRLOG = os.getenv("DIRLOG")
 
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
-DebugMode = False
+DebugMode = True
 Executar = True
 FileJsonLog = True
 TypeProcess = 2 # 1 - Python 2 - PHP
@@ -302,6 +302,7 @@ def process(source):
 
 def parse_dynamic_sentence_parameters(content):
     # --- Vetor de ignorados expandido ---
+    # print("Content------------>",content)
     ignored_patterns = [
         r"WhatsApp Business Record Page\s*\d+",
         r"\[.*?\]\(.*?\)",  # Links markdown [texto](url)
@@ -348,7 +349,7 @@ def parse_dynamic_sentence_parameters(content):
             re.DOTALL
         ),
         "AccountIdentifier": re.compile(
-            r"Account Identifier\s*:?\s*([\+\d\s-]+?)(?=" + lookahead + r")",
+            r"Account Identifier\s*:?\s*([\+\d\s\-,]+?)(?=" + lookahead + r")",
             re.DOTALL
         ),
         "AccountType": re.compile(
@@ -395,7 +396,6 @@ def parse_dynamic_sentence_parameters(content):
         if field_name == "RegisteredEmailAddresses":
             # Esta lógica pode precisar de ajuste se o lookahead já estiver funcionando bem
             value = re.split(r'(?=Ip Addresses Definition)', value)[0]
-
         # Remove parênteses e colchetes extras no final
         value = re.sub(r'[\]\)]+\s*$', '', value)
         value = re.sub(r'^\s*[\[\(]+', '', value)
@@ -415,6 +415,10 @@ def parse_dynamic_sentence_parameters(content):
         # Verifica se é vazio ou "No responsive records"
         if not value or value.lower() in ['', 'no responsive records']:
             return "No responsive records"
+
+        if field_name == "AccountIdentifier":
+            # tira vírgulas extras no fim
+            value = value.rstrip(",")
 
         return value
 

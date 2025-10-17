@@ -29,7 +29,7 @@ DIRLOG = os.getenv("DIRLOG")
 
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
-DebugMode = True
+DebugMode = False
 Executar = True
 FileJsonLog = True
 TypeProcess = 2 # 1 - Python 2 - PHP
@@ -1315,16 +1315,42 @@ if __name__ == '__main__':
 
         try:
 
+            # if added_files:
+            #     for file in added_files:
+            #         full_path = os.path.join(DIRNOVOS, file)
+            #         if os.path.isdir(full_path):
+            #             print(f"Ignorando diretório: {file}")
+            #             continue
+            #         if not file.lower().endswith('.zip'):
+            #             print(f"Ignorando não-zip: {file}")
+            #             continue
+            #         process(full_path)
             if added_files:
-                for file in added_files:
+                # 1) separar em DADOS_ e não-DADOS_
+                dados_zips = sorted(
+                    f for f in added_files
+                    if f.lower().endswith('.zip') and f.upper().startswith('DADOS_')
+                )
+                other_zips = sorted(
+                    f for f in added_files
+                    if f.lower().endswith('.zip') and not f.upper().startswith('DADOS_')
+                )
+                # 2) concatena para garantir a ordem desejada
+                ordered_files = dados_zips + other_zips
+
+                for file in ordered_files:
                     full_path = os.path.join(DIRNOVOS, file)
+                    # mantém sua lógica de ignorar diretórios e não-zip
                     if os.path.isdir(full_path):
                         print(f"Ignorando diretório: {file}")
                         continue
                     if not file.lower().endswith('.zip'):
                         print(f"Ignorando não-zip: {file}")
                         continue
+                    # processa na ordem: primeiro DADOS_* depois os outros
+                    print(f"Processando: {file}")
                     process(full_path)
+
             if removed_files:
                 print(f'\nArquivos removidos: {removed_files}')
         except Exception as inst:

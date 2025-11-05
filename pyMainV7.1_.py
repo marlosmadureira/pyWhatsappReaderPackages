@@ -758,9 +758,6 @@ def parse_dynamic_sentence_groupNew(content):
     for pattern in ignored_patterns:
         sentence = re.sub(pattern, "", sentence)
 
-    # Captura seções Owned e Participating
-    # owned_section = re.search(r"Groups Owned Groups\s*(.*?)(?=Participating Groups|Address Book Info|$)", sentence, re.DOTALL)
-    # participating_section = re.search(r"Participating Groups\s*(.*?)(?=Address Book Info|$)", sentence, re.DOTALL)
     owned_section = re.search(
         r"Groups Owned Groups\s*(.*?)(?=Participating Groups|Address Book Info|$)",
         sentence,
@@ -778,19 +775,19 @@ def parse_dynamic_sentence_groupNew(content):
         "Picture": re.compile(r"Picture\s*\(?(linked_media/[^)\s]+?\.(?:jpg|jpeg|png))\)?",re.IGNORECASE),
         "LinkedMediaFile": re.compile(r"Linked\s*Media\s*File:\s*(linked_media/[^\s)]+?\.(?:jpg|jpeg|png))",re.IGNORECASE),
         "Thumbnail": re.compile(r"Thumbnail\s*(.*?)(?=ID|Creation|Size|Description|Subject|Picture|Linked Media File|$)",re.DOTALL),
-        "ID": re.compile(r"ID\s*([^\s]+)(?=\s*Creation|Size|Subject|Picture|Linked Media File|Thumbnail|Description|$)"),"Creation": re.compile(r"Creation\s*([\d-]+\s+[\d:]+\s+UTC)"),
+        "ID": re.compile(r"ID\s*([^\s]+)(?=\s*Creation|Size|Subject|Picture|Linked Media File|Thumbnail|Description|$)"),
+        "Creation": re.compile(r"Creation\s*([\d-]+\s+[\d:]+\s+UTC)"),
         "Size": re.compile(r"Size\s*(\d+)"),
-        "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID|Creation|Size|$)",re.DOTALL),
+        # "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID|Creation|Size|$)",re.DOTALL),
+        "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|$)", re.DOTALL),
         "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID|Creation|Size|Description|$)",re.DOTALL)
     }
 
     def extract_groups(section_text):
         groups = []
         if section_text:
-            # Divide a seção em blocos por "Picture" ou "ID"
-            # group_blocks = re.split(r'(?=Picture|No picture|ID\s)', section_text)
             group_blocks = re.findall(
-                r'(Picture.*?)(?=Picture|$)',
+                r'((?:Picture\b|ID\s+\d{6,})\b.*?)(?=(?:Picture\b|ID\s+\d{6,})\b|$)',
                 section_text,
                 re.DOTALL
             )
@@ -823,20 +820,21 @@ def parse_dynamic_sentence_groupNew(content):
                     group_data["Description"] = ""
 
                 # Validação obrigatória → só salva se tiver os 4 essenciais
-                if group_data["ID"] and group_data["Creation"] and group_data["Size"] and group_data["Subject"]:
+                if (
+                        group_data["ID"]
+                        and group_data["Creation"]
+                        and group_data["Size"]
+                        and group_data["Subject"]
+                ):
                     groups.append(group_data)
 
-        # print_color(f"extract_groups ------------> {groups}", 33)
         return groups
 
     dados = {
         "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
         "ParticipatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
     }
-    # print_color(f"Owned Section:\n{owned_section.group(1) if owned_section else 'None'}", 36)
-    # print_color(f"Participating Section:\n{participating_section.group(1) if participating_section else 'None'}", 36)
 
-    # print_color(f"{dados}", 33)
     return dados
 
 def parse_dynamic_sentence_group(content):

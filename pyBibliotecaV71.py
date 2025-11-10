@@ -111,10 +111,8 @@ def replace_divs(html):
 
     return html
 
-
-def html_to_markdown(html):
-    # Substituir a <div class="p"> por um espaço em branco
-    # pattern = r'<div class="[a-z]"></div>'
+#Precisa instalar 'pip install lxml'
+def html_to_markdownOLDS(html):
     pattern = r'<div class="p"></div>'
     html = re.sub(pattern, ' ', html)
 
@@ -126,12 +124,30 @@ def html_to_markdown(html):
         div.decompose()  # Remove a tag e seu conteúdo
 
     # Converter o HTML modificado para Markdown
-    # markdown = md(str(soup), strip=['div'])
     markdown_output = md(str(soup))
     markdown = re.sub(r'\s+', ' ', markdown_output).strip()
 
     return markdown
+def html_to_markdown(html):
+    html = re.sub(r'<div class="p"></div>', ' ', html)
 
+    soup = BeautifulSoup(html, 'lxml')
+
+    for tag in soup(['style', 'script']):
+        tag.decompose()
+    for br in soup.find_all('div', class_='pageBreak'):
+        br.decompose()
+
+    # 4) **Insere manualmente** o URL das imagens no texto
+    #    todo <img src="path"> vira "(path)"
+    for img in soup.find_all('img'):
+        src = img.get('src') or img.get('data-src') or ''
+        img.replace_with(f'({src})')
+
+    # 5) Extrai tudo como texto, preservando espaçamentos
+    texto = soup.get_text(separator=' ', strip=True)
+    # normaliza espaços múltiplos
+    return re.sub(r'\s+', ' ', texto)
 
 def getUnidadeFileName(nome_original):
     FileName, Unidade = None, None

@@ -84,11 +84,6 @@ def process(source):
     bsHtml = remove_duplicate_newlines(bsHtml.replace('![]', ''))
 
     if bsHtml is not None and bsHtml != "" and Unidade is not None:
-
-        # delete_log(f'{DIRLOG}{os.path.splitext(fileName)[0]}.txt')
-
-        # grava_log(bsHtml, f'{os.path.splitext(fileName)[0]}.txt')
-
         NomeUnidade = find_unidade_postgres(Unidade)
 
         print_color(f'\nDESCOMPACTADO {fileName} DA UNIDADE {NomeUnidade} CODIGO {Unidade} \n', 34)
@@ -749,7 +744,6 @@ def parse_dynamic_sentence_groupNew(content):
     # --- Vetor de ignorados ---
     ignored_patterns = [
         r"WhatsApp Business Record Page\s*\d+",
-        # r"Groups Info Definition.*?(?=Groups\s*Owned Groups|Participating Groups|Picture\s*\d|$)",
         r"Groups Info Definition.*?(?=Groups\s*(?:Owned Groups|Participating Groups)|Address Book Info|$)"
     ]
 
@@ -774,20 +768,20 @@ def parse_dynamic_sentence_groupNew(content):
     regex_fields = {
         "Picture": re.compile(r"Picture\s*\(?(linked_media/[^)\s]+?\.(?:jpg|jpeg|png))\)?",re.IGNORECASE),
         "LinkedMediaFile": re.compile(r"Linked\s*Media\s*File:\s*(linked_media/[^\s)]+?\.(?:jpg|jpeg|png))",re.IGNORECASE),
-        "Thumbnail": re.compile(r"Thumbnail\s*(.*?)(?=ID|Creation|Size|Description|Subject|Picture|Linked Media File|$)",re.DOTALL),
+        "Thumbnail": re.compile(r"Thumbnail\s*(.*?)(?=ID\s+\d{6,}|Creation|Size|Description|Subject|Picture|Linked Media File|$)",re.DOTALL),
         "ID": re.compile(r"ID\s*([^\s]+)(?=\s*Creation|Size|Subject|Picture|Linked Media File|Thumbnail|Description|$)"),
         "Creation": re.compile(r"Creation\s*([\d-]+\s+[\d:]+\s+UTC)"),
         "Size": re.compile(r"Size\s*(\d+)"),
-        # "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID|Creation|Size|$)",re.DOTALL),
         "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|$)", re.DOTALL),
-        "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID|Creation|Size|Description|$)",re.DOTALL)
+        "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|Description|$)",re.DOTALL),
     }
 
     def extract_groups(section_text):
         groups = []
         if section_text:
             group_blocks = re.findall(
-                r'((?:Picture\b|ID\s+\d{6,})\b.*?)(?=(?:Picture\b|ID\s+\d{6,})\b|$)',
+                # r'((?:Picture\b|ID\s+\d{6,})\b.*?)(?=(?:Picture\b|ID\s+\d{6,})\b|$)',
+                r'((?:Picture\b.*?ID\s+\d{6,}.*?|ID\s+\d{6,}.*?))(?=(?:Picture\b|ID\s+\d{6,})\b|$)',
                 section_text,
                 re.DOTALL
             )
@@ -834,7 +828,7 @@ def parse_dynamic_sentence_groupNew(content):
         "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
         "ParticipatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
     }
-
+    # print('GRUPOS -----------> ',dados)
     return dados
 
 def parse_dynamic_sentence_group(content):
@@ -996,7 +990,7 @@ def parse_dynamic_sentence_web(content):
     else:
         return None
 
-def parse_dynamic_sentence_small(content):
+def parse_dynamic_sentence_smallOLDS(content):
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', content).strip()
     # Remove linhas vazias
@@ -1020,9 +1014,95 @@ def parse_dynamic_sentence_small(content):
             results[remover_espacos_regex(key)] = match.group(1).strip()
 
     if len(results) > 0:
+        # print('Small --------> ', results)
         return results
     else:
         return None
+def parse_dynamic_sentence_small(content):
+    ignored_patterns = [
+        r"Small Medium Business Definition.*?(?=Small Medium Business|Small Medium Business\s|Device Info Definition|$)",
+    ]
+
+    sentence = re.sub(r'\\', '', content).strip()
+    for pattern in ignored_patterns:
+        sentence = re.sub(pattern, "", sentence, flags=re.DOTALL)
+
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
+
+    # campos que queremos capturar
+    fields = ["Name", "Email", "Address", "Websites"]
+
+    # tokens adicionais de parada que aparecem no seu documento e que devem interromper a captura
+    extra_stop_tokens = ["Device Info Definition","Connection Info","Web Info","Groups Info","Address Book Info","Print Options By Category","All Request Parameters","Ncmec Reports","Device Info",]
+    stop_list = fields + extra_stop_tokens
+    lookahead = "|".join(re.escape(f) for f in stop_list) + r"|$"
+
+    # Regex mais tolerante: aceita ":" opcional e captura até o lookahead
+    regex_fields = {
+        "Name": re.compile(r"Small Medium Business Name\s*:?\s*(.*?)(?=" + lookahead + r")", re.DOTALL | re.IGNORECASE),
+        "Email": re.compile(r"(?:Email)\s*:?\s*(.*?)(?=" + lookahead + r")", re.DOTALL | re.IGNORECASE),
+        "Address": re.compile(r"(?:Address)\s*:?\s*(.*?)(?=" + lookahead + r")", re.DOTALL | re.IGNORECASE),
+        "Websites": re.compile(r"(?:Websites)\s*:?\s*(.*?)(?=" + lookahead + r")", re.DOTALL | re.IGNORECASE),
+    }
+
+    results = {}
+
+    def extract_email(text):
+        # procura um email padrão dentro do texto
+        m = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', text)
+        return m.group(0).strip() if m else None
+
+    def extract_website(text):
+        # aceita URLs com http(s) ou www ou domínio com ponto (e sem espaços estranhos)
+        m = re.search(r'(https?://[^\s,;]+|www\.[^\s,;]+|[A-Za-z0-9-]+\.[A-Za-z]{2,}(?:/[^\s,;]*)?)', text)
+        if not m:
+            return None
+        cand = m.group(0).strip().rstrip('.')
+        # rejeita matches óbvios de frases genéricas como 'Business generated website of business'
+        if re.search(r'business generated website', text, re.IGNORECASE):
+            return None
+        return cand
+
+    # Para cada campo, pega todos os matches e escolhe o último não-vazio (valor real)
+    for key, pattern in regex_fields.items():
+        matches = pattern.findall(sentence)
+        value = None
+        if matches:
+            for m in reversed(matches):
+                if not m:
+                    continue
+                cand = m.strip()
+                cand = re.sub(r"^[:\-\s]+", "", cand).strip()
+                if cand:
+                    value = cand
+                    break
+
+        # validações específicas
+        if key == "Email":
+            if value:
+                email_ok = extract_email(value)
+                results[key] = email_ok
+            else:
+                results[key] = None
+        elif key == "Websites":
+            if value:
+                web_ok = extract_website(value)
+                results[key] = web_ok
+            else:
+                results[key] = None
+        else:
+            results[key] = value if value else None
+
+    # Se ao menos um campo válido foi encontrado, retorna; caso contrário, None
+    if any(v is not None for v in results.values()):
+        # opcional: remover valores que são apenas a descrição genérica
+        # (por segurança extra)
+        for k in ["Email", "Websites"]:
+            if results.get(k) is None:
+                results[k] = None
+        # print("Small --------> ", results)
+        return results
+    return None
 
 def parse_dynamic_sentence_messages(content):
     try:

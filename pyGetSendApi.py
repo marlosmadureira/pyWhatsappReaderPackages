@@ -123,3 +123,56 @@ def sendDataJsonServer(Dados, type):
         errorData = f"{{Location: sendDataJsonServer, error: {str(inst)}, type: {type}}}"
         print_color(errorData, 31)
         return {'status': 'error', 'message': str(inst), 'type': type}
+
+# Para DEBUG LOCAL
+def sendDataJsonServerOLDS(Dados, type, max_retries=1, retry_delay=2):
+    payload = {'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados)}
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            ts = datetime.datetime.now().isoformat()
+            print(f"\n[{ts}] EVENTO POST (attempt {attempt}) AGUARDE RESPOSTA DO PHP — fileType={type}\n")
+            # Log payload summary (sem token)
+            safe_payload = dict(payload)
+            if 'token' in safe_payload:
+                safe_payload['token'] = '***'
+            print(f"Payload (resumido): {safe_payload}\n")
+
+            r = requests.post(APILINK, data=payload, timeout=60)
+
+            print(f"HTTP Status: {r.status_code}")
+            print(f"Resposta (primeiros 2000 chars): {repr(r.text[:2000])}\n")
+
+            if r.status_code == 200:
+                response_text = (r.text or "").strip()
+                if not response_text:
+                    return {'status': 'error', 'message': 'Resposta vazia', 'http_status': r.status_code, 'raw': response_text}
+                try:
+                    Jsondata = json.loads(response_text)
+                    # normalize response into consistent shape:
+                    return {'status': 'ok', 'body': Jsondata, 'http_status': r.status_code, 'raw': response_text}
+                except json.JSONDecodeError as e:
+                    print_color(f'\nErro ao fazer parse do JSON: {e}', 31)
+                    print_color(f'Resposta recebida (raw): {response_text[:5000]}', 31)
+                    return {'status': 'error', 'message': 'Resposta inválida do servidor', 'http_status': r.status_code, 'raw': response_text}
+            else:
+                print_color(f'\nStatus code diferente de 200: {r.status_code}', 31)
+                return {'status': 'error', 'message': f'Status code: {r.status_code}', 'http_status': r.status_code, 'raw': r.text}
+
+        except requests.exceptions.Timeout:
+            print_color(f'\nTimeout na requisição (attempt {attempt})', 31)
+            if attempt <= max_retries:
+                time.sleep(retry_delay)
+                continue
+            return {'status': 'error', 'message': 'Timeout'}
+        except requests.exceptions.ConnectionError as e:
+            print_color(f'\nErro de conexão: {e}', 31)
+            if attempt <= max_retries:
+                time.sleep(retry_delay)
+                continue
+            return {'status': 'error', 'message': 'Erro de conexão', 'exception': str(e)}
+        except Exception as inst:
+            errorData = f"{{Location: sendDataJsonServer, error: {str(inst)}, type: {type}}}"
+            print_color(errorData, 31)
+            return {'status': 'error', 'message': str(inst), 'type': type}

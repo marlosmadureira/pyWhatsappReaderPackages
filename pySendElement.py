@@ -11,6 +11,21 @@ DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 
+# Para DEBUG LOCAL
+def sendMessageElementOLDS(accessToken, roomId, mensagem):
+    """
+    Função desabilitada para debug local.
+    Simula envio de mensagem sem fazer request real.
+    """
+    mensagemError = f'🤖 IntelliBot \n 🚨 ALERTA DE SISTEMA 🚨 \n {mensagem}'
+
+    print(f"\n [DEBUG] Mensagem que SERIA enviada: {mensagemError}")
+
+    # Retorna resposta simulada de sucesso (sem fazer request real)
+    return {
+        'data': '{"simulated": "success"}',
+        'status': 200
+    }
 def sendMessageElement(accessToken, roomId, mensagem):
 
     mensagemError = f'🤖 IntelliBot \n 🚨 ALERTA DE SISTEMA 🚨 \n {mensagem}'
@@ -40,7 +55,6 @@ def sendMessageElement(accessToken, roomId, mensagem):
         'data': result,
         'status': response.status_code if response else 500
     }
-
 
 def getroomIdElement(Unidade):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:

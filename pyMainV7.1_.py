@@ -77,9 +77,46 @@ def process(source):
 
     listaProcessamento(fileName, Unidade)
 
+    records_html_raw = ""
+    records_html_converted = ""
+
+    preservation_html_raw = ""
+    preservation_html_converted = ""
+
+    other_html_raw = ""
+    other_html_converted = ""
+
+    # Separar HTMLs por tipo
     for FileHtml in FileHtmls:
-        bsHtml += FileHtml
-        bsHtml += parsetHTLMFileString(FileHtml)
+        if "records" in FileHtml.lower():  # arquivo correto
+            records_html_raw += FileHtml
+            records_html_converted += parsetHTLMFileString(FileHtml)
+        elif "preservation" in FileHtml.lower():  # preservations
+            preservation_html_raw += FileHtml
+            preservation_html_converted += parsetHTLMFileString(FileHtml)
+        else:  # outros htmls
+            other_html_raw += FileHtml
+            other_html_converted += parsetHTLMFileString(FileHtml)
+
+    # Primeiro: processar SOMENTE o records.html para extrair parâmetro seguro
+    bsHtml_records = (records_html_raw + records_html_converted).strip()
+
+    parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml_records)
+
+    if parsed_json_parameters is None:
+        print_color("ERRO: Não foi possível extrair parâmetros do records.html", 31)
+        return
+
+    # Extrair somente o número do records
+    AccountIdentifier = somentenumero(parsed_json_parameters["AccountIdentifier"])
+    parsed_json_parameters["AccountIdentifier"] = AccountIdentifier
+
+    # Agora sim, juntar todos os HTMLs para processar mensagens/dados
+    bsHtml = (
+            records_html_raw + records_html_converted +
+            preservation_html_raw + preservation_html_converted +
+            other_html_raw + other_html_converted
+    )
 
     bsHtml = remove_duplicate_newlines(bsHtml.replace('![]', ''))
 

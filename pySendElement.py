@@ -12,7 +12,7 @@ DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 
 # Para DEBUG LOCAL
-def sendMessageElementOLDS(accessToken, roomId, mensagem):
+def sendMessageElement(accessToken, roomId, mensagem):
     """
     Função desabilitada para debug local.
     Simula envio de mensagem sem fazer request real.
@@ -26,7 +26,7 @@ def sendMessageElementOLDS(accessToken, roomId, mensagem):
         'data': '{"simulated": "success"}',
         'status': 200
     }
-def sendMessageElement(accessToken, roomId, mensagem):
+def sendMessageElementOLDS(accessToken, roomId, mensagem):
 
     mensagemError = f'🤖 IntelliBot \n 🚨 ALERTA DE SISTEMA 🚨 \n {mensagem}'
 
@@ -43,17 +43,21 @@ def sendMessageElement(accessToken, roomId, mensagem):
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {accessToken}',
     }
-    
+
+    result = None
+    response_status = 500
+
     try:
-        response = requests.post(url, headers=headers, data=json.dumps(post_data))
-        response.raise_for_status()  # Raises a HTTPError for bad responses
+        response = requests.post(url, headers=headers, data=json.dumps(post_data), timeout=20)
+        response.raise_for_status()
         result = response.text
+        response_status = response.status_code
     except requests.exceptions.RequestException as e:
-        print(f'Erro ao enviar a mensagem para o grupo: {e}', 31)
-    
+        print_color(f'Erro ao enviar a mensagem para o grupo: {e}', 31)
+
     return {
         'data': result,
-        'status': response.status_code if response else 500
+        'status': response_status
     }
 
 def getroomIdElement(Unidade):

@@ -295,7 +295,7 @@ def printDebug(Msg, Comment="Debug:"):
         print(str(Comment) + " " + str(Msg))
 
 
-def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
+def unzipBaseOLDS(fileZIP, DIRNOVOS, DIREXTRACAO):
     OutPutDie = fileZIP.replace(".zip", "")
     zip_ref = zipfile.ZipFile(fileZIP)
     zip_ref.extractall(OutPutDie)
@@ -313,12 +313,31 @@ def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
         # print('\n')
 
     return OutPutDie
+def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
+    try:
+        OutPutDie = fileZIP.replace(".zip", "")
+        zip_ref = zipfile.ZipFile(fileZIP)
+        zip_ref.extractall(OutPutDie)
+        zip_ref.close()
 
+        arquivo = OutPutDie.replace(DIRNOVOS, "")
+        destinationFolder = DIREXTRACAO + arquivo
+
+        if not os.path.isdir(destinationFolder):
+            shutil.copytree(OutPutDie, destinationFolder)
+
+        return OutPutDie
+
+    except zipfile.BadZipFile:
+        print_color(f"[ERRO] Arquivo ZIP inválido ou corrompido: {fileZIP}", 31)
+        return None
+    except Exception as e:
+        print_color(f"[ERRO] Falha inesperada ao extrair ZIP {fileZIP}: {e}", 31)
+        return None
 
 def removeFolderFiles(FolderPath):
     if os.path.exists(FolderPath):
         shutil.rmtree(FolderPath)
-
 
 def ListaAllHtml(folderZip):
     FileHtmls = []
@@ -334,7 +353,6 @@ def ListaAllHtml(folderZip):
                 msgElementNewFile += f"{arquivo} "
 
     return FileHtmls, msgElementNewFile
-
 
 def parsetHTLMFileString(FileHtml):
     markdown_content = None

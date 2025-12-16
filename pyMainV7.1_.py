@@ -7,6 +7,7 @@ import re
 import shutil
 import gc
 import traceback
+import psycopg2
 
 from dotenv import load_dotenv
 from datetime import datetime
@@ -21,6 +22,11 @@ from pyGetSendApi import sendDataJsonServer
 # Configs
 load_dotenv()
 
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+
 DIRNOVOS = os.getenv("DIRNOVOS")
 DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
@@ -33,6 +39,13 @@ DebugMode = False
 Executar = True
 FileJsonLog = True
 TypeProcess = 2 # 1 - Python 2 - PHP
+
+conn = psycopg2.connect(
+    host=DB_HOST,
+    database=DB_NAME,
+    user=DB_USER,
+    password=DB_PASS
+)
 
 def get_files_in_dir(path):
     return set(os.listdir(path))
@@ -1410,6 +1423,34 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
                 f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                 32)
 
+def atualizar_conta_zap(conn):
+    """
+    Atualiza conta_zap com base em conta_id (varchar),
+    extraindo apenas os dígitos e validando valor > 0.
+    """
+    # print_color("\n Normalizando conta_zap == NULL...", 32)
+
+    sql_update = "UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = regexp_replace(conta_id, '[^0-9]', '', 'g')::bigint WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL AND conta_id IS NOT NULL AND regexp_replace(conta_id, '[^0-9]', '', 'g') <> '' AND regexp_replace(conta_id, '[^0-9]', '', 'g')::bigint > 0;"
+
+    try:
+        with conn.cursor() as cur:
+            # print(" Executando UPDATE em lote com normalização...")
+            cur.execute(sql_update)
+
+            linhas = cur.rowcount
+            conn.commit()
+
+            if linhas != 0:
+                print_color(f"      {linhas} - conta_zap normalizada.",32)
+            # else:
+            #     print_color("       Nenhuma conta_zap == NULL para normalização.",33)
+
+    except Exception as e:
+        conn.rollback()
+        print(" Erro ao normalizar conta_zap.")
+        print(f" Detalhes: {e}")
+        raise
+
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)
     checkFolder(DIRLIDOS)
@@ -1418,6 +1459,9 @@ if __name__ == '__main__':
     checkFolder(DIRLOG)
 
     previous_files = get_files_in_dir(DIRNOVOS)
+
+    atualizar_conta_zap(conn) #atualiza coluna tbaplicativo_linhafone.conta_zap que for ativo e estiver null
+    conn.close()
 
     dttmpstatus = ""
     print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 16/10/2025\n")

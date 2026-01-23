@@ -50,7 +50,6 @@ conn = psycopg2.connect(
 def get_files_in_dir(path):
     return set(os.listdir(path))
 
-
 def process(source):
     limpar_arquivos_antigos(DIRLOG, dias=3)
 
@@ -74,7 +73,7 @@ def process(source):
     if msgElementNewFile != "" and roomIds is not None:
         msgElement = f"NOVO ARQUIVO {fileName} WHATSAPP IDENTIFICADO {msgElementNewFile}"
 
-        print(f"\nEnvio da Mensagem {msgElement}", 33)
+        print_color(f"\nEnvio da Mensagem {msgElement}", 33)
 
         for roomId in roomIds:
             elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -177,7 +176,7 @@ def process(source):
                 if DebugMode:
                     print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
             else:
-                print_color(f'QUEBRA DE CONTA {AccountIdentifier} {dataType}', 92)
+                print_color(f'QUEBRA DA CONTA {AccountIdentifier} {dataType}', 92)
                 if flagPrtt:
                     parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
                     if parsed_json_messages is not None:
@@ -273,6 +272,21 @@ def process(source):
                     # print(fileProcess)
                     retornoJson = sendDataJsonServer(fileProcess, dataType)
                     exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds)
+
+                    #SEMPRE mover para ERROS se API falhou
+                    if 'jsonRetorno' not in retornoJson:
+                        filePathErro = DIRERROS + fileName
+                        if not os.path.exists(filePathErro):
+                            shutil.move(source, DIRERROS)
+                            new_filename = filePathErro.replace('.zip', f'_{Unidade}.zip')
+                            os.rename(filePathErro, new_filename)
+                        else:
+                            os.remove(source)
+
+                        removeFolderFiles(folderZip)
+                        print_color(f"\n================================= FIM PROCESSAMENTO {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} (ERRO API) =================================", 31)
+                        return
+                removeFolderFiles(folderZip)
             else:
                 print_color(
                     f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
@@ -286,7 +300,7 @@ def process(source):
             if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                print(f"\nEnvio da Mensagem {msgElement}", 33)
+                print_color(f"\nEnvio da Mensagem {msgElement}", 33)
 
                 for roomId in roomIds:
                     elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -313,7 +327,7 @@ def process(source):
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
+            print_color(f"\nEnvio da Mensagem {msgElement}", 33)
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -1308,35 +1322,134 @@ def parse_dynamic_sentence_calls(content):
 
     return results or None
 
+def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
+
+    lines = []
+    # lines.append(f"🚨 ALERTA DE SISTEMA - WhatsApp 🚨")
+    # lines.append("")
+    lines.append(f"Arquivo: {fileName}")
+    lines.append(f"Conta: {AccountIdentifier}")
+    lines.append(f"Tipo: {type}")
+
+    # Erro de transporte / HTTP / PHP 500
+    if isinstance(retorno, dict) and retorno.get('ok') is False and 'error' in retorno:
+        err = retorno.get('error', {})
+        ctx = retorno.get('context', {})
+
+        lines.append("Resultado: ERROR")
+        if ctx.get('request_id'):
+            lines.append(f"request_id: {ctx.get('request_id')}")
+
+        # PRIORIDADE 1: se tem response_snippet (erro do servidor/PHP), usa ele
+        if 'response_snippet' in ctx and ctx['response_snippet']:
+            try:
+                snippet_json = json.loads(ctx['response_snippet'])
+                if isinstance(snippet_json, dict) and 'error' in snippet_json:
+                    php_err = snippet_json['error']
+                    lines.append(f"Aviso (PHP): {php_err.get('code')}: {php_err.get('message')}")
+                else:
+                    lines.append(f"Aviso (snippet): {ctx['response_snippet'][:400]}...")
+            except json.JSONDecodeError:
+                lines.append(f"Aviso (snippet): {ctx['response_snippet'][:400]}...")
+        else:
+            # PRIORIDADE 2: fallback para erro genérico do Python
+            lines.append(f"Aviso:- {err.get('code')}: {err.get('message')}")
+
+        return "\n".join(lines)
+
+    # resposta normal do PHP
+    jr = retorno.get('jsonRetorno')
+    if isinstance(jr, str):
+        try:
+            jr = json.loads(jr)
+        except Exception:
+            jr = {'Resultado': 'ERROR',
+                  'Errors': [{'code': 'INVALID_JSONRETORNO', 'message': 'jsonRetorno não parseável'}]}
+
+    # resultado = jr.get('Resultado')
+    # request_id = retorno.get('request_id') or jr.get('request_id')
+    #
+    # lines.append(f"Resultado: {resultado}")
+    # if request_id:
+    #     lines.append(f"request_id: {request_id}")
+
+    Aviso = jr.get('Aviso', []) or []
+    errors = jr.get('Errors', []) or []
+
+    if Aviso:
+        w0 = Aviso[0]
+        lines.append(f"Aviso: {w0.get('code')}: {w0.get('message')}")
+
+    if errors:
+        e0 = errors[0]
+        lines.append(f"Aviso: {e0.get('code')}: {e0.get('message')}")  # Usando Warnings como no exemplo
+        ctx = e0.get('context', {}) or {}
+        if 'sql' in ctx:
+            lines.append("")
+            lines.append("SQL (trecho):")
+            lines.append(str(ctx['sql'])[:900])
+
+    return "\n".join(lines)
+
 def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds):
 
     EventoGravaBanco = False
+    ja_enviou_element = False
 
-    if 'MostraJsonPython' in retornoJson['jsonRetorno']:
+    if not isinstance(retornoJson, dict):
+        print_color(f"[ERRO] Retorno do PHP em formato inválido: {type(retornoJson)} | valor={str(retornoJson)[:300]}", 31)
+        return
 
-        Jsondata = json.loads(retornoJson['jsonRetorno'])
+    if 'jsonRetorno' not in retornoJson:
+        print_color(f"[ERRO] Campo 'jsonRetorno' ausente no retorno: {str(retornoJson)[:800]}", 31)
 
-        if Jsondata['MostraJsonPython']:
-            print_color(f"\nJSON PROCESSADO", 92)
-            print_color(f"{fileProcess}", 92)
+        # Se quiser alertar no Element aqui (recomendado):
+        if roomIds is not None and not ja_enviou_element:
+            msgElement = build_element_message(
+                fileName=fileName,
+                Unidade=Unidade,
+                NomeUnidade=NomeUnidade,
+                AccountIdentifier=AccountIdentifier,
+                type=retornoJson.get('type', 'N/A'),
+                retorno=retornoJson
+            )
+            for roomId in roomIds:
+                elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                print_color(f"{elementLog}", 33)
+            ja_enviou_element = True
+        return
 
-        if Jsondata['RetornoPHP']:
-            print_color(f"\nRETORNO DO PHP", 34)
-            openJsonEstruturado(Jsondata)
+    json_retorno = retornoJson.get('jsonRetorno')
 
-        if Jsondata['ExibirTotalPacotesFila']:
-            contar_arquivos_zip(DIRNOVOS)
+    if isinstance(json_retorno, dict):
+        Jsondata = json_retorno
+    elif isinstance(json_retorno, str):
+        try:
+            Jsondata = json.loads(json_retorno)
+        except json.JSONDecodeError as e:
+            print_color(f"[ERRO] jsonRetorno string não parseável: {e} | snippet={json_retorno[:800]}", 31)
+            return
+    else:
+        print_color(f"[ERRO] jsonRetorno em tipo inesperado: {(json_retorno)}", 31)
+        return
 
-        if Jsondata['GravaBanco']:
-            print_color(
-                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                32)
-            EventoGravaBanco = True
-        else:
-            print_color(
-                f"\nERRO GRAVAÇÃO NO BANCO DE DADOS(php)!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                31)
-            EventoGravaBanco = False
+    if Jsondata.get('MostraJsonPython'):
+        print_color("\nJSON PROCESSADO", 92)
+        print_color(f"{fileProcess}", 92)
+
+    if Jsondata.get('RetornoPHP'):
+        print_color("\nRETORNO DO PHP", 34)
+        openJsonEstruturado(Jsondata)
+
+    if Jsondata.get('ExibirTotalPacotesFila'):
+        contar_arquivos_zip(DIRNOVOS)
+
+    if Jsondata.get('GravaBanco'):
+        print_color(f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}", 32)
+        EventoGravaBanco = True
+    else:
+        print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS(php)!!! {fileName} Unidade {Unidade} {NomeUnidade}", 31)
+        EventoGravaBanco = False
 
     if EventoGravaBanco:
         removeFolderFiles(folderZip)
@@ -1353,15 +1466,24 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
     else:
         filePath = DIRERROS + fileName
 
-        if roomIds is not None:
-            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
+        if roomIds is not None and not ja_enviou_element:
+            msgElement = build_element_message(
+                fileName=fileName,
+                Unidade=Unidade,
+                NomeUnidade=NomeUnidade,
+                AccountIdentifier=AccountIdentifier,
+                type=retornoJson.get('type') if isinstance(retornoJson, dict) else 'N/A',
+                retorno=retornoJson
+            )
 
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
+            # Para ver no terminal a mensagem enviada para o Element
+            print_color(f"\nEnvio da Mensagem Element:\n{msgElement}", 32)
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                 print_color(f"{elementLog}", 33)
                 time.sleep(2)
+            ja_enviou_element = True
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
@@ -1382,7 +1504,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
+            print_color(f"\nEnvio da Mensagem {msgElement}", 33)
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)

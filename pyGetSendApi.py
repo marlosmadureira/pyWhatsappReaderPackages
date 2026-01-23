@@ -1,8 +1,7 @@
 import json
 import os
-
 import requests
-
+import uuid
 from pyBiblioteca import conectBD, somentenumero, grava_log, print_color
 from dotenv import load_dotenv
 
@@ -17,7 +16,6 @@ APILINK = os.getenv("APILINK")
 APITOKEN = os.getenv("APITOKEN")
 
 DebugMode = False
-
 
 def setDateObjetoProrrogue(AccountIdentifier, Unidade, fileName):
     with conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS) as con:
@@ -69,60 +67,81 @@ def setDateObjetoProrrogue(AccountIdentifier, Unidade, fileName):
     db.close()
     con.close()
 
-
-# def sendDataJsonServer(Dados, type):
-#     payload = {'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados)}
-#     try:
-#         print(f'\nEVENTO POST AGUARDE RESPOSTA DO PHP\n')
-#         r = requests.post(APILINK, data=payload)
-#
-#         if r.status_code == 200 and r.text != "" and r.text is not None:
-#             Jsondata = json.loads(r.text)
-#
-#             return Jsondata
-#     except requests.exceptions.ConnectionError:
-#         print_color(f'\nBuild http Connection Failed {requests.exceptions.ConnectionError}', 31)
-#     except Exception as inst:
-#         errorData = "{Location: sendDataJsonServer, error: " + str(inst) + ", type: " + type + "}"
-#         print_color(f"{errorData}", 31)
 def sendDataJsonServer(Dados, type):
-    payload = {'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados)}
+    request_id = str(uuid.uuid4())
+
+    payload = { 'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados, ensure_ascii=False), 'request_id': request_id, }
+
     try:
-        print(f'\nEVENTO POST AGUARDE RESPOSTA DO PHP\n')
-        r = requests.post(APILINK, data=payload)
+        print(f'\nEVENTO POST (request_id={request_id}) | AGUARDE RESPOSTA DO PHP')
 
-        # Debug: Imprimir status e resposta
-        # print(f"Status Code: {r.status_code}")
-        # print(f"Response Text: {r.text[:500]}")
+        r = requests.post(
+            APILINK,
+            data=payload,
+            timeout=(10, 120),  # connect, read
+        )
 
-        if r.status_code == 200:
-            response_text = r.text.strip()  # Remove espaços em branco
+        response_text = (r.text or '').strip()
+        if r.status_code != 200:
+            return {
+                'ok': False,
+                'status': r.status_code,
+                'error': {
+                    'code': 'HTTP_STATUS_NOT_200',
+                    'message': f'Status code: {r.status_code}',
+                },
+                'context': {
+                    'request_id': request_id,
+                    'url': APILINK,
+                    'response_snippet': response_text[:1500],
+                }
+            }
 
-            if response_text:  # Verifica se não está vazio
-                try:
-                    Jsondata = json.loads(response_text)
-                    return Jsondata
-                except json.JSONDecodeError as e:
-                    print_color(f'\nErro ao fazer parse do JSON: {e}', 31)
-                    print_color(f'Resposta recebida: {response_text[:500]}', 31)
-                    return {'status': 'error', 'message': 'Resposta inválida do servidor'}
-            else:
-                print_color(f'\nResposta vazia do servidor', 31)
-                return {'status': 'error', 'message': 'Resposta vazia'}
-        else:
-            print_color(f'\nStatus code diferente de 200: {r.status_code}', 31)
-            return {'status': 'error', 'message': f'Status code: {r.status_code}'}
+        if not response_text:
+            return {
+                'ok': False,
+                'status': 200,
+                'error': {'code': 'EMPTY_RESPONSE', 'message': 'Resposta vazia do servidor'},
+                'context': {'request_id': request_id, 'url': APILINK}
+            }
+
+        try:
+            return json.loads(response_text)
+        except json.JSONDecodeError as e:
+            return {
+                'ok': False,
+                'status': 200,
+                'error': {'code': 'JSON_DECODE_ERROR', 'message': str(e)},
+                'context': {
+                    'request_id': request_id,
+                    'url': APILINK,
+                    'response_snippet': response_text[:1500],
+                }
+            }
 
     except requests.exceptions.Timeout:
-        print_color(f'\nTimeout na requisição', 31)
-        return {'status': 'error', 'message': 'Timeout'}
+        return {
+            'ok': False,
+            'status': 0,
+            'error': {'code': 'TIMEOUT', 'message': 'Timeout na requisição'},
+            'context': {'request_id': request_id, 'url': APILINK}
+        }
+
     except requests.exceptions.ConnectionError as e:
-        print_color(f'\nErro de conexão: {e}', 31)
-        return {'status': 'error', 'message': 'Erro de conexão'}
-    except Exception as inst:
-        errorData = f"{{Location: sendDataJsonServer, error: {str(inst)}, type: {type}}}"
-        print_color(errorData, 31)
-        return {'status': 'error', 'message': str(inst), 'type': type}
+        return {
+            'ok': False,
+            'status': 0,
+            'error': {'code': 'CONNECTION_ERROR', 'message': str(e)},
+            'context': {'request_id': request_id, 'url': APILINK}
+        }
+
+    except Exception as e:
+        return {
+            'ok': False,
+            'status': 0,
+            'error': {'code': 'UNEXPECTED_EXCEPTION', 'message': str(e)},
+            'context': {'request_id': request_id, 'url': APILINK, 'where': 'sendDataJsonServer', 'type': type}
+        }
 
 # Para DEBUG LOCAL
 def sendDataJsonServerOLDS(Dados, type, max_retries=1, retry_delay=2):

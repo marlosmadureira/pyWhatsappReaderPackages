@@ -8,6 +8,7 @@ import shutil
 import gc
 import traceback
 import psycopg2
+import html
 
 from dotenv import load_dotenv
 from datetime import datetime
@@ -1322,11 +1323,11 @@ def parse_dynamic_sentence_calls(content):
 
     return results or None
 
-def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
+def build_element_messageOLD(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
 
     lines = []
-    # lines.append(f"🚨 ALERTA DE SISTEMA - WhatsApp 🚨")
-    # lines.append("")
+    lines.append(f"<strong>{html.escape('🚨ALERTA — WhatsApp🚨')}</strong>")
+    lines.append("")
     lines.append(f"Arquivo: {fileName}")
     lines.append(f"Conta: {AccountIdentifier}")
     lines.append(f"Tipo: {type}")
@@ -1390,6 +1391,69 @@ def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, typ
             lines.append(str(ctx['sql'])[:900])
 
     return "\n".join(lines)
+def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
+    lines = []
+
+    # HTML PURO - SEM html.escape nas tags!
+    lines.append(f"<strong>🚨ALERTA — WhatsApp🚨</strong>")
+    lines.append(f"<strong>Arquivo:</strong> {html.escape(fileName)}")
+    lines.append(f"<strong>Conta:</strong> {html.escape(AccountIdentifier)}")
+    lines.append(f"<strong>Tipo:</strong> {html.escape(str(type))}")
+
+    # Erro de transporte / HTTP / PHP 500
+    if isinstance(retorno, dict) and retorno.get('ok') is False and 'error' in retorno:
+        err = retorno.get('error', {})
+        ctx = retorno.get('context', {})
+
+        lines.append("<strong>Resultado:</strong> <span style='color: red;'>ERROR</span>")
+        if ctx.get('request_id'):
+            lines.append(f"<strong>request_id:</strong> <code>{html.escape(ctx['request_id'])}</code>")
+
+        # PRIORIDADE 1: response_snippet
+        if 'response_snippet' in ctx and ctx['response_snippet']:
+            try:
+                snippet_json = json.loads(ctx['response_snippet'])
+                if isinstance(snippet_json, dict) and 'error' in snippet_json:
+                    php_err = snippet_json['error']
+                    lines.append(
+                        f"<strong>Aviso (PHP):</strong> <span style='color: orange;'>{html.escape(php_err.get('code'))}: {php_err.get('message')}</span>")
+                else:
+                    lines.append(f"<strong>Aviso (snippet):</strong> {html.escape(ctx['response_snippet'][:400])}...")
+            except json.JSONDecodeError:
+                lines.append(f"<strong>Aviso (snippet):</strong> {html.escape(ctx['response_snippet'][:400])}...")
+        else:
+            lines.append(
+                f"<strong>Aviso:</strong> <span style='color: red;'>{html.escape(err.get('code'))}: {err.get('message')}</span>")
+
+        return "<br>".join(lines)  # Usa <br> em vez de \n para HTML
+
+    # Resposta PHP normal
+    jr = retorno.get('jsonRetorno')
+    if isinstance(jr, str):
+        try:
+            jr = json.loads(jr)
+        except Exception:
+            jr = {'Resultado': 'ERROR',
+                  'Errors': [{'code': 'INVALID_JSONRETORNO', 'message': 'jsonRetorno não parseável'}]}
+
+    Aviso = jr.get('Aviso', []) or []
+    errors = jr.get('Errors', []) or []
+
+    if Aviso:
+        w0 = Aviso[0]
+        lines.append(f"<strong>Aviso:</strong> {html.escape(w0.get('code'))}: {html.escape(w0.get('message'))}")
+
+    if errors:
+        e0 = errors[0]
+        lines.append(
+            f"<strong>Aviso:</strong> <span style='color: orange;'>{html.escape(e0.get('code'))}: {html.escape(e0.get('message'))}</span>")
+        ctx = e0.get('context', {}) or {}
+        if 'sql' in ctx:
+            lines.append("<strong>SQL (trecho):</strong>")
+            lines.append(f"<code>{html.escape(str(ctx['sql'])[:900])}</code>")
+
+    return "<br>".join(lines)
+
 
 def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds):
 

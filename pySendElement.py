@@ -64,9 +64,9 @@ def sendMessageElementOLDS(accessToken, roomId, mensagem):
             'error': str(e)
         }
 def sendMessageElement(accessToken, roomId, mensagem):
-    title = f"🚨ALERTA — WhatsApp🚨"
-    body_text = f"{title}\n{mensagem}"
-    body_html = f"<pre><strong>{html.escape(title)}</strong>\n{html.escape(mensagem)}</pre>"
+    # title = f"🚨ALERTA — WhatsApp🚨"
+    body_text = mensagem  # Texto plano para acessibilidade
+    body_html = mensagem  # HTML direto - SEM escape adicional!
 
     url = f"https://cryptochat.com.br/_matrix/client/r0/rooms/{roomId}/send/m.room.message"
     post_data = {

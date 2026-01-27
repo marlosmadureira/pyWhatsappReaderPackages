@@ -4,6 +4,7 @@ import requests
 import uuid
 from pyBiblioteca import conectBD, somentenumero, grava_log, print_color
 from dotenv import load_dotenv
+from requests.exceptions import Timeout
 
 load_dotenv()
 
@@ -72,76 +73,90 @@ def sendDataJsonServer(Dados, type):
 
     payload = { 'token': APITOKEN, 'action': 'sendWPData', 'type': type, 'jsonData': json.dumps(Dados, ensure_ascii=False), 'request_id': request_id, }
 
-    try:
-        print(f'\nEVENTO POST (request_id={request_id}) | AGUARDE RESPOSTA DO PHP')
+    print(f'\nEVENTO POST (request_id={request_id}) | AGUARDE RESPOSTA DO PHP')
 
-        r = requests.post(
-            APILINK,
-            data=payload,
-            timeout=(10, 120),  # connect, read
-        )
+    # Config retry apenas para TIMEOUT
+    max_retries = 3
+    base_delay = 1.0  # segundos
 
-        response_text = (r.text or '').strip()
-        if r.status_code != 200:
-            return {
-                'ok': False,
-                'status': r.status_code,
-                'error': {
-                    'code': 'HTTP_STATUS_NOT_200',
-                    'message': f'Status code: {r.status_code}',
-                },
-                'context': {
-                    'request_id': request_id,
-                    'url': APILINK,
-                    'response_snippet': response_text[:1500],
+    for attempt in range(max_retries):
+        try:
+            r = requests.post(
+                APILINK,
+                data=payload,
+                timeout=(10, 120),  # connect, read
+            )
+
+            response_text = (r.text or '').strip()
+            if r.status_code != 200:
+                return {
+                    'ok': False,
+                    'status': r.status_code,
+                    'error': {
+                        'code': 'HTTP_STATUS_NOT_200',
+                        'message': f'Status code: {r.status_code}',
+                    },
+                    'context': {
+                        'request_id': request_id,
+                        'url': APILINK,
+                        'response_snippet': response_text[:1500],
+                    }
                 }
-            }
 
-        if not response_text:
+            if not response_text:
+                return {
+                    'ok': False,
+                    'status': 200,
+                    'error': {'code': 'EMPTY_RESPONSE', 'message': 'Resposta vazia do servidor'},
+                    'context': {'request_id': request_id, 'url': APILINK}
+                }
+
+            try:
+                return json.loads(response_text)
+            except json.JSONDecodeError as e:
+                return {
+                    'ok': False,
+                    'status': 200,
+                    'error': {'code': 'JSON_DECODE_ERROR', 'message': str(e)},
+                    'context': {
+                        'request_id': request_id,
+                        'url': APILINK,
+                        'response_snippet': response_text[:1500],
+                    }
+                }
+
+        except Timeout as e:
+            print(f"Tentativa {attempt + 1}/{max_retries} falhou por TIMEOUT: {str(e)[:100]}")
+
+            if attempt < max_retries - 1:  # Não é última tentativa
+                delay = base_delay * (2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
+                print(f"Aguardando {delay:.1f}s antes da próxima tentativa...")
+                time.sleep(delay)
+                continue
+            else:
+                # Última tentativa falhou → retorna TIMEOUT
+                return {
+                    'ok': False,
+                    'status': 0,
+                    'error': {'code': 'TIMEOUT', 'message': f'Timeout após {max_retries} tentativas'},
+                    'context': {'request_id': request_id, 'url': APILINK, 'tentativas': max_retries}
+                }
+
+        except requests.exceptions.ConnectionError as e:
             return {
                 'ok': False,
-                'status': 200,
-                'error': {'code': 'EMPTY_RESPONSE', 'message': 'Resposta vazia do servidor'},
+                'status': 0,
+                'error': {'code': 'CONNECTION_ERROR', 'message': str(e)},
                 'context': {'request_id': request_id, 'url': APILINK}
             }
 
-        try:
-            return json.loads(response_text)
-        except json.JSONDecodeError as e:
+        except Exception as e:
             return {
                 'ok': False,
-                'status': 200,
-                'error': {'code': 'JSON_DECODE_ERROR', 'message': str(e)},
-                'context': {
-                    'request_id': request_id,
-                    'url': APILINK,
-                    'response_snippet': response_text[:1500],
-                }
+                'status': 0,
+                'error': {'code': 'UNEXPECTED_EXCEPTION', 'message': str(e)},
+                'context': {'request_id': request_id, 'url': APILINK, 'where': 'sendDataJsonServer', 'type': type}
             }
-
-    except requests.exceptions.Timeout:
-        return {
-            'ok': False,
-            'status': 0,
-            'error': {'code': 'TIMEOUT', 'message': 'Timeout na requisição'},
-            'context': {'request_id': request_id, 'url': APILINK}
-        }
-
-    except requests.exceptions.ConnectionError as e:
-        return {
-            'ok': False,
-            'status': 0,
-            'error': {'code': 'CONNECTION_ERROR', 'message': str(e)},
-            'context': {'request_id': request_id, 'url': APILINK}
-        }
-
-    except Exception as e:
-        return {
-            'ok': False,
-            'status': 0,
-            'error': {'code': 'UNEXPECTED_EXCEPTION', 'message': str(e)},
-            'context': {'request_id': request_id, 'url': APILINK, 'where': 'sendDataJsonServer', 'type': type}
-        }
 
 # Para DEBUG LOCAL
 def sendDataJsonServerOLDS(Dados, type, max_retries=1, retry_delay=2):

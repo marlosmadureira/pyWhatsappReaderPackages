@@ -51,22 +51,57 @@ conn = psycopg2.connect(
 def get_files_in_dir(path):
     return set(os.listdir(path))
 
+def finalizar_arquivo(source, folderZip, destino, fileName, Unidade, roomIds, motivo=None):
+    try:
+        if motivo:
+            print_color(motivo, 31)
+
+            if roomIds:
+                msg = f"🚨 ERRO PROCESSAMENTO\nArquivo: {fileName}\nMotivo: {motivo}"
+                for roomId in roomIds:
+                    sendMessageElement(ACCESSTOKEN, roomId[0], msg)
+
+        if folderZip:
+            removeFolderFiles(folderZip)
+
+        if destino == 'ERRO':
+            target = DIRERROS + fileName
+        else:
+            target = DIRLIDOS + fileName
+
+        if not os.path.exists(target) and os.path.exists(source):
+            shutil.move(source, os.path.dirname(target))
+            # print_color('MOVIDO1', 32)
+        elif os.path.exists(source):
+            os.remove(source)
+
+    except Exception as e:
+        print_color(f"[ERRO FINALIZAÇÃO] {e}", 31)
+
 def process(source):
     limpar_arquivos_antigos(DIRLOG, dias=3)
+    source = os.path.abspath(source)
 
     gc.collect()
 
     fileProcess = {}
     fileDados = {}
 
-    source, Unidade = getUnidadeFileName(source)
+    # Apenas extrai informações — NÃO renomeia nada
+    fileName, Unidade = getUnidadeFileName(source)
+
+    # Garante caminho absoluto e consistente
+    source = os.path.abspath(source)
 
     roomIds = getroomIdElement(Unidade)
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
     if folderZip is None:
-        print(f"[WARNING] não foi possível extrair o zip: {source}. Pulando este arquivo.")
+        finalizar_arquivo(
+            source, None, 'ERRO', fileName, Unidade, roomIds,
+            motivo="ZIP inválido ou não foi possível extrair"
+        )
         return
 
     FileHtmls, msgElementNewFile = ListaAllHtml(folderZip)
@@ -273,21 +308,6 @@ def process(source):
                     # print(fileProcess)
                     retornoJson = sendDataJsonServer(fileProcess, dataType)
                     exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds)
-
-                    #SEMPRE mover para ERROS se API falhou
-                    if 'jsonRetorno' not in retornoJson:
-                        filePathErro = DIRERROS + fileName
-                        if not os.path.exists(filePathErro):
-                            shutil.move(source, DIRERROS)
-                            new_filename = filePathErro.replace('.zip', f'_{Unidade}.zip')
-                            os.rename(filePathErro, new_filename)
-                        else:
-                            os.remove(source)
-
-                        removeFolderFiles(folderZip)
-                        print_color(f"\n================================= FIM PROCESSAMENTO {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} (ERRO API) =================================", 31)
-                        return
-                removeFolderFiles(folderZip)
             else:
                 print_color(
                     f"\n================= PROCESSAMENTO DESLIGADO {fileName} Unidade {Unidade} {NomeUnidade} {dataType}=================",
@@ -310,6 +330,7 @@ def process(source):
 
             if not os.path.exists(filePath):
                 shutil.move(source, DIRERROS)
+                print_color('MOVIDO2', 32)
 
                 # Novo nome do arquivo
                 new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -337,6 +358,7 @@ def process(source):
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
+            print_color('MOVIDO3', 32)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -356,9 +378,9 @@ def process(source):
         print("\nMovendo de: ", source)
         print("Para: ", DIRLIDOS)
         print("Arquivo Finalizado!\n")
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads - Banco: {DB_HOST}\n")
     else:
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
+        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads - Banco: {DB_HOST}\n")
 
 def parse_dynamic_sentence_parameters(content):
     # --- Vetor de ignorados expandido ---
@@ -683,7 +705,11 @@ def parse_dynamic_sentence_connection(content):
         "ConnectionState":     re.compile(r"Connection\s*State\s*(.*?)"       + lookahead, re.IGNORECASE),
         "OnlineSince":         re.compile(r"Online\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
         "InactiveSince":       re.compile(r"Inactive\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
-        "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
+        # "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
+        "LastSeen": re.compile(
+            r"Last\s*seen\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)",
+            re.IGNORECASE
+        ),
         "PushName":            re.compile(r"Push\s*Name\s*(.*?)"            + lookahead, re.IGNORECASE),
     }
 
@@ -1055,34 +1081,6 @@ def parse_dynamic_sentence_web(content):
     else:
         return None
 
-def parse_dynamic_sentence_smallOLDS(content):
-    # Remove as barras invertidas e espaços em branco desnecessários
-    sentence = re.sub(r'\\', '', content).strip()
-    # Remove linhas vazias
-    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
-
-    # Expressões regulares para capturar os campos da informação do dispositivo
-    patterns = {
-        "Small Medium Business": r"Small Medium Business([\w\.]+)",
-        "Address": r"Address([\w\.]+)",
-        "Email": r"Email([\w\.]+)",
-        "Name": r"Name([\w\.]+)",
-    }
-
-    # Dicionário para armazenar os resultados
-    results = {}
-
-    # Iterar sobre os padrões e encontrar as correspondências
-    for key, pattern in patterns.items():
-        match = re.search(pattern, sentence)
-        if match:
-            results[remover_espacos_regex(key)] = match.group(1).strip()
-
-    if len(results) > 0:
-        # print('Small --------> ', results)
-        return results
-    else:
-        return None
 def parse_dynamic_sentence_small(content):
     ignored_patterns = [
         r"Small Medium Business Definition.*?(?=Small Medium Business|Small Medium Business\s|Device Info Definition|$)",
@@ -1323,74 +1321,6 @@ def parse_dynamic_sentence_calls(content):
 
     return results or None
 
-def build_element_messageOLD(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
-
-    lines = []
-    lines.append(f"<strong>{html.escape('🚨ALERTA — WhatsApp🚨')}</strong>")
-    lines.append("")
-    lines.append(f"Arquivo: {fileName}")
-    lines.append(f"Conta: {AccountIdentifier}")
-    lines.append(f"Tipo: {type}")
-
-    # Erro de transporte / HTTP / PHP 500
-    if isinstance(retorno, dict) and retorno.get('ok') is False and 'error' in retorno:
-        err = retorno.get('error', {})
-        ctx = retorno.get('context', {})
-
-        lines.append("Resultado: ERROR")
-        if ctx.get('request_id'):
-            lines.append(f"request_id: {ctx.get('request_id')}")
-
-        # PRIORIDADE 1: se tem response_snippet (erro do servidor/PHP), usa ele
-        if 'response_snippet' in ctx and ctx['response_snippet']:
-            try:
-                snippet_json = json.loads(ctx['response_snippet'])
-                if isinstance(snippet_json, dict) and 'error' in snippet_json:
-                    php_err = snippet_json['error']
-                    lines.append(f"Aviso (PHP): {php_err.get('code')}: {php_err.get('message')}")
-                else:
-                    lines.append(f"Aviso (snippet): {ctx['response_snippet'][:400]}...")
-            except json.JSONDecodeError:
-                lines.append(f"Aviso (snippet): {ctx['response_snippet'][:400]}...")
-        else:
-            # PRIORIDADE 2: fallback para erro genérico do Python
-            lines.append(f"Aviso:- {err.get('code')}: {err.get('message')}")
-
-        return "\n".join(lines)
-
-    # resposta normal do PHP
-    jr = retorno.get('jsonRetorno')
-    if isinstance(jr, str):
-        try:
-            jr = json.loads(jr)
-        except Exception:
-            jr = {'Resultado': 'ERROR',
-                  'Errors': [{'code': 'INVALID_JSONRETORNO', 'message': 'jsonRetorno não parseável'}]}
-
-    # resultado = jr.get('Resultado')
-    # request_id = retorno.get('request_id') or jr.get('request_id')
-    #
-    # lines.append(f"Resultado: {resultado}")
-    # if request_id:
-    #     lines.append(f"request_id: {request_id}")
-
-    Aviso = jr.get('Aviso', []) or []
-    errors = jr.get('Errors', []) or []
-
-    if Aviso:
-        w0 = Aviso[0]
-        lines.append(f"Aviso: {w0.get('code')}: {w0.get('message')}")
-
-    if errors:
-        e0 = errors[0]
-        lines.append(f"Aviso: {e0.get('code')}: {e0.get('message')}")  # Usando Warnings como no exemplo
-        ctx = e0.get('context', {}) or {}
-        if 'sql' in ctx:
-            lines.append("")
-            lines.append("SQL (trecho):")
-            lines.append(str(ctx['sql'])[:900])
-
-    return "\n".join(lines)
 def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
     lines = []
 
@@ -1454,7 +1384,6 @@ def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, typ
 
     return "<br>".join(lines)
 
-
 def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds):
 
     EventoGravaBanco = False
@@ -1502,13 +1431,14 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
         print_color(f"{fileProcess}", 92)
 
     if Jsondata.get('RetornoPHP'):
-        print_color("\nRETORNO DO PHP", 34)
+        print_color("\nRETORNO DO PHP", 32)
         openJsonEstruturado(Jsondata)
 
     if Jsondata.get('ExibirTotalPacotesFila'):
         contar_arquivos_zip(DIRNOVOS)
 
-    if Jsondata.get('GravaBanco'):
+    resultado = Jsondata.get('Resultado')
+    if Jsondata.get('GravaBanco') or resultado == 'DUPLICATE':
         print_color(f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}", 32)
         EventoGravaBanco = True
     else:
@@ -1518,15 +1448,20 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
     if EventoGravaBanco:
         removeFolderFiles(folderZip)
 
-        # if flagDados:
-        #     saveResponse(AccountIdentifier, Unidade)
+        destino = os.path.join(DIRLIDOS, fileName)
 
-        filePath = DIRLIDOS + fileName
+        if not os.path.exists(destino):
+            if source and os.path.exists(source):
+                finalizar_arquivo( source=source, folderZip=folderZip, destino='LIDO', fileName=fileName, Unidade=Unidade, roomIds=roomIds )
+                # shutil.move(source, DIRLIDOS)
+                # print_color('MOVIDO4', 32)
 
-        if not os.path.exists(filePath):
-            shutil.move(source, DIRLIDOS)
-        else:
-            delete_log(source)
+            #rename aqui (opcional)
+            nome_final = fileName.rsplit("_", 1)[0] + ".zip"
+            final_path = os.path.join(DIRLIDOS, nome_final)
+
+            if not os.path.exists(final_path):
+                os.rename(destino, final_path)
     else:
         filePath = DIRERROS + fileName
 
@@ -1551,6 +1486,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
+            print_color('MOVIDO5', 32)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -1583,6 +1519,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
+            print_color('MOVIDO6', 32)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -1603,6 +1540,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRLIDOS)
+            print_color('MOVIDO7', 32)
         else:
             delete_log(source)
             print_color(
@@ -1650,7 +1588,7 @@ if __name__ == '__main__':
     conn.close()
 
     dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 16/10/2025\n")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 05/02/2026 - Banco: {DB_HOST}\n")
 
     while True:
         time.sleep(3)

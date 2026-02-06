@@ -2,6 +2,8 @@ import json
 import os
 import requests
 import uuid
+import time
+from requests.exceptions import Timeout, ConnectionError  # ReadTimeout é o real
 from pyBiblioteca import conectBD, somentenumero, grava_log, print_color
 from dotenv import load_dotenv
 from requests.exceptions import Timeout

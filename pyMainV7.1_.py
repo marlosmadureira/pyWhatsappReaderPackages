@@ -1410,6 +1410,22 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                 print_color(f"{elementLog}", 33)
             ja_enviou_element = True
+
+        try:
+            if source and os.path.exists(source):
+                destino_zip = os.path.join(DIRERROS, fileName)
+                shutil.move(source, destino_zip)
+                # print_color(f"[ZIP movido para ERROs] {destino_zip}", 31)
+            else:
+                print_color(f"[AVISO] ZIP não encontrado: {source}", 33)
+        except Exception as e:
+            print_color(f"[ERRO AO MOVER ZIP PARA ERRO] {e}", 31)
+        try:
+            if folderZip and os.path.exists(folderZip):
+                removeFolderFiles(folderZip)
+                # print_color(f"[PASTA REMOVIDA] {folderZip}", 31)
+        except Exception as e:
+            print_color(f"[ERRO AO REMOVER PASTA] {e}", 31)
         return
 
     json_retorno = retornoJson.get('jsonRetorno')
@@ -1449,6 +1465,13 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
         removeFolderFiles(folderZip)
 
         destino = os.path.join(DIRLIDOS, fileName)
+        # 🔹 NOVO BLOCO — verifica se já existe em LIDOS
+        if os.path.exists(destino):
+            print_color(" Arquivo apagado, ja existente em lidos!", 33)
+            try:
+                os.remove(destino)
+            except Exception as e:
+                print_color(f"[ERRO AO REMOVER ARQUIVO EXISTENTE EM LIDOS] {e}", 31)
 
         if not os.path.exists(destino):
             if source and os.path.exists(source):
@@ -1456,12 +1479,32 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
                 # shutil.move(source, DIRLIDOS)
                 # print_color('MOVIDO4', 32)
 
-            #rename aqui (opcional)
-            nome_final = fileName.rsplit("_", 1)[0] + ".zip"
+            base, ext = os.path.splitext(fileName)
+            if "_" in base:
+                base = base.rsplit("_", 1)[0]
+            nome_final = base + ext
             final_path = os.path.join(DIRLIDOS, nome_final)
 
             if not os.path.exists(final_path):
                 os.rename(destino, final_path)
+
+            if not os.path.exists(os.path.join(DIRLIDOS, nome_final)):
+                print_color(f"[ERRO CRÍTICO] Arquivo não encontrado em LIDOS após processamento: {fileName}", 31)
+
+                if roomIds is not None and not ja_enviou_element:
+                    msgElement = (
+                        f"🚨 ERRO CRÍTICO PÓS-GRAVAÇÃO 🚨\n\n"
+                        f"Arquivo: {fileName}\n"
+                        f"Unidade: {Unidade} - {NomeUnidade}\n"
+                        f"Conta: {AccountIdentifier}\n\n"
+                        f"O banco confirmou gravação, mas o ZIP NÃO foi movido para a pasta LIDOS.\n"
+                        f"Verificar imediatamente possível inconsistência de filesystem."
+                    )
+                    for roomId in roomIds:
+                        elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
+                        print_color(f"{elementLog}", 33)
+                        time.sleep(2)
+                    ja_enviou_element = True
     else:
         filePath = DIRERROS + fileName
 

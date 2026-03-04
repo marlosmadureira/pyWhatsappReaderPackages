@@ -50,7 +50,6 @@ def remove_duplicates_msg_logs(msg_logs):
 
     return unique_logs
 
-
 # Função para remover duplicatas de callLogs
 def remove_duplicates_call_logs(call_logs):
     seen = set()
@@ -105,16 +104,12 @@ def limpar_arquivos_antigos(diretorio, dias=5):
                 print(f"\nApagando {arquivo}...")
                 os.remove(caminho_arquivo)
 
-
 def replace_divs(html):
     html = str
-
     return html
 
-
-def html_to_markdown(html):
-    # Substituir a <div class="p"> por um espaço em branco
-    # pattern = r'<div class="[a-z]"></div>'
+#Precisa instalar 'pip install lxml'
+def html_to_markdownOLDS(html):
     pattern = r'<div class="p"></div>'
     html = re.sub(pattern, ' ', html)
 
@@ -126,36 +121,59 @@ def html_to_markdown(html):
         div.decompose()  # Remove a tag e seu conteúdo
 
     # Converter o HTML modificado para Markdown
-    # markdown = md(str(soup), strip=['div'])
     markdown_output = md(str(soup))
     markdown = re.sub(r'\s+', ' ', markdown_output).strip()
 
     return markdown
+def html_to_markdown(html):
+    html = re.sub(r'<div class="p"></div>', ' ', html)
 
+    soup = BeautifulSoup(html, 'lxml')
 
-def getUnidadeFileName(nome_original):
+    for tag in soup(['style', 'script']):
+        tag.decompose()
+    for br in soup.find_all('div', class_='pageBreak'):
+        br.decompose()
+
+    # 4) **Insere manualmente** o URL das imagens no texto
+    #    todo <img src="path"> vira "(path)"
+    for img in soup.find_all('img'):
+        src = img.get('src') or img.get('data-src') or ''
+        img.replace_with(f'({src})')
+
+    # 5) Extrai tudo como texto, preservando espaçamentos
+    texto = soup.get_text(separator=' ', strip=True)
+    # normaliza espaços múltiplos
+    return re.sub(r'\s+', ' ', texto)
+
+def getUnidadeFileNameOLD(nome_original):
     FileName, Unidade = None, None
 
     if "_" in nome_original:
         DadosUnidade = nome_original.split("_")
-
         Unidade = DadosUnidade[1].replace(".zip", "")
-
         FileName = f"{DadosUnidade[0]}.zip";
-
         os.rename(nome_original, FileName)
     else:
         Unidade = 1
-
         FileName = nome_original
-
     return FileName, Unidade
+def getUnidadeFileName(source_path):
+    base = os.path.basename(source_path)
+
+    Unidade = 1
+    if "_" in base:
+        try:
+            Unidade = base.rsplit("_", 1)[1].replace(".zip", "")
+        except Exception:
+            Unidade = 1
+
+    return base, Unidade
 
 def openJson(file):
     with open(file, 'r', encoding='utf-8') as arquivo:
         dados = json.load(arquivo)
     return dados
-
 
 def clean_html(html_text):
     """Remove tags HTML e espaços extras de uma string HTML."""
@@ -163,14 +181,12 @@ def clean_html(html_text):
     text = re.sub(r'\s+', ' ', text)  # Substitui múltiplos espaços por um único espaço
     return text.strip()
 
-
 def remover_espacos_regex(texto):
     return re.sub(r"\s", "", texto)
 
-
 def somentenumero(parametro):
-    return re.sub('[^0-9]', '', parametro)
-
+    texto = parametro if isinstance(parametro, (str, bytes)) else str(parametro or "")
+    return re.sub('[^0-9]', '', texto)
 
 def countdown(num_of_secs):
     while num_of_secs:
@@ -179,7 +195,6 @@ def countdown(num_of_secs):
         print(min_sec_format, end='\t')
         time.sleep(1)
         num_of_secs -= 1
-
 
 def is_valid_json(json_string):
     try:
@@ -193,22 +208,18 @@ def delete_log(nome_arquivo):
         os.remove(nome_arquivo)
         print_color(f"\nExcluido {nome_arquivo}", 31)
 
-
 def grava_log(content, arquivo):
     arquivo = f"{DIRLOG}{arquivo}"
     with open(arquivo, "a") as text_file:
         text_file.write('{}\n'.format(content) + '\n')
     text_file.close()
 
-
 def conectBD(DB_HOST, DB_NAME, DB_USER, DB_PASS):
     con = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
     return con
 
-
 def print_color(text, color_code):
     print(f"\033[{color_code}m{text}\033[0m")
-
 
 def openJsonEstruturado(dados_json):
     # Exibindo de forma estruturada
@@ -216,11 +227,9 @@ def openJsonEstruturado(dados_json):
 
     print(f"{json_formatado}")
 
-
 def checkFolder(FolderPath):
     if not os.path.exists(FolderPath):
         os.makedirs(FolderPath)
-
 
 def check_internet():
     url = 'http://www.google.com/'
@@ -230,7 +239,6 @@ def check_internet():
         return True
     except requests.ConnectionError:
         return False
-
 
 def UpdateStatus():
     payload = {'token': APITOKEN, 'action': 'updateStatus'}
@@ -246,7 +254,6 @@ def UpdateStatus():
     except Exception as inst:
         errorData = "{Location: UpdateStatus, error: " + str(inst) + "}"
         # sendSlackMSG(errorData)
-
 
 def StatusServidor(dttmpstatus):
     intervalostatus = 30
@@ -268,17 +275,14 @@ def StatusServidor(dttmpstatus):
             result = True
     return result
 
-
 def printTimeData():
     return str(datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
-
 
 def printDebug(Msg, Comment="Debug:"):
     if DebugMode:
         print(str(Comment) + " " + str(Msg))
 
-
-def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
+def unzipBaseOLDS(fileZIP, DIRNOVOS, DIREXTRACAO):
     OutPutDie = fileZIP.replace(".zip", "")
     zip_ref = zipfile.ZipFile(fileZIP)
     zip_ref.extractall(OutPutDie)
@@ -296,12 +300,32 @@ def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
         # print('\n')
 
     return OutPutDie
+def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
+    try:
+        OutPutDie = os.path.splitext(fileZIP)[0]
 
+        zip_ref = zipfile.ZipFile(fileZIP)
+        zip_ref.extractall(OutPutDie)
+        zip_ref.close()
+
+        arquivo = OutPutDie.replace(DIRNOVOS, "")
+        destinationFolder = DIREXTRACAO + arquivo
+
+        if not os.path.isdir(destinationFolder):
+            shutil.copytree(OutPutDie, destinationFolder)
+
+        return OutPutDie
+
+    except zipfile.BadZipFile:
+        print_color(f"[ERRO] Arquivo ZIP inválido ou corrompido: {fileZIP}", 31)
+        return None
+    except Exception as e:
+        print_color(f"[ERRO] Falha inesperada ao extrair ZIP {fileZIP}: {e}", 31)
+        return None
 
 def removeFolderFiles(FolderPath):
     if os.path.exists(FolderPath):
         shutil.rmtree(FolderPath)
-
 
 def ListaAllHtml(folderZip):
     FileHtmls = []
@@ -317,7 +341,6 @@ def ListaAllHtml(folderZip):
                 msgElementNewFile += f"{arquivo} "
 
     return FileHtmls, msgElementNewFile
-
 
 def parsetHTLMFileString(FileHtml):
     markdown_content = None
@@ -340,7 +363,6 @@ def contar_arquivos_zip(diretorio):
 
     # Retorna o número de arquivos ZIP encontrados
     print(f"\nArquivos em Fila {len(arquivos_zip)} {arquivos_zip}\n")
-
 
 def get_size(path):
     size = os.path.getsize(path)

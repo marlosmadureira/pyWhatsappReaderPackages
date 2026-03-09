@@ -107,7 +107,14 @@ def sendDataJsonServer(Dados, type):
 
             response_text = (r.text or '').strip()
 
+            # Verificação para DEBUG
             if r.status_code != 200:
+                response_text = (r.text or '').strip()
+                body = None
+                try:
+                    body = json.loads(response_text) if response_text else None
+                except Exception:
+                    pass
                 return {
                     'ok': False,
                     'status': r.status_code,
@@ -118,7 +125,8 @@ def sendDataJsonServer(Dados, type):
                     'context': {
                         'request_id': request_id,
                         'payload_kb': size_kb,
-                        'timeout_read': read_timeout
+                        'timeout_read': read_timeout,
+                        'php_body': body,
                     }
                 }
 

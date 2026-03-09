@@ -7,8 +7,6 @@ import re
 import shutil
 import gc
 import traceback
-import psycopg2
-import html
 
 from dotenv import load_dotenv
 from datetime import datetime
@@ -23,11 +21,6 @@ from pyGetSendApi import sendDataJsonServer
 # Configs
 load_dotenv()
 
-DB_HOST = os.getenv("DB_HOST")
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-
 DIRNOVOS = os.getenv("DIRNOVOS")
 DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
@@ -41,67 +34,26 @@ Executar = True
 FileJsonLog = True
 TypeProcess = 2 # 1 - Python 2 - PHP
 
-conn = psycopg2.connect(
-    host=DB_HOST,
-    database=DB_NAME,
-    user=DB_USER,
-    password=DB_PASS
-)
-
 def get_files_in_dir(path):
     return set(os.listdir(path))
 
-def finalizar_arquivo(source, folderZip, destino, fileName, Unidade, roomIds, motivo=None):
-    try:
-        if motivo:
-            print_color(motivo, 31)
-
-            if roomIds:
-                msg = f"🚨 ERRO PROCESSAMENTO\nArquivo: {fileName}\nMotivo: {motivo}"
-                for roomId in roomIds:
-                    sendMessageElement(ACCESSTOKEN, roomId[0], msg)
-
-        if folderZip:
-            removeFolderFiles(folderZip)
-
-        if destino == 'ERRO':
-            target = DIRERROS + fileName
-        else:
-            target = DIRLIDOS + fileName
-
-        if not os.path.exists(target) and os.path.exists(source):
-            shutil.move(source, os.path.dirname(target))
-            # print_color('MOVIDO1', 32)
-        elif os.path.exists(source):
-            os.remove(source)
-
-    except Exception as e:
-        print_color(f"[ERRO FINALIZAÇÃO] {e}", 31)
 
 def process(source):
     limpar_arquivos_antigos(DIRLOG, dias=3)
-    source = os.path.abspath(source)
 
     gc.collect()
 
     fileProcess = {}
     fileDados = {}
 
-    # Apenas extrai informações — NÃO renomeia nada
-    fileName, Unidade = getUnidadeFileName(source)
-
-    # Garante caminho absoluto e consistente
-    source = os.path.abspath(source)
+    source, Unidade = getUnidadeFileName(source)
 
     roomIds = getroomIdElement(Unidade)
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
     if folderZip is None:
-        finalizar_arquivo(
-            source, None, 'ERRO', fileName, Unidade, roomIds,
-            motivo="ZIP inválido ou não foi possível extrair"
-        )
+        print(f"[WARNING] não foi possível extrair o zip: {source}. Pulando este arquivo.")
         return
 
     FileHtmls, msgElementNewFile = ListaAllHtml(folderZip)
@@ -109,7 +61,7 @@ def process(source):
     if msgElementNewFile != "" and roomIds is not None:
         msgElement = f"NOVO ARQUIVO {fileName} WHATSAPP IDENTIFICADO {msgElementNewFile}"
 
-        print_color(f"\nEnvio da Mensagem {msgElement}", 33)
+        print(f"\nEnvio da Mensagem {msgElement}", 33)
 
         for roomId in roomIds:
             elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -125,46 +77,9 @@ def process(source):
 
     listaProcessamento(fileName, Unidade)
 
-    records_html_raw = ""
-    records_html_converted = ""
-
-    preservation_html_raw = ""
-    preservation_html_converted = ""
-
-    other_html_raw = ""
-    other_html_converted = ""
-
-    # Separar HTMLs por tipo
     for FileHtml in FileHtmls:
-        if "records" in FileHtml.lower():  # arquivo correto
-            records_html_raw += FileHtml
-            records_html_converted += parsetHTLMFileString(FileHtml)
-        elif "preservation" in FileHtml.lower():  # preservations
-            preservation_html_raw += FileHtml
-            preservation_html_converted += parsetHTLMFileString(FileHtml)
-        else:  # outros htmls
-            other_html_raw += FileHtml
-            other_html_converted += parsetHTLMFileString(FileHtml)
-
-    # Primeiro: processar SOMENTE o records.html para extrair parâmetro seguro
-    bsHtml_records = (records_html_raw + records_html_converted).strip()
-
-    parsed_json_parameters = parse_dynamic_sentence_parameters(bsHtml_records)
-
-    if parsed_json_parameters is None:
-        print_color("ERRO: Não foi possível extrair parâmetros do records.html", 31)
-        return
-
-    # Extrair somente o número do records
-    AccountIdentifier = somentenumero(parsed_json_parameters["AccountIdentifier"])
-    parsed_json_parameters["AccountIdentifier"] = AccountIdentifier
-
-    # Agora sim, juntar todos os HTMLs para processar mensagens/dados
-    bsHtml = (
-            records_html_raw + records_html_converted +
-            preservation_html_raw + preservation_html_converted +
-            other_html_raw + other_html_converted
-    )
+        bsHtml += FileHtml
+        bsHtml += parsetHTLMFileString(FileHtml)
 
     bsHtml = remove_duplicate_newlines(bsHtml.replace('![]', ''))
 
@@ -212,7 +127,7 @@ def process(source):
                 if DebugMode:
                     print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
             else:
-                print_color(f'QUEBRA DA CONTA {AccountIdentifier} {dataType}', 92)
+                print_color(f'QUEBRA DE CONTA {AccountIdentifier} {dataType}', 92)
                 if flagPrtt:
                     parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
                     if parsed_json_messages is not None:
@@ -321,7 +236,7 @@ def process(source):
             if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-                print_color(f"\nEnvio da Mensagem {msgElement}", 33)
+                print(f"\nEnvio da Mensagem {msgElement}", 33)
 
                 for roomId in roomIds:
                     elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -330,7 +245,6 @@ def process(source):
 
             if not os.path.exists(filePath):
                 shutil.move(source, DIRERROS)
-                print_color('MOVIDO2', 32)
 
                 # Novo nome do arquivo
                 new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -349,7 +263,7 @@ def process(source):
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-            print_color(f"\nEnvio da Mensagem {msgElement}", 33)
+            print(f"\nEnvio da Mensagem {msgElement}", 33)
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -358,7 +272,6 @@ def process(source):
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-            print_color('MOVIDO3', 32)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -378,9 +291,9 @@ def process(source):
         print("\nMovendo de: ", source)
         print("Para: ", DIRLIDOS)
         print("Arquivo Finalizado!\n")
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads - Banco: {DB_HOST}\n")
+        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
     else:
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads - Banco: {DB_HOST}\n")
+        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
 
 def parse_dynamic_sentence_parameters(content):
     # --- Vetor de ignorados expandido ---
@@ -408,8 +321,7 @@ def parse_dynamic_sentence_parameters(content):
 
     # --- Lista de campos para lookahead ---
     fields = [
-        "Service", "Internal Ticket Number", "Target",
-        "Logical ID","Account Identifier",
+        "Service", "Internal Ticket Number", "Account Identifier",
         "Account Type", "Generated", "Date Range",
         "Ncmec Reports Definition", "NCMEC CyberTip Numbers",
         "Emails Definition", "Registered Email Addresses",
@@ -706,11 +618,7 @@ def parse_dynamic_sentence_connection(content):
         "ConnectionState":     re.compile(r"Connection\s*State\s*(.*?)"       + lookahead, re.IGNORECASE),
         "OnlineSince":         re.compile(r"Online\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
         "InactiveSince":       re.compile(r"Inactive\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
-        # "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
-        "LastSeen": re.compile(
-            r"Last\s*seen\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)",
-            re.IGNORECASE
-        ),
+        "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
         "PushName":            re.compile(r"Push\s*Name\s*(.*?)"            + lookahead, re.IGNORECASE),
     }
 
@@ -1082,6 +990,34 @@ def parse_dynamic_sentence_web(content):
     else:
         return None
 
+def parse_dynamic_sentence_smallOLDS(content):
+    # Remove as barras invertidas e espaços em branco desnecessários
+    sentence = re.sub(r'\\', '', content).strip()
+    # Remove linhas vazias
+    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
+
+    # Expressões regulares para capturar os campos da informação do dispositivo
+    patterns = {
+        "Small Medium Business": r"Small Medium Business([\w\.]+)",
+        "Address": r"Address([\w\.]+)",
+        "Email": r"Email([\w\.]+)",
+        "Name": r"Name([\w\.]+)",
+    }
+
+    # Dicionário para armazenar os resultados
+    results = {}
+
+    # Iterar sobre os padrões e encontrar as correspondências
+    for key, pattern in patterns.items():
+        match = re.search(pattern, sentence)
+        if match:
+            results[remover_espacos_regex(key)] = match.group(1).strip()
+
+    if len(results) > 0:
+        print('Small --------> ', results)
+        return results
+    else:
+        return None
 def parse_dynamic_sentence_small(content):
     ignored_patterns = [
         r"Small Medium Business Definition.*?(?=Small Medium Business|Small Medium Business\s|Device Info Definition|$)",
@@ -1322,215 +1258,63 @@ def parse_dynamic_sentence_calls(content):
 
     return results or None
 
-def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
-    lines = []
-
-    # HTML PURO - SEM html.escape nas tags!
-    lines.append(f"<strong>🚨ALERTA — WhatsApp🚨</strong>")
-    lines.append(f"<strong>Arquivo:</strong> {html.escape(fileName)}")
-    lines.append(f"<strong>Conta:</strong> {html.escape(AccountIdentifier)}")
-    lines.append(f"<strong>Tipo:</strong> {html.escape(str(type))}")
-
-    # Erro de transporte / HTTP / PHP 500
-    if isinstance(retorno, dict) and retorno.get('ok') is False and 'error' in retorno:
-        err = retorno.get('error', {})
-        ctx = retorno.get('context', {})
-
-        lines.append("<strong>Resultado:</strong> <span style='color: red;'>ERROR</span>")
-        if ctx.get('request_id'):
-            lines.append(f"<strong>request_id:</strong> <code>{html.escape(ctx['request_id'])}</code>")
-
-        # PRIORIDADE 1: response_snippet
-        if 'response_snippet' in ctx and ctx['response_snippet']:
-            try:
-                snippet_json = json.loads(ctx['response_snippet'])
-                if isinstance(snippet_json, dict) and 'error' in snippet_json:
-                    php_err = snippet_json['error']
-                    lines.append(
-                        f"<strong>Aviso (PHP):</strong> <span style='color: orange;'>{html.escape(php_err.get('code'))}: {php_err.get('message')}</span>")
-                else:
-                    lines.append(f"<strong>Aviso (snippet):</strong> {html.escape(ctx['response_snippet'][:400])}...")
-            except json.JSONDecodeError:
-                lines.append(f"<strong>Aviso (snippet):</strong> {html.escape(ctx['response_snippet'][:400])}...")
-        else:
-            lines.append(
-                f"<strong>Aviso:</strong> <span style='color: red;'>{html.escape(err.get('code'))}: {err.get('message')}</span>")
-
-        return "<br>".join(lines)  # Usa <br> em vez de \n para HTML
-
-    # Resposta PHP normal
-    jr = retorno.get('jsonRetorno')
-    if isinstance(jr, str):
-        try:
-            jr = json.loads(jr)
-        except Exception:
-            jr = {'Resultado': 'ERROR',
-                  'Errors': [{'code': 'INVALID_JSONRETORNO', 'message': 'jsonRetorno não parseável'}]}
-
-    Aviso = jr.get('Aviso', []) or []
-    errors = jr.get('Errors', []) or []
-
-    if Aviso:
-        w0 = Aviso[0]
-        lines.append(f"<strong>Aviso:</strong> {html.escape(w0.get('code'))}: {html.escape(w0.get('message'))}")
-
-    if errors:
-        e0 = errors[0]
-        lines.append(
-            f"<strong>Aviso:</strong> <span style='color: orange;'>{html.escape(e0.get('code'))}: {html.escape(e0.get('message'))}</span>")
-        ctx = e0.get('context', {}) or {}
-        if 'sql' in ctx:
-            lines.append("<strong>SQL (trecho):</strong>")
-            lines.append(f"<code>{html.escape(str(ctx['sql'])[:900])}</code>")
-
-    return "<br>".join(lines)
-
 def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds):
 
     EventoGravaBanco = False
-    ja_enviou_element = False
 
-    if not isinstance(retornoJson, dict):
-        print_color(f"[ERRO] Retorno do PHP em formato inválido: {type(retornoJson)} | valor={str(retornoJson)[:300]}", 31)
-        return
+    if 'MostraJsonPython' in retornoJson['jsonRetorno']:
 
-    if 'jsonRetorno' not in retornoJson:
-        print_color(f"[ERRO] Campo 'jsonRetorno' ausente no retorno: {str(retornoJson)[:800]}", 31)
+        Jsondata = json.loads(retornoJson['jsonRetorno'])
 
-        # Se quiser alertar no Element aqui (recomendado):
-        if roomIds is not None and not ja_enviou_element:
-            msgElement = build_element_message(
-                fileName=fileName,
-                Unidade=Unidade,
-                NomeUnidade=NomeUnidade,
-                AccountIdentifier=AccountIdentifier,
-                type=retornoJson.get('type', 'N/A'),
-                retorno=retornoJson
-            )
-            for roomId in roomIds:
-                elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
-                print_color(f"{elementLog}", 33)
-            ja_enviou_element = True
+        if Jsondata['MostraJsonPython']:
+            print_color(f"\nJSON PROCESSADO", 92)
+            print_color(f"{fileProcess}", 92)
 
-        try:
-            if source and os.path.exists(source):
-                destino_zip = os.path.join(DIRERROS, fileName)
-                shutil.move(source, destino_zip)
-                # print_color(f"[ZIP movido para ERROs] {destino_zip}", 31)
-            else:
-                print_color(f"[AVISO] ZIP não encontrado: {source}", 33)
-        except Exception as e:
-            print_color(f"[ERRO AO MOVER ZIP PARA ERRO] {e}", 31)
-        try:
-            if folderZip and os.path.exists(folderZip):
-                removeFolderFiles(folderZip)
-                # print_color(f"[PASTA REMOVIDA] {folderZip}", 31)
-        except Exception as e:
-            print_color(f"[ERRO AO REMOVER PASTA] {e}", 31)
-        return
+        if Jsondata['RetornoPHP']:
+            print_color(f"\nRETORNO DO PHP", 34)
+            openJsonEstruturado(Jsondata)
 
-    json_retorno = retornoJson.get('jsonRetorno')
+        if Jsondata['ExibirTotalPacotesFila']:
+            contar_arquivos_zip(DIRNOVOS)
 
-    if isinstance(json_retorno, dict):
-        Jsondata = json_retorno
-    elif isinstance(json_retorno, str):
-        try:
-            Jsondata = json.loads(json_retorno)
-        except json.JSONDecodeError as e:
-            print_color(f"[ERRO] jsonRetorno string não parseável: {e} | snippet={json_retorno[:800]}", 31)
-            return
-    else:
-        print_color(f"[ERRO] jsonRetorno em tipo inesperado: {(json_retorno)}", 31)
-        return
-
-    if Jsondata.get('MostraJsonPython'):
-        print_color("\nJSON PROCESSADO", 92)
-        print_color(f"{fileProcess}", 92)
-
-    if Jsondata.get('RetornoPHP'):
-        print_color("\nRETORNO DO PHP", 32)
-        openJsonEstruturado(Jsondata)
-
-    if Jsondata.get('ExibirTotalPacotesFila'):
-        contar_arquivos_zip(DIRNOVOS)
-
-    resultado = Jsondata.get('Resultado')
-    if Jsondata.get('GravaBanco') or resultado == 'DUPLICATE':
-        print_color(f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}", 32)
-        EventoGravaBanco = True
-    else:
-        print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS(php)!!! {fileName} Unidade {Unidade} {NomeUnidade}", 31)
-        EventoGravaBanco = False
+        if Jsondata['GravaBanco']:
+            print_color(
+                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                32)
+            EventoGravaBanco = True
+        else:
+            print_color(
+                f"\nERRO GRAVAÇÃO NO BANCO DE DADOS(php)!!! {fileName} Unidade {Unidade} {NomeUnidade}",
+                31)
+            EventoGravaBanco = False
 
     if EventoGravaBanco:
         removeFolderFiles(folderZip)
 
-        destino = os.path.join(DIRLIDOS, fileName)
-        # 🔹 NOVO BLOCO — verifica se já existe em LIDOS
-        if os.path.exists(destino):
-            print_color(" Arquivo apagado, ja existente em lidos!", 33)
-            try:
-                os.remove(destino)
-            except Exception as e:
-                print_color(f"[ERRO AO REMOVER ARQUIVO EXISTENTE EM LIDOS] {e}", 31)
+        # if flagDados:
+        #     saveResponse(AccountIdentifier, Unidade)
 
-        if not os.path.exists(destino):
-            if source and os.path.exists(source):
-                finalizar_arquivo( source=source, folderZip=folderZip, destino='LIDO', fileName=fileName, Unidade=Unidade, roomIds=roomIds )
-                # shutil.move(source, DIRLIDOS)
-                # print_color('MOVIDO4', 32)
+        filePath = DIRLIDOS + fileName
 
-            base, ext = os.path.splitext(fileName)
-            if "_" in base:
-                base = base.rsplit("_", 1)[0]
-            nome_final = base + ext
-            final_path = os.path.join(DIRLIDOS, nome_final)
-
-            if not os.path.exists(final_path):
-                os.rename(destino, final_path)
-
-            if not os.path.exists(os.path.join(DIRLIDOS, nome_final)):
-                print_color(f"[ERRO CRÍTICO] Arquivo não encontrado em LIDOS após processamento: {fileName}", 31)
-
-                if roomIds is not None and not ja_enviou_element:
-                    msgElement = (
-                        f"🚨 ERRO CRÍTICO PÓS-GRAVAÇÃO 🚨\n\n"
-                        f"Arquivo: {fileName}\n"
-                        f"Unidade: {Unidade} - {NomeUnidade}\n"
-                        f"Conta: {AccountIdentifier}\n\n"
-                        f"O banco confirmou gravação, mas o ZIP NÃO foi movido para a pasta LIDOS.\n"
-                        f"Verificar imediatamente possível inconsistência de filesystem."
-                    )
-                    for roomId in roomIds:
-                        elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
-                        print_color(f"{elementLog}", 33)
-                        time.sleep(2)
-                    ja_enviou_element = True
+        if not os.path.exists(filePath):
+            shutil.move(source, DIRLIDOS)
+        else:
+            delete_log(source)
     else:
         filePath = DIRERROS + fileName
 
-        if roomIds is not None and not ja_enviou_element:
-            msgElement = build_element_message(
-                fileName=fileName,
-                Unidade=Unidade,
-                NomeUnidade=NomeUnidade,
-                AccountIdentifier=AccountIdentifier,
-                type=retornoJson.get('type') if isinstance(retornoJson, dict) else 'N/A',
-                retorno=retornoJson
-            )
+        if roomIds is not None:
+            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-            # Para ver no terminal a mensagem enviada para o Element
-            print_color(f"\nEnvio da Mensagem Element:\n{msgElement}", 32)
+            print(f"\nEnvio da Mensagem {msgElement}", 33)
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                 print_color(f"{elementLog}", 33)
                 time.sleep(2)
-            ja_enviou_element = True
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-            # print_color('MOVIDO5', 32)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -1548,7 +1332,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-            print_color(f"\nEnvio da Mensagem {msgElement}", 33)
+            print(f"\nEnvio da Mensagem {msgElement}", 33)
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -1563,7 +1347,6 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-            print_color('MOVIDO6', 32)
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -1584,40 +1367,11 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRLIDOS)
-            print_color('MOVIDO7', 32)
         else:
             delete_log(source)
             print_color(
                 f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                 32)
-
-def atualizar_conta_zap(conn):
-    """
-    Atualiza conta_zap com base em conta_id (varchar),
-    extraindo apenas os dígitos e validando valor > 0.
-    """
-    # print_color("\n Normalizando conta_zap == NULL...", 32)
-
-    sql_update = "UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = regexp_replace(conta_id, '[^0-9]', '', 'g')::bigint WHERE status = 'A' AND apli_id = 1 AND conta_zap IS NULL AND conta_id IS NOT NULL AND regexp_replace(conta_id, '[^0-9]', '', 'g') <> '' AND regexp_replace(conta_id, '[^0-9]', '', 'g')::bigint > 0;"
-
-    try:
-        with conn.cursor() as cur:
-            # print(" Executando UPDATE em lote com normalização...")
-            cur.execute(sql_update)
-
-            linhas = cur.rowcount
-            conn.commit()
-
-            if linhas != 0:
-                print_color(f"      {linhas} - conta_zap normalizada.",32)
-            # else:
-            #     print_color("       Nenhuma conta_zap == NULL para normalização.",33)
-
-    except Exception as e:
-        conn.rollback()
-        print(" Erro ao normalizar conta_zap.")
-        print(f" Detalhes: {e}")
-        raise
 
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)
@@ -1628,11 +1382,8 @@ if __name__ == '__main__':
 
     previous_files = get_files_in_dir(DIRNOVOS)
 
-    atualizar_conta_zap(conn) #atualiza coluna tbaplicativo_linhafone.conta_zap que for ativo e estiver null
-    conn.close()
-
     dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 05/02/2026 - Banco: {DB_HOST}\n")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 16/10/2025\n")
 
     while True:
         time.sleep(3)

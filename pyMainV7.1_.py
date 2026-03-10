@@ -180,7 +180,7 @@ def process(source):
             parsed_json_parameters['AccountIdentifier'] = AccountIdentifier
             # print("bsHTML -------> ", bsHtml)
             fileProcess.update(parsed_json_parameters)
-            fileProcess['FileName'] = fileName
+            fileProcess['FileName'] = normalizar_nome_lidos(fileName)
             fileProcess['Unidade'] = Unidade
             fileProcess['NomeUnidade'] = NomeUnidade
             # fileProcess['rawProcessedMarkdown'] = bsHtml
@@ -332,18 +332,10 @@ def process(source):
                 shutil.move(source, DIRERROS)
                 print_color('MOVIDO2', 32)
 
-                # --- Tratamento profissional para evitar duplicação de sufixo ---
-                base, ext = os.path.splitext(filePath)
+                nome_erro = normalizar_nome_erros(fileName, Unidade)
+                final_erro = os.path.join(DIRERROS, nome_erro)
 
-                # verifica se já termina com _Unidade
-                if not re.search(rf"_{Unidade}$", base):
-                    new_filename = f"{base}_{Unidade}{ext}"
-
-                    try:
-                        os.rename(filePath, new_filename)
-                        filePath = new_filename
-                    except Exception as e:
-                        print_color(f"[ERRO AO RENOMEAR ARQUIVO DE ERRO] {e}", 31)
+                os.rename(filePath, final_erro)
             else:
                 os.remove(source)
 
@@ -367,18 +359,10 @@ def process(source):
             shutil.move(source, DIRERROS)
             print_color('MOVIDO3', 32)
 
-            # --- Tratamento profissional para evitar duplicação de sufixo ---
-            base, ext = os.path.splitext(filePath)
+            nome_erro = normalizar_nome_erros(fileName, Unidade)
+            final_erro = os.path.join(DIRERROS, nome_erro)
 
-            # verifica se já termina com _Unidade
-            if not re.search(rf"_{Unidade}$", base):
-                new_filename = f"{base}_{Unidade}{ext}"
-
-                try:
-                    os.rename(filePath, new_filename)
-                    filePath = new_filename
-                except Exception as e:
-                    print_color(f"[ERRO AO RENOMEAR ARQUIVO DE ERRO] {e}", 31)
+            os.rename(filePath, final_erro)
         else:
             os.remove(source)
 
@@ -1494,10 +1478,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
                 # shutil.move(source, DIRLIDOS)
                 # print_color('MOVIDO4', 32)
 
-            base, ext = os.path.splitext(fileName)
-            if "_" in base:
-                base = base.rsplit("_", 1)[0]
-            nome_final = base + ext
+            nome_final = normalizar_nome_lidos(fileName)
             final_path = os.path.join(DIRLIDOS, nome_final)
 
             if not os.path.exists(final_path):
@@ -1546,18 +1527,10 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
             shutil.move(source, DIRERROS)
             # print_color('MOVIDO5', 32)
 
-            # --- Tratamento profissional para evitar duplicação de sufixo ---
-            base, ext = os.path.splitext(filePath)
+            nome_erro = normalizar_nome_erros(fileName, Unidade)
+            final_erro = os.path.join(DIRERROS, nome_erro)
 
-            # verifica se já termina com _Unidade
-            if not re.search(rf"_{Unidade}$", base):
-                new_filename = f"{base}_{Unidade}{ext}"
-
-                try:
-                    os.rename(filePath, new_filename)
-                    filePath = new_filename
-                except Exception as e:
-                    print_color(f"[ERRO AO RENOMEAR ARQUIVO DE ERRO] {e}", 31)
+            os.rename(filePath, final_erro)
         else:
             os.remove(source)
 
@@ -1586,18 +1559,10 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
             shutil.move(source, DIRERROS)
             print_color('MOVIDO6', 32)
 
-            # --- Tratamento profissional para evitar duplicação de sufixo ---
-            base, ext = os.path.splitext(filePath)
+            nome_erro = normalizar_nome_erros(fileName, Unidade)
+            final_erro = os.path.join(DIRERROS, nome_erro)
 
-            # verifica se já termina com _Unidade
-            if not re.search(rf"_{Unidade}$", base):
-                new_filename = f"{base}_{Unidade}{ext}"
-
-                try:
-                    os.rename(filePath, new_filename)
-                    filePath = new_filename
-                except Exception as e:
-                    print_color(f"[ERRO AO RENOMEAR ARQUIVO DE ERRO] {e}", 31)
+            os.rename(filePath, final_erro)
         else:
             os.remove(source)
 
@@ -1618,6 +1583,25 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
             print_color(
                 f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                 32)
+
+def normalizar_nome_lidos(filename):
+    """
+    Remove qualquer sufixo _xx antes do .zip
+    """
+    base, ext = os.path.splitext(filename)
+    base = re.sub(r'(_\d+)+$', '', base)
+    return base + ext
+
+def normalizar_nome_erros(filename, unidade=None):
+    """
+    Garante apenas um sufixo _xx antes do .zip
+    """
+    base, ext = os.path.splitext(filename)
+    base = re.sub(r'(_\d+)+$', '', base)
+    if unidade is not None:
+        return f"{base}_{unidade}{ext}"
+    else:
+        return f"{base}_1{ext}"
 
 def atualizar_conta_zap(conn):
     """

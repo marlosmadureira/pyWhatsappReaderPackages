@@ -1079,7 +1079,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                 }
 
                 //Procura o ticketnumber informado anteriomente pelo DADOS
-                $sqlTicket = "SELECT ticket_id, linh_id FROM leitores.tb_whatszap_ticketnumber WHERE ticketnumber = '$InternalTicketNumber';";
+                $sqlTicket = "SELECT ticket_id, linh_id FROM leitores.tb_whatszap_ticketnumber WHERE ticketnumber = '$InternalTicketNumber' AND account_identifier = '$AccountIdentifier';";
                 $tickets = selectpadrao($db, $sqlTicket);
 
                 // Fallback para ticket number, compatibilidade com dados antigos (antes da tabela de tickets)
@@ -1114,7 +1114,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
 
                     $ticketValue = empty($ticket_id) ? "NULL" : (int)$ticket_id;
 
-                    if ($printLogJson && isset($jsonRetorno['Ticket_IDs'])) {
+                    if ($printLogJson && isset($ticket_id)) {
                         //$jsonRetorno['Ticket_IDs'][] = $ticket_id;
                         $jsonRetorno['Ticket_IDs'] = isset($jsonRetorno['Ticket_IDs'])
                             ? $jsonRetorno['Ticket_IDs'] . ', ' . $ticket_id

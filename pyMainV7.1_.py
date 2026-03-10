@@ -332,11 +332,18 @@ def process(source):
                 shutil.move(source, DIRERROS)
                 print_color('MOVIDO2', 32)
 
-                # Novo nome do arquivo
-                new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+                # --- Tratamento profissional para evitar duplicação de sufixo ---
+                base, ext = os.path.splitext(filePath)
 
-                # Renomeia o arquivo
-                os.rename(filePath, new_filename)
+                # verifica se já termina com _Unidade
+                if not re.search(rf"_{Unidade}$", base):
+                    new_filename = f"{base}_{Unidade}{ext}"
+
+                    try:
+                        os.rename(filePath, new_filename)
+                        filePath = new_filename
+                    except Exception as e:
+                        print_color(f"[ERRO AO RENOMEAR ARQUIVO DE ERRO] {e}", 31)
             else:
                 os.remove(source)
 
@@ -360,11 +367,18 @@ def process(source):
             shutil.move(source, DIRERROS)
             print_color('MOVIDO3', 32)
 
-            # Novo nome do arquivo
-            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+            # --- Tratamento profissional para evitar duplicação de sufixo ---
+            base, ext = os.path.splitext(filePath)
 
-            # Renomeia o arquivo
-            os.rename(filePath, new_filename)
+            # verifica se já termina com _Unidade
+            if not re.search(rf"_{Unidade}$", base):
+                new_filename = f"{base}_{Unidade}{ext}"
+
+                try:
+                    os.rename(filePath, new_filename)
+                    filePath = new_filename
+                except Exception as e:
+                    print_color(f"[ERRO AO RENOMEAR ARQUIVO DE ERRO] {e}", 31)
         else:
             os.remove(source)
 
@@ -1532,11 +1546,18 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
             shutil.move(source, DIRERROS)
             # print_color('MOVIDO5', 32)
 
-            # Novo nome do arquivo
-            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+            # --- Tratamento profissional para evitar duplicação de sufixo ---
+            base, ext = os.path.splitext(filePath)
 
-            # Renomeia o arquivo
-            os.rename(filePath, new_filename)
+            # verifica se já termina com _Unidade
+            if not re.search(rf"_{Unidade}$", base):
+                new_filename = f"{base}_{Unidade}{ext}"
+
+                try:
+                    os.rename(filePath, new_filename)
+                    filePath = new_filename
+                except Exception as e:
+                    print_color(f"[ERRO AO RENOMEAR ARQUIVO DE ERRO] {e}", 31)
         else:
             os.remove(source)
 
@@ -1565,11 +1586,18 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
             shutil.move(source, DIRERROS)
             print_color('MOVIDO6', 32)
 
-            # Novo nome do arquivo
-            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+            # --- Tratamento profissional para evitar duplicação de sufixo ---
+            base, ext = os.path.splitext(filePath)
 
-            # Renomeia o arquivo
-            os.rename(filePath, new_filename)
+            # verifica se já termina com _Unidade
+            if not re.search(rf"_{Unidade}$", base):
+                new_filename = f"{base}_{Unidade}{ext}"
+
+                try:
+                    os.rename(filePath, new_filename)
+                    filePath = new_filename
+                except Exception as e:
+                    print_color(f"[ERRO AO RENOMEAR ARQUIVO DE ERRO] {e}", 31)
         else:
             os.remove(source)
 

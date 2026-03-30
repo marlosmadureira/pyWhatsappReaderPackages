@@ -409,7 +409,7 @@ def parse_dynamic_sentence_parameters(content):
         "Service", "Internal Ticket Number", "Target",
         "Logical ID","Account Identifier",
         "Account Type", "Generated", "Date Range",
-        "Ncmec Reports Definition", "NCMEC CyberTip Numbers",
+        "Ncmec Reports Definition", "NCMEC CyberTips",
         "Emails Definition", "Registered Email Addresses",
         "Connection Info Definition", "Message Log", "Ip Addresses Definition",
         "Ip Addresses", "Profile Picture Definition", "Profile Picture"

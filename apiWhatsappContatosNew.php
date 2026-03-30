@@ -405,7 +405,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     }
 
                     //Verificar se o arquivo ja foi processado anteriormente
-                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = $linh_id AND telefone = '$AccountIdentifier' AND ar_dtgerado = '$DateRange' AND ar_arquivo LIKE '$FileNameId%'";
+                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 1 AND linh_id = $linh_id AND telefone = '$AccountIdentifier' AND ar_dtgerado = '$DateRange' AND ar_arquivo = '$FileNameFinal'";
                     $repetido = selectpadraoumalinha($db, $sqlexistente);
 
                     if (!empty($repetido['ar_id'])) {
@@ -1121,7 +1121,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                             : (string)$ticket_id;
                     }
 
-                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 0 AND linh_id = $linh_id AND telefone = '$AccountIdentifier' AND ar_dtgerado = '$DateRange' AND ar_arquivo LIKE '$FileNameId%'";
+                    $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 0 AND linh_id = $linh_id AND telefone = '$AccountIdentifier' AND ar_dtgerado = '$DateRange' AND ar_arquivo = '$FileNameFinal'";
                     $repetido = selectpadraoumalinha($db, $sqlexistente);
 
                     if (empty($repetido['ar_id'])) {

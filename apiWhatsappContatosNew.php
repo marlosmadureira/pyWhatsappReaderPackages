@@ -1579,11 +1579,19 @@ function InsertBanco($db, $type, $jsonData, $requestId){
             //ARQUIVOS DO TIPO DADOS
             if($type == "GDADOS"){
 
-                $sqlGrupo = "SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id FROM interceptacao.tbobje_whatsappgrupos, interceptacao.tbobje_intercepta
-                               WHERE tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id AND tbobje_intercepta.opra_id = 28 AND tbobje_intercepta.unid_id = ".$Unidade."
-                               AND tbobje_whatsappgrupos.grupo_id ILIKE '%".$AccountIdentifier."%'";
+                $sqlGrupo = "SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id, g.ulid AS grupo_ulid
+                             FROM interceptacao.tbobje_whatsappgrupos
+                             INNER JOIN interceptacao.tbobje_intercepta
+                                ON tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id
+                             LEFT JOIN whatsapp.tbgrupowhatsapp g
+                                ON g.grupo_id::text ILIKE '%' || tbobje_whatsappgrupos.grupo_id || '%'
+                             WHERE tbobje_intercepta.opra_id = 28
+                               AND tbobje_intercepta.unid_id = ".$Unidade."
+                               AND tbobje_whatsappgrupos.grupo_id ILIKE '%{$AccountIdentifier}%';";
                 $queryGrupo= selectpadraoumalinha($db,$sqlGrupo);
-//                        $jsonRetorno['SQL_1'] = $sqlGrupo;
+
+                $grupo_ulid = !empty($queryGrupo['grupo_ulid']) ? $queryGrupo['grupo_ulid'] : null;
+                $jsonRetorno['Grupo_ulid'] = $grupo_ulid;
 
                 if(!empty($queryGrupo['linh_id']) && $queryGrupo['linh_id'] > 0){
                     $queryArId = null;
@@ -1592,7 +1600,6 @@ function InsertBanco($db, $type, $jsonData, $requestId){
 
                     $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 2 AND linh_id = ".$linh_id." AND ar_arquivo = '".$FileName."'";
                     $repetido = selectpadraoumalinha($db, $sqlexistente);
-//                            $jsonRetorno['SQL_2'] = $sqlGrupo;
 
                     if (empty($repetido['ar_id'])){
                         $sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES (".$linh_id.", '".$AccountIdentifier."', '".$DateRange."', NOW(), '".$FileNameFinal."', 2, 1) RETURNING ar_id;";
@@ -1624,14 +1631,15 @@ function InsertBanco($db, $type, $jsonData, $requestId){
 
                             $sqlIdentificador = "SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = ".$Unidade." AND tbmembros_whats.grupo_id ILIKE '%".trim($AccountIdentifier)."%'";
                             $queryIdentificador = selectpadraoumalinha($db, $sqlIdentificador);
-//                                    $jsonRetorno['SQL_3'] = $sqlGrupo;
 
                             if(isset($json->GDados->groupsInfo) && !empty($queryIdentificador['identificador'])){
                                 $identificador = $queryIdentificador['identificador'];
 
                                 foreach($json->GDados->groupsInfo->GroupParticipants as $registro){
+                                    $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
                                     //GRAVANDO PARTICIPANTES GRUPO
-                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
+                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
+                                                    VALUES ('".trim($AccountIdentifier)."', " . $grupo_ulid_sql . ", '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
 
                                     if ($executaSql){
                                         $resultEventoBd = null;
@@ -1657,8 +1665,10 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                 }
 
                                 foreach($json->GDados->groupsInfo->GroupAdministrators as $registro){
+                                    $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
                                     //GRAVANDO PARTICIPANTES GRUPO
-                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'S', 'A', ".$identificador.");";
+                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
+                                                    VALUES ('".trim($AccountIdentifier)."', " . $grupo_ulid_sql . ", '".somenteNumeros($registro)."', 'S', 'A', ".$identificador.");";
 
                                     if ($executaSql){
                                         $resultEventoBd = null;
@@ -1684,8 +1694,10 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                 }
 
                                 foreach($json->GDados->groupsInfo->Participants as $registro){
+                                    $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
                                     //GRAVANDO PARTICIPANTES GRUPO
-                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_participante, grupo_adm, grupo_status, identificador) VALUES ('".trim($AccountIdentifier)."', '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
+                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
+                                                    VALUES ('".trim($AccountIdentifier)."', " . $grupo_ulid_sql . ", '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
 
                                     if ($executaSql){
                                         $resultEventoBd = null;
@@ -1694,7 +1706,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                         if($resultEventoBd){
                                             $jsonRetorno['Metrics']['insert_ok']++;
                                             if($printLogJson){
-                                                $jsonRetorno['3G'] = 'OK ' . $resultEventoBd;
+                                                $jsonRetorno['4G'] = 'OK ' . $resultEventoBd;
                                             }
                                         } else {
                                             $jsonRetorno['Metrics']['insert_fail']++;
@@ -1734,6 +1746,21 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                 $jsonRetorno['AVISO_1G'] = 'GRUPO Nao Localizada ' . $AccountIdentifier;
                             }
                         }
+                    } else {
+                        $jsonRetorno['Resultado'] = 'DUPLICATE';
+                        $jsonRetorno['GravaBanco'] = true;
+                        $addWarning('DUPLICATE_FILE', 'Arquivo já processado (duplicado)', array(
+                            'FileName' => $FileName,
+                            'type' => $type,
+                            'linh_id' => $linh_id,
+                            'ar_id' => $repetido['ar_id'],
+                        ));
+
+                        $jsonRetorno['Repetido'] = "Arquivo Existente " . $FileName;
+                        $FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a");
+                        $escreve = fwrite($FileLog, $FileName . " \n" . date('d/m/Y H:i:s') . " \n" . $jsonRetorno['UnidName'] . "\nArquivo Existente \n\n");
+                        fclose($FileLog);
+                        $jsonRetorno['GravaBanco'] = False;
                     }
                 }else{
                     $FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a");
@@ -1741,7 +1768,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     fclose($FileLog );
 
                     $jsonRetorno['GravaBanco'] = False;
-                    $jsonRetorno['AVISO_1'] = 'Linha Id Nao Localizada ' . $AccountIdentifier;
+                    $jsonRetorno['AVISO_1'] = 'Grupo ID Nao Localizado ' . $AccountIdentifier;
                 }
             }
         }else{
@@ -1753,7 +1780,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
         }
         if ($jsonRetorno['Resultado'] === 'ERROR' && count($jsonRetorno['Errors']) === 0) {
             $jsonRetorno['Resultado'] = 'NOT_LOCATED';
-            $addError('LINE_NOT_FOUND', 'Linha não Localizada.', array(
+            $addError('LINE_NOT_FOUND', '7 - Linha não Localizada.', array(
                 'FileName' => isset($FileName) ? $FileName : null,
                 'Unidade'  => isset($Unidade) ? $Unidade : null,
                 'AccountIdentifier' => isset($AccountIdentifier) ? $AccountIdentifier : null,

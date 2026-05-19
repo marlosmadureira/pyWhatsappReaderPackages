@@ -218,6 +218,10 @@ def process(source):
                     if parsed_json_messages is not None:
                         fileDados['msgLogs'] = parsed_json_messages
 
+                    parsed_json_login_ips = parse_prospective_login_ips(bsHtml)
+                    if parsed_json_login_ips is not None:
+                        fileDados['prospectiveloginips'] = parsed_json_login_ips
+
                     parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
                     if parsed_json_calls is not None:
                         fileDados['callLogs'] = parsed_json_calls
@@ -1165,6 +1169,54 @@ def parse_dynamic_sentence_small(content):
         # print("Small --------> ", results)
         return results
     return None
+
+def parse_prospective_login_ips(content):
+    try:
+        # 1) Limpeza básica (igual padrão do seu parser)
+        sentence = re.sub(r'\\', '', content).strip()
+        sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
+
+        # 2) Isola apenas a seção relevante
+        match_section = re.search(
+            r"Prospective Login IPs\s*(.*?)($|Call Logs|Message Log|Ncmec Reports)",
+            sentence,
+            re.DOTALL
+        )
+
+        if not match_section:
+            print_color("DEBUG: Prospective Login IPs section not found", 31)
+            return None
+
+        section = match_section.group(1)
+
+        # 3) Regex para capturar os blocos sequenciais
+        pattern = re.compile(
+            r"Timestamp\s*([\d\-:\sUTC]+)\s*"
+            r"IP Address\s*([\d\.]+)\s*"
+            r"Port\s*(\d+)",
+            re.DOTALL
+        )
+
+        matches = pattern.findall(section)
+
+        results = []
+        for ts, ip, port in matches:
+            results.append({
+                "Timestamp": ts.strip(),
+                "IpAddress": ip.strip(),
+                "Port": port.strip()
+            })
+
+        # 4) Validação
+        if results:
+            return results
+        else:
+            print_color("DEBUG: No Prospective Login IPs extracted", 31)
+            return None
+
+    except Exception as e:
+        print("Erro ao parsear Prospective Login IPs:", e)
+        raise
 
 def parse_dynamic_sentence_messages(content):
     try:

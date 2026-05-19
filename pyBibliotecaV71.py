@@ -109,22 +109,6 @@ def replace_divs(html):
     return html
 
 #Precisa instalar 'pip install lxml'
-def html_to_markdownOLDS(html):
-    pattern = r'<div class="p"></div>'
-    html = re.sub(pattern, ' ', html)
-
-    # Usar BeautifulSoup para manipular o HTML
-    soup = BeautifulSoup(html, 'html.parser')
-
-    # Encontrar todas as divs com a classe 'pageBreak' e removê-las
-    for div in soup.find_all('div', class_='pageBreak'):
-        div.decompose()  # Remove a tag e seu conteúdo
-
-    # Converter o HTML modificado para Markdown
-    markdown_output = md(str(soup))
-    markdown = re.sub(r'\s+', ' ', markdown_output).strip()
-
-    return markdown
 def html_to_markdown(html):
     html = re.sub(r'<div class="p"></div>', ' ', html)
 
@@ -146,28 +130,14 @@ def html_to_markdown(html):
     # normaliza espaços múltiplos
     return re.sub(r'\s+', ' ', texto)
 
-def getUnidadeFileNameOLD(nome_original):
-    FileName, Unidade = None, None
-
-    if "_" in nome_original:
-        DadosUnidade = nome_original.split("_")
-        Unidade = DadosUnidade[1].replace(".zip", "")
-        FileName = f"{DadosUnidade[0]}.zip";
-        os.rename(nome_original, FileName)
-    else:
-        Unidade = 1
-        FileName = nome_original
-    return FileName, Unidade
 def getUnidadeFileName(source_path):
     base = os.path.basename(source_path)
-
     Unidade = 1
     if "_" in base:
         try:
-            Unidade = base.rsplit("_", 1)[1].replace(".zip", "")
+            Unidade = int(base.rsplit("_", 1)[1].replace(".zip", ""))  # ← int()
         except Exception:
             Unidade = 1
-
     return base, Unidade
 
 def openJson(file):

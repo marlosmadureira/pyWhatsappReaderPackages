@@ -1288,6 +1288,67 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                 }
                             }
 
+                            // PROSPECTIVE LOGIN IPs
+                            if (isset($json->Prtt->prospectiveloginips)) {
+                                foreach ($json->Prtt->prospectiveloginips as $registro) {
+
+                                    $prospecTimestamp = isset($registro->Timestamp)
+                                        ? trim(pg_escape_string(str_replace("UTC", "", $registro->Timestamp)))
+                                        : null;
+
+                                    $prospecIpAddress = isset($registro->IpAddress)
+                                        ? trim(pg_escape_string($registro->IpAddress))
+                                        : null;
+
+                                    $prospecPort = isset($registro->Port)
+                                        ? trim(pg_escape_string($registro->Port))
+                                        : null;
+
+                                    if ($executaSql) {
+
+                                        $sqlexistente = "SELECT prospec_id
+                                             FROM leitores.tb_whatszap_prospectiveloginips
+                                             WHERE prospec_timestamp = '" . $prospecTimestamp . "'
+                                               AND prospec_ipaddress = '" . $prospecIpAddress . "'
+                                               AND prospec_port      = '" . $prospecPort . "'
+                                               AND telefone          = '" . $AccountIdentifier . "';";
+                                        $existente = duplicidadesql($db, $sqlexistente);
+
+                                        if (empty($existente)) {
+                                            $sqlInsert = "INSERT INTO leitores.tb_whatszap_prospectiveloginips
+                                                      (prospec_timestamp, prospec_ipaddress, prospec_port, telefone, ar_id, linh_id)
+                                                  VALUES (
+                                                      '" . $prospecTimestamp . "',
+                                                      '" . $prospecIpAddress . "',
+                                                      '" . $prospecPort      . "',
+                                                      '" . $AccountIdentifier . "',
+                                                      "  . $ar_id   . ",
+                                                      "  . $linh_id . "
+                                                  );";
+                                            $resultEventoBd = inserirRegistro($db, $sqlInsert);
+
+                                            if ($resultEventoBd) {
+                                                $jsonRetorno['Metrics']['insert_ok']++;
+                                                if ($printLogJson) {
+                                                    $jsonRetorno['22'] = 'OK';
+                                                }
+                                            } else {
+                                                $jsonRetorno['Metrics']['insert_fail']++;
+                                                $addError('DB_INSERT_FAIL', 'Falha prospectiveloginips', [
+                                                    'sql' => $sqlInsert
+                                                ]);
+                                            }
+                                        }
+                                    }
+
+                                    if ($logGrava) {
+                                        gravalog($FileName, "22");
+                                        gravalog($FileName, isset($sqlInsert) ? $sqlInsert : '');
+                                        gravalog($FileName, (isset($existente) ? $existente : '') . ' - ' . (isset($sqlexistente) ? $sqlexistente : ''));
+                                    }
+                                }
+                            }
+
                             //PRTT DE MENSSAGENS
                             if (isset($json->Prtt->msgLogs)) {
                                 foreach ($json->Prtt->msgLogs as $registro) {

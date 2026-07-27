@@ -146,7 +146,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
     $repetido = array();
 
     $jsonRetorno = array();
-//    $jsonRetorno['request_id'] = $requestId;
+    //    $jsonRetorno['request_id'] = $requestId;
     $jsonRetorno['Resultado'] = 'ERROR'; // default pessimista
     $jsonRetorno['Errors'] = array();
     $jsonRetorno['Aviso'] = array();
@@ -227,11 +227,27 @@ function InsertBanco($db, $type, $jsonData, $requestId){
             $addError('UNIDADE_NOT_FOUND', 'Unidade inválida ou não encontrada', array(
                 'Unidade' => $Unidade,
                 'FileName' => $FileName,
-//                'request_id' => $requestId,
+    //                'request_id' => $requestId,
             ));
             return json_encode($jsonRetorno);
         }
-//        IMPLEMENTANDO A LOGICA PARA VARIAS LINH_ID
+        function gerarVariante9($numero) {
+            $len = strlen($numero);
+            if (substr($numero, 0, 2) === '55') {
+                if ($len === 13 && $numero[4] === '9') {
+                    return substr($numero, 0, 4) . substr($numero, 5);
+                } elseif ($len === 12) {
+                    return substr($numero, 0, 4) . '9' . substr($numero, 4);
+                }
+            } elseif ($len === 11 && $numero[2] === '9') {
+                return substr($numero, 0, 2) . substr($numero, 3);
+            } elseif ($len === 10) {
+                return substr($numero, 0, 2) . '9' . substr($numero, 2);
+            }
+            return null;
+        }
+
+    //        IMPLEMENTANDO A LOGICA PARA VARIAS LINH_ID
         if(!empty($AccountIdentifier) && $AccountIdentifier != '' && $AccountIdentifier != ' ' && !empty($Unidade) && $Unidade > 0){
             $query = null;
 
@@ -289,6 +305,30 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     $linhas = selectpadrao($db, $sqllinh_id);
                     if ($printLogJson) {
                         $jsonRetorno['LINH_ID_FALLBACK'] = 'Executando sqllinh_id.';
+                    }
+                }
+
+                // FALLBACK variante: tenta com/sem o dígito 9 após o DDD (padrão brasileiro)
+                if (empty($linhas)) {
+                    $AccountIdentifierVariante = gerarVariante9($AccountIdentifier);
+                    if (!empty($AccountIdentifierVariante)) {
+                        $sqllinh_id = "SELECT lf.linh_id FROM interceptacao.tbobje_intercepta oi LEFT JOIN interceptacao.tboficio ofi ON ofi.ofic_id = oi.ofic_id JOIN linha_imei.tbaplicativo_linhafone lf
+                                            ON lf.linh_id = oi.linh_id WHERE lf.apli_id = 1 AND lf.status = 'A' AND oi.opra_id = 28 AND oi.unid_id = $Unidade
+                                            AND lf.conta_zap = '$AccountIdentifierVariante' ORDER BY lf.dtcadastro DESC LIMIT 1;";
+                        $linhas = selectpadrao($db, $sqllinh_id);
+
+                        if (!empty($linhas) && is_array($linhas)) {
+                            foreach ($linhas as $linhaVariante) {
+                                $linh_id_upd = (int)$linhaVariante['linh_id'];
+                                $sqlUpdateContaZap = "UPDATE linha_imei.tbaplicativo_linhafone SET conta_zap = '$AccountIdentifier' WHERE linh_id = $linh_id_upd AND apli_id = 1;";
+                                if ($executaSql) {
+                                    alterarRegistro($db, $sqlUpdateContaZap);
+                                }
+                            }
+                            if ($printLogJson) {
+                                $jsonRetorno['VARIANTE-9'] = "Update em conta_zap: $AccountIdentifierVariante -> $AccountIdentifier";
+                            }
+                        }
                     }
                 }
 
@@ -1050,7 +1090,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     $addWarning('DUPLICATE_FILE', 'Arquivo já processado para todas as linhas elegíveis', [
                         'FileName' => $FileName
                     ]);
-//
+                //
                     $jsonRetorno['Repetido'] = "Arquivo Existente " . $FileName;
                     $FileLog = fopen("ArquivoLogZipNaoProcessados.txt", "a");
                     $escreve = fwrite($FileLog, $FileName . ' ' . date('d/m/Y H:i:s') . ' ' . $jsonRetorno['UnidName'] . " Arquivo Existente \n\n");
@@ -1690,95 +1730,100 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                         if(!empty($queryArId['ar_id']) && $queryArId['ar_id'] > 0){
                             $ar_id = $queryArId['ar_id'];
 
-                            $sqlIdentificador = "SELECT tbmembros_whats.identificador FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = ".$Unidade." AND tbmembros_whats.grupo_id ILIKE '%".trim($AccountIdentifier)."%'";
+                            $sqlIdentificador = "SELECT tbmembros_whats.identificador
+                                                FROM whatsapp.tbmembros_whats, whatsapp.tbgrupowhatsapp, linha_imei.tbaplicativo_linhafone, linha_imei.tblinhafone
+                                                WHERE  tbmembros_whats.grupo_id = tbgrupowhatsapp.grupo_id AND tbmembros_whats.identificador = tbaplicativo_linhafone.identificador
+                                                  AND tblinhafone.linh_id = tbaplicativo_linhafone.linh_id AND tblinhafone.unid_id = ".$Unidade."
+                                                  AND tbmembros_whats.grupo_id ILIKE '%".trim($AccountIdentifier)."%'";
                             $queryIdentificador = selectpadraoumalinha($db, $sqlIdentificador);
 
-                            if(isset($json->GDados->groupsInfo) && !empty($queryIdentificador['identificador'])){
+                            if (!empty($queryIdentificador['identificador'])) {
                                 $identificador = $queryIdentificador['identificador'];
+                                if (isset($json->GDados->groupsInfo)) {
+                                    foreach ($json->GDados->groupsInfo->GroupParticipants as $registro) {
+                                        $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
+                                        //GRAVANDO PARTICIPANTES GRUPO
+                                        $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
+                                                    VALUES ('" . trim($AccountIdentifier) . "', " . $grupo_ulid_sql . ", '" . somenteNumeros($registro) . "', 'N', 'A', " . $identificador . ");";
 
-                                foreach($json->GDados->groupsInfo->GroupParticipants as $registro){
-                                    $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
-                                    //GRAVANDO PARTICIPANTES GRUPO
-                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
-                                                    VALUES ('".trim($AccountIdentifier)."', " . $grupo_ulid_sql . ", '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
+                                        if ($executaSql) {
+                                            $resultEventoBd = null;
+                                            $resultEventoBd = inserirRegistro($db, $sqlInsert);
 
-                                    if ($executaSql){
-                                        $resultEventoBd = null;
-                                        $resultEventoBd = inserirRegistro($db,$sqlInsert);
-
-                                        if($resultEventoBd){
-                                            $jsonRetorno['Metrics']['insert_ok']++;
-                                            if($printLogJson){
-                                                $jsonRetorno['2G'] = 'OK ' . $resultEventoBd;
+                                            if ($resultEventoBd) {
+                                                $jsonRetorno['Metrics']['insert_ok']++;
+                                                if ($printLogJson) {
+                                                    $jsonRetorno['2G'] = 'OK ' . $resultEventoBd;
+                                                }
+                                            } else {
+                                                $jsonRetorno['Metrics']['insert_fail']++;
+                                                $addError('DB_INSERT_FAIL', 'Falha GroupParticipants', [
+                                                    'sql' => $sqlInsert
+                                                ]);
                                             }
-                                        } else {
-                                            $jsonRetorno['Metrics']['insert_fail']++;
-                                            $addError('DB_INSERT_FAIL', 'Falha GroupParticipants', [
-                                                'sql' => $sqlInsert
-                                            ]);
-                                        }
-                                        if($logGrava){
-                                            gravalog($FileName, "2G");
-                                            gravalog($FileName, $sqlInsert);
-                                            gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                                            if ($logGrava) {
+                                                gravalog($FileName, "2G");
+                                                gravalog($FileName, $sqlInsert);
+                                                gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                                            }
                                         }
                                     }
-                                }
 
-                                foreach($json->GDados->groupsInfo->GroupAdministrators as $registro){
-                                    $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
-                                    //GRAVANDO PARTICIPANTES GRUPO
-                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
-                                                    VALUES ('".trim($AccountIdentifier)."', " . $grupo_ulid_sql . ", '".somenteNumeros($registro)."', 'S', 'A', ".$identificador.");";
+                                    foreach ($json->GDados->groupsInfo->GroupAdministrators as $registro) {
+                                        $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
+                                        //GRAVANDO PARTICIPANTES GRUPO
+                                        $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
+                                                    VALUES ('" . trim($AccountIdentifier) . "', " . $grupo_ulid_sql . ", '" . somenteNumeros($registro) . "', 'S', 'A', " . $identificador . ");";
 
-                                    if ($executaSql){
-                                        $resultEventoBd = null;
-                                        $resultEventoBd = inserirRegistro($db,$sqlInsert);
+                                        if ($executaSql) {
+                                            $resultEventoBd = null;
+                                            $resultEventoBd = inserirRegistro($db, $sqlInsert);
 
-                                        if($resultEventoBd){
-                                            $jsonRetorno['Metrics']['insert_ok']++;
-                                            if($printLogJson){
-                                                $jsonRetorno['3G'] = 'OK ' . $resultEventoBd;
+                                            if ($resultEventoBd) {
+                                                $jsonRetorno['Metrics']['insert_ok']++;
+                                                if ($printLogJson) {
+                                                    $jsonRetorno['3G'] = 'OK ' . $resultEventoBd;
+                                                }
+                                            } else {
+                                                $jsonRetorno['Metrics']['insert_fail']++;
+                                                $addError('DB_INSERT_FAIL', 'Falha GroupAdministrators', [
+                                                    'sql' => $sqlInsert
+                                                ]);
                                             }
-                                        } else {
-                                            $jsonRetorno['Metrics']['insert_fail']++;
-                                            $addError('DB_INSERT_FAIL', 'Falha GroupAdministrators', [
-                                                'sql' => $sqlInsert
-                                            ]);
-                                        }
-                                        if($logGrava){
-                                            gravalog($FileName, "3G");
-                                            gravalog($FileName, $sqlInsert);
-                                            gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                                            if ($logGrava) {
+                                                gravalog($FileName, "3G");
+                                                gravalog($FileName, $sqlInsert);
+                                                gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                                            }
                                         }
                                     }
-                                }
 
-                                foreach($json->GDados->groupsInfo->Participants as $registro){
-                                    $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
-                                    //GRAVANDO PARTICIPANTES GRUPO
-                                    $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
-                                                    VALUES ('".trim($AccountIdentifier)."', " . $grupo_ulid_sql . ", '".somenteNumeros($registro)."', 'N', 'A', ".$identificador.");";
+                                    foreach ($json->GDados->groupsInfo->Participants as $registro) {
+                                        $grupo_ulid_sql = $grupo_ulid ? "'" . $grupo_ulid . "'" : "NULL";
+                                        //GRAVANDO PARTICIPANTES GRUPO
+                                        $sqlInsert = "INSERT INTO whatsapp.tbmembros_whats (grupo_id, grupo_ulid, grupo_participante, grupo_adm, grupo_status, identificador)
+                                                    VALUES ('" . trim($AccountIdentifier) . "', " . $grupo_ulid_sql . ", '" . somenteNumeros($registro) . "', 'N', 'A', " . $identificador . ");";
 
-                                    if ($executaSql){
-                                        $resultEventoBd = null;
-                                        $resultEventoBd = inserirRegistro($db,$sqlInsert);
+                                        if ($executaSql) {
+                                            $resultEventoBd = null;
+                                            $resultEventoBd = inserirRegistro($db, $sqlInsert);
 
-                                        if($resultEventoBd){
-                                            $jsonRetorno['Metrics']['insert_ok']++;
-                                            if($printLogJson){
-                                                $jsonRetorno['4G'] = 'OK ' . $resultEventoBd;
+                                            if ($resultEventoBd) {
+                                                $jsonRetorno['Metrics']['insert_ok']++;
+                                                if ($printLogJson) {
+                                                    $jsonRetorno['4G'] = 'OK ' . $resultEventoBd;
+                                                }
+                                            } else {
+                                                $jsonRetorno['Metrics']['insert_fail']++;
+                                                $addError('DB_INSERT_FAIL', 'Falha GroupAdministrators', [
+                                                    'sql' => $sqlInsert
+                                                ]);
                                             }
-                                        } else {
-                                            $jsonRetorno['Metrics']['insert_fail']++;
-                                            $addError('DB_INSERT_FAIL', 'Falha GroupAdministrators', [
-                                                'sql' => $sqlInsert
-                                            ]);
-                                        }
-                                        if($logGrava){
-                                            gravalog($FileName, "4G");
-                                            gravalog($FileName, $sqlInsert);
-                                            gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                                            if ($logGrava) {
+                                                gravalog($FileName, "4G");
+                                                gravalog($FileName, $sqlInsert);
+                                                gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                                            }
                                         }
                                     }
                                 }
@@ -1804,7 +1849,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                 fclose($FileLog );
 
                                 $jsonRetorno['GravaBanco'] = False;
-                                $jsonRetorno['AVISO_1G'] = 'GRUPO Nao Localizada ' . $AccountIdentifier;
+                                $jsonRetorno['AVISO_1G'] = 'Grupo ID Nao Localizado ' . $AccountIdentifier;
                             }
                         }
                     } else {
@@ -1829,7 +1874,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     fclose($FileLog );
 
                     $jsonRetorno['GravaBanco'] = False;
-                    $jsonRetorno['AVISO_1'] = 'Grupo ID Nao Localizado ' . $AccountIdentifier;
+                    $jsonRetorno['AVISO_2G'] = 'Grupo ID Nao Localizado ' . $AccountIdentifier;
                 }
             }
         }else{
@@ -1846,7 +1891,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                 'Unidade'  => isset($Unidade) ? $Unidade : null,
                 'AccountIdentifier' => isset($AccountIdentifier) ? $AccountIdentifier : null,
                 'type' => $type,
-//                'request_id' => $requestId,
+    //                'request_id' => $requestId,
             ));
         }
         return json_encode($jsonRetorno);

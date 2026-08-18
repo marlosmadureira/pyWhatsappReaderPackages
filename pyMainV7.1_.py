@@ -1701,6 +1701,7 @@ if __name__ == '__main__':
     while True:
         time.sleep(3)
         current_files = get_files_in_dir(DIRNOVOS)
+        # print(current_files)
         added_files = current_files - previous_files
         removed_files = previous_files - current_files
 

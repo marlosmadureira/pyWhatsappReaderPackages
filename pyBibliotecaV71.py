@@ -279,6 +279,7 @@ def unzipBase(fileZIP, DIRNOVOS, DIREXTRACAO):
         zip_ref.close()
 
         arquivo = OutPutDie.replace(DIRNOVOS, "")
+        arquivo = re.sub(r'(_\d+)+$', '', arquivo)
         destinationFolder = DIREXTRACAO + arquivo
 
         if not os.path.isdir(destinationFolder):

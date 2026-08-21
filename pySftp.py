@@ -1,4 +1,5 @@
 import os
+import re
 
 import paramiko
 from dotenv import load_dotenv
@@ -13,27 +14,27 @@ SFTP_PASS = os.getenv("SFTP_PASS")
 SFTPFOLDER = os.getenv("SFTPFOLDER")
 
 
-def renomear_arquivos_zip():
+def normalizar_arquivos_zip():
     pasta = f"{os.getcwd()}/sftp"
 
-    # Lista todos os arquivos na pasta especificada
-    arquivos = os.listdir(pasta)
+    for nome_arquivo in os.listdir(pasta):
+        if not nome_arquivo.endswith('.zip'):
+            continue
 
-    for nome_arquivo in arquivos:
+        base, ext = os.path.splitext(nome_arquivo)
+        base_limpo = re.sub(r'(_\d+)+$', '', base)
+        nome_novo = base_limpo + ext
 
-        if nome_arquivo.endswith('.zip') and '_' not in nome_arquivo:
-            # Constrói o caminho completo do arquivo original
+        if nome_novo != nome_arquivo:
             caminho_original = os.path.join(pasta, nome_arquivo)
-
-            # Gera o novo nome do arquivo com _1 antes da extensão
-            nome_novo = nome_arquivo.replace('.zip', '_1.zip')
             caminho_novo = os.path.join(pasta, nome_novo)
 
-            # Renomeia o arquivo
-            os.rename(caminho_original, caminho_novo)
-
-            # Exibe mensagem de renomeação
-            print(f"Renomeado: {nome_arquivo} -> {nome_novo}")
+            if not os.path.exists(caminho_novo):
+                os.rename(caminho_original, caminho_novo)
+                print(f"Normalizado: {nome_arquivo} -> {nome_novo}")
+            else:
+                os.remove(caminho_original)
+                print(f"Removido duplicata: {nome_arquivo} (já existe {nome_novo})")
 
 
 def readArquivo(nome_arquivo):
@@ -105,7 +106,7 @@ if __name__ == '__main__':
 
     readArquivo(nome_arquivo)
 
-    renomear_arquivos_zip()
+    normalizar_arquivos_zip()
 
 # Para enviar um arquivo
 # conectSFTP(action='upload', filename='meuarquivo.zip', local_path='/var/www/html/andromeda/pages/whatsapp/arquivos/ziplidos/arquivo_local.zip', remote_path='/var/www/html/andromeda/pages/whatsapp/arquivos/ziplidos/arquivo_local.zip')

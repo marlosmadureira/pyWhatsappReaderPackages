@@ -494,32 +494,54 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     }
 
                     if (empty($repetido['ar_id'])) {
-                        $sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses, ticket_id) VALUES (" . $linh_id . ", '" . $AccountIdentifier . "', '" . $DateRange . "', NOW(), '" . $FileNameFinal . "', 1, 1, '" . $EmailAddresses . "'," . $ticket_id . ") RETURNING ar_id;";
-                        if ($executaSql) {
-                            $queryArId = inserirRegistroReturning($db, $sqlInsert);
-                            if (!empty($ticket_id) && !empty($queryArId['ar_id'])) {
-                                $sqlUpdateTicket = "UPDATE leitores.tb_whatszap_ticketnumber SET ar_id = " . $queryArId['ar_id'] . " WHERE ticket_id = ". $ticket_id ." AND linh_id = ". $linh_id .";";
-                                alterarRegistro($db, $sqlUpdateTicket);
-                            }
-                            if (!$queryArId) {
-                                $jsonRetorno['Metrics']['insert_fail']++;
-                                $addError('DB_INSERT_FAIL', 'Falha - FILE BANCO', array(
-                                    'sql' => $sqlInsert,
-                                ));
-                            } else {
+                        if (empty($DateRange) || empty($AccountIdentifier) || empty($linh_id)) {
+                            $addWarning('SKIP_INSERT', 'Registro não gravado: ar_dtgerado, telefone ou linh_id ausentes.', [
+                                'ar_dtgerado' => $DateRange, 'telefone' => $AccountIdentifier, 'linh_id' => $linh_id,
+                            ]);
+                            continue;
+                        }
+                        $fnBase = pg_escape_string(pathinfo($FileNameFinal, PATHINFO_FILENAME));
+                        $fnExt  = pg_escape_string(pathinfo($FileNameFinal, PATHINFO_EXTENSION));
+                        $sqlPlaceholder = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo IS NULL AND ar_status = 0 AND ar_dtgerado IS NULL AND telefone IS NULL AND linh_id IS NULL AND ar_arquivo LIKE '{$fnBase}%." . ($fnExt ?: '') . "' ORDER BY ar_dtcadastro DESC LIMIT 1";
+                        $phRow = selectpadraoumalinha($db, $sqlPlaceholder);
+
+                        if (!empty($phRow['ar_id'])) {
+                            $sqlUpdatePh = "UPDATE leitores.tb_whatszap_arquivo SET telefone = '$AccountIdentifier', ar_dtgerado = '$DateRange', ar_arquivo = '$FileNameFinal', ar_tipo = 1, ar_status = 1, linh_id = $linh_id, ticket_id = $ticket_id, ar_dtcadastro = NOW() WHERE ar_id = " . (int)$phRow['ar_id'];
+                            if ($executaSql) {
+                                alterarRegistro($db, $sqlUpdatePh);
+                                $queryArId = ['ar_id' => (int)$phRow['ar_id']];
                                 $jsonRetorno['Metrics']['insert_ok']++;
                                 $linhasProcessadas++;
-                                if ($printLogJson) {
-                                    $jsonRetorno['3'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
+                                if ($printLogJson) { $jsonRetorno['3'] = 'OK FILE BANCO (update) ' . $phRow['ar_id']; }
+                            }
+                        } else {
+                            $sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, ar_email_addresses, ticket_id) VALUES (" . $linh_id . ", '" . $AccountIdentifier . "', '" . $DateRange . "', NOW(), '" . $FileNameFinal . "', 1, 1, '" . $EmailAddresses . "'," . $ticket_id . ") RETURNING ar_id;";
+                            if ($executaSql) {
+                                $queryArId = inserirRegistroReturning($db, $sqlInsert);
+                                if (!empty($ticket_id) && !empty($queryArId['ar_id'])) {
+                                    $sqlUpdateTicket = "UPDATE leitores.tb_whatszap_ticketnumber SET ar_id = " . $queryArId['ar_id'] . " WHERE ticket_id = ". $ticket_id ." AND linh_id = ". $linh_id .";";
+                                    alterarRegistro($db, $sqlUpdateTicket);
+                                }
+                                if (!$queryArId) {
+                                    $jsonRetorno['Metrics']['insert_fail']++;
+                                    $addError('DB_INSERT_FAIL', 'Falha - FILE BANCO', array(
+                                        'sql' => $sqlInsert,
+                                    ));
+                                } else {
+                                    $jsonRetorno['Metrics']['insert_ok']++;
+                                    $linhasProcessadas++;
+                                    if ($printLogJson) {
+                                        $jsonRetorno['3'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
+                                    }
                                 }
                             }
-                        }
 
-                        if ($logGrava) {
-                            gravalog($FileName, "3");
-                            gravalog($FileName, $sqlInsert);
-                            gravalog($FileName, $existente . ' - ' . $sqlexistente);
-                        }
+                            if ($logGrava) {
+                                gravalog($FileName, "3");
+                                gravalog($FileName, $sqlInsert);
+                                gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                            }
+                        } // fim else INSERT DADOS
 
                         if (!empty($queryArId['ar_id']) && $queryArId['ar_id'] > 0) {
 
@@ -1165,30 +1187,51 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     $repetido = selectpadraoumalinha($db, $sqlexistente);
 
                     if (empty($repetido['ar_id'])) {
-                        $sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, linh_id, ticket_id) VALUES ('" . $AccountIdentifier . "', '" . $DateRange . "', NOW(), '" . $FileNameFinal . "', 0, 1, " . $linh_id . "," . $ticketValue . ") RETURNING ar_id;";
+                        if (empty($DateRange) || empty($AccountIdentifier) || empty($linh_id)) {
+                            $addWarning('SKIP_INSERT', 'Registro não gravado: ar_dtgerado, telefone ou linh_id ausentes.', [
+                                'ar_dtgerado' => $DateRange, 'telefone' => $AccountIdentifier, 'linh_id' => $linh_id,
+                            ]);
+                            continue;
+                        }
+                        $fnBase = pg_escape_string(pathinfo($FileNameFinal, PATHINFO_FILENAME));
+                        $fnExt  = pg_escape_string(pathinfo($FileNameFinal, PATHINFO_EXTENSION));
+                        $sqlPlaceholder = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo IS NULL AND ar_status = 0 AND ar_dtgerado IS NULL AND telefone IS NULL AND linh_id IS NULL AND ar_arquivo LIKE '{$fnBase}%." . ($fnExt ?: '') . "' ORDER BY ar_dtcadastro DESC LIMIT 1";
+                        $phRow = selectpadraoumalinha($db, $sqlPlaceholder);
 
-                        if ($executaSql) {
-                            $queryArId = inserirRegistroReturning($db, $sqlInsert);
-
-                            if ($queryArId) {
+                        if (!empty($phRow['ar_id'])) {
+                            $sqlUpdatePh = "UPDATE leitores.tb_whatszap_arquivo SET telefone = '$AccountIdentifier', ar_dtgerado = '$DateRange', ar_arquivo = '$FileNameFinal', ar_tipo = 0, ar_status = 1, linh_id = $linh_id, ticket_id = $ticketValue, ar_dtcadastro = NOW() WHERE ar_id = " . (int)$phRow['ar_id'];
+                            if ($executaSql) {
+                                alterarRegistro($db, $sqlUpdatePh);
+                                $queryArId = ['ar_id' => (int)$phRow['ar_id']];
                                 $jsonRetorno['Metrics']['insert_ok']++;
-                                if ($printLogJson) {
-                                    $jsonRetorno['11'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
-                                }
-                            } else {
-                                $jsonRetorno['Metrics']['insert_fail']++;
-                                $addError('DB_INSERT_FAIL', 'Falha insert tb_whatszap_arquivo ', [
-                                    'sql' => $sqlInsert
-                                ]);
-                                continue;
+                                if ($printLogJson) { $jsonRetorno['11'] = 'OK FILE BANCO (update) ' . $phRow['ar_id']; }
                             }
-                        }
+                        } else {
+                            $sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status, linh_id, ticket_id) VALUES ('" . $AccountIdentifier . "', '" . $DateRange . "', NOW(), '" . $FileNameFinal . "', 0, 1, " . $linh_id . "," . $ticketValue . ") RETURNING ar_id;";
 
-                        if ($logGrava) {
-                            gravalog($FileName, "11");
-                            gravalog($FileName, $sqlInsert);
-                            gravalog($FileName, $existente . ' - ' . $sqlexistente);
-                        }
+                            if ($executaSql) {
+                                $queryArId = inserirRegistroReturning($db, $sqlInsert);
+
+                                if ($queryArId) {
+                                    $jsonRetorno['Metrics']['insert_ok']++;
+                                    if ($printLogJson) {
+                                        $jsonRetorno['11'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
+                                    }
+                                } else {
+                                    $jsonRetorno['Metrics']['insert_fail']++;
+                                    $addError('DB_INSERT_FAIL', 'Falha insert tb_whatszap_arquivo ', [
+                                        'sql' => $sqlInsert
+                                    ]);
+                                    continue;
+                                }
+                            }
+
+                            if ($logGrava) {
+                                gravalog($FileName, "11");
+                                gravalog($FileName, $sqlInsert);
+                                gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                            }
+                        } // fim else INSERT PRTT
 
                         if (!empty($queryArId['ar_id']) && $queryArId['ar_id'] > 0) {
 
@@ -1630,7 +1673,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
 
             //ARQUIVO DO TIPO SEM TAG DADOS OU PRTT
             if(empty($type) || $type == ''){
-                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 0 AND linh_id = ".$linh_id." AND ar_arquivo = '".$FileName."' AND ar_dtgerado = '".$DateRange."';";
+                $sqlexistente = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo = 0 AND linh_id = ".$linh_id." AND ar_arquivo = '".$FileNameFinal."' AND ar_dtgerado = '".$DateRange."';";
                 $repetido = selectpadraoconta($db, $sqlexistente);
 
                 if (empty($repetido['ar_id'])){
@@ -1703,29 +1746,50 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     $repetido = selectpadraoumalinha($db, $sqlexistente);
 
                     if (empty($repetido['ar_id'])){
-                        $sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES (".$linh_id.", '".$AccountIdentifier."', '".$DateRange."', NOW(), '".$FileNameFinal."', 2, 1) RETURNING ar_id;";
+                        if (empty($DateRange) || empty($AccountIdentifier) || empty($linh_id)) {
+                            $addWarning('SKIP_INSERT', 'Registro não gravado: ar_dtgerado, telefone ou linh_id ausentes.', [
+                                'ar_dtgerado' => $DateRange, 'telefone' => $AccountIdentifier, 'linh_id' => $linh_id,
+                            ]);
+                        } else {
+                        $fnBase = pg_escape_string(pathinfo($FileNameFinal, PATHINFO_FILENAME));
+                        $fnExt  = pg_escape_string(pathinfo($FileNameFinal, PATHINFO_EXTENSION));
+                        $sqlPlaceholder = "SELECT ar_id FROM leitores.tb_whatszap_arquivo WHERE ar_tipo IS NULL AND ar_status = 0 AND ar_dtgerado IS NULL AND telefone IS NULL AND linh_id IS NULL AND ar_arquivo LIKE '{$fnBase}%." . ($fnExt ?: '') . "' ORDER BY ar_dtcadastro DESC LIMIT 1";
+                        $phRow = selectpadraoumalinha($db, $sqlPlaceholder);
 
-                        if ($executaSql){
-                            $queryArId = inserirRegistroReturning($db,$sqlInsert);
-
-                            if($queryArId){
+                        if (!empty($phRow['ar_id'])) {
+                            $sqlUpdatePh = "UPDATE leitores.tb_whatszap_arquivo SET telefone = '$AccountIdentifier', ar_dtgerado = '$DateRange', ar_arquivo = '$FileNameFinal', ar_tipo = 2, ar_status = 1, linh_id = $linh_id, ar_dtcadastro = NOW() WHERE ar_id = " . (int)$phRow['ar_id'];
+                            if ($executaSql) {
+                                alterarRegistro($db, $sqlUpdatePh);
+                                $queryArId = ['ar_id' => (int)$phRow['ar_id']];
                                 $jsonRetorno['Metrics']['insert_ok']++;
-                                if($printLogJson){
-                                    $jsonRetorno['1G'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
-                                }
-                            } else {
-                                $jsonRetorno['Metrics']['insert_fail']++;
-                                $addError('DB_INSERT_FAIL', 'Falha arquivo GDADOS', [
-                                    'sql' => $sqlInsert
-                                ]);
+                                if ($printLogJson) { $jsonRetorno['1G'] = 'OK FILE BANCO (update) ' . $phRow['ar_id']; }
                             }
-                        }
+                        } else {
+                            $sqlInsert = "INSERT INTO leitores.tb_whatszap_arquivo (linh_id, telefone, ar_dtgerado, ar_dtcadastro, ar_arquivo, ar_tipo, ar_status) VALUES (".$linh_id.", '".$AccountIdentifier."', '".$DateRange."', NOW(), '".$FileNameFinal."', 2, 1) RETURNING ar_id;";
 
-                        if($logGrava){
-                            gravalog($FileName, "1G");
-                            gravalog($FileName, $sqlInsert);
-                            gravalog($FileName, $existente . ' - ' . $sqlexistente);
-                        }
+                            if ($executaSql){
+                                $queryArId = inserirRegistroReturning($db,$sqlInsert);
+
+                                if($queryArId){
+                                    $jsonRetorno['Metrics']['insert_ok']++;
+                                    if($printLogJson){
+                                        $jsonRetorno['1G'] = 'OK FILE BANCO ' . $queryArId['ar_id'];
+                                    }
+                                } else {
+                                    $jsonRetorno['Metrics']['insert_fail']++;
+                                    $addError('DB_INSERT_FAIL', 'Falha arquivo GDADOS', [
+                                        'sql' => $sqlInsert
+                                    ]);
+                                }
+                            }
+
+                            if($logGrava){
+                                gravalog($FileName, "1G");
+                                gravalog($FileName, $sqlInsert);
+                                gravalog($FileName, $existente . ' - ' . $sqlexistente);
+                            }
+                        } // fim else INSERT GDADOS
+                        } // fim else guard GDADOS
 
                         if(!empty($queryArId['ar_id']) && $queryArId['ar_id'] > 0){
                             $ar_id = $queryArId['ar_id'];

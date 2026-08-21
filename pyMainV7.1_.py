@@ -87,8 +87,17 @@ def process(source):
     fileProcess = {}
     fileDados = {}
 
-    # Apenas extrai informações — NÃO renomeia nada
+    # Extrai Unidade do _N no nome original (antes de normalizar)
     fileName, Unidade = getUnidadeFileName(source)
+
+    # Normaliza nome em disco após extrair Unidade: remove sufixo _N
+    _base_original = os.path.basename(source)
+    _base_limpo = normalizar_nome_lidos(_base_original)
+    if _base_limpo != _base_original:
+        _clean_source = os.path.join(os.path.dirname(source), _base_limpo)
+        if not os.path.exists(_clean_source):
+            os.rename(source, _clean_source)
+        source = _clean_source
 
     # Garante caminho absoluto e consistente
     source = os.path.abspath(source)
@@ -1739,7 +1748,23 @@ if __name__ == '__main__':
                     if not file.lower().endswith('.zip'):
                         print(f"Ignorando não-zip: {file}")
                         continue
-                    # processa na ordem: primeiro DADOS_* depois os outros
+
+                    # Deduplicação: verifica se versão limpa já foi processada
+                    clean_name = normalizar_nome_lidos(file)
+                    if clean_name != file:
+                        lidos_path = os.path.join(DIRLIDOS, clean_name)
+                        clean_path = os.path.join(DIRNOVOS, clean_name)
+
+                        if os.path.exists(lidos_path):
+                            print_color(f"[SKIP] {file} já processado como {clean_name} — removendo duplicata", 33)
+                            os.remove(full_path)
+                            continue
+                        elif os.path.exists(clean_path):
+                            print_color(f"[SKIP] {file} — {clean_name} já está na fila — removendo duplicata", 33)
+                            os.remove(full_path)
+                            continue
+
+                    # passa nome original para process() extrair Unidade do _N
                     print(f"Processando: {file}")
                     process(full_path)
 

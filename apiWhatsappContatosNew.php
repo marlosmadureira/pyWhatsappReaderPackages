@@ -340,7 +340,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                 if (empty($linhas) || !is_array($linhas)) {
                     $jsonRetorno['Resultado'] = 'ERROR';
                     $jsonRetorno['GravaBanco'] = false;
-                    $addError('LINHA_NOT_FOUND', 'Linha não encontrada.', [
+                    $addError('LINHA_NOT_FOUND', 'Linha não encontrada para Unid_ID='.$Unidade, [
                         'AccountIdentifier' => $AccountIdentifier,
                         'FileName' => $FileName,
                         'Unidade' => $Unidade
@@ -1155,7 +1155,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                     }
 
                     if (empty($queryFallback['linh_id'])) {
-                        $addError('LINHA_NOT_FOUND', 'Fallback não conseguiu localizar linh_id.');
+                        $addError('LINHA_NOT_FOUND', 'Fallback não conseguiu localizar linh_id para Unid_ID='.$Unidade);
                         return json_encode($jsonRetorno);
                     }
 
@@ -1724,14 +1724,18 @@ function InsertBanco($db, $type, $jsonData, $requestId){
             if($type == "GDADOS"){
 
                 $sqlGrupo = "SELECT tbobje_whatsappgrupos.grupo_id, tbobje_intercepta.linh_id, tbobje_intercepta.obje_id, g.ulid AS grupo_ulid
-                             FROM interceptacao.tbobje_whatsappgrupos
-                             INNER JOIN interceptacao.tbobje_intercepta
-                                ON tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id
-                             LEFT JOIN whatsapp.tbgrupowhatsapp g
-                                ON g.grupo_id::text ILIKE '%' || tbobje_whatsappgrupos.grupo_id || '%'
-                             WHERE tbobje_intercepta.opra_id = 28
-                               AND tbobje_intercepta.unid_id = ".$Unidade."
-                               AND tbobje_whatsappgrupos.grupo_id ILIKE '%{$AccountIdentifier}%';";
+                               FROM interceptacao.tbobje_whatsappgrupos
+                               INNER JOIN interceptacao.tbobje_intercepta
+                                  ON tbobje_intercepta.obje_id = tbobje_whatsappgrupos.obje_id
+                               INNER JOIN interceptacao.tboficio
+                                  ON tboficio.ofic_id = tbobje_intercepta.ofic_id
+                               LEFT JOIN whatsapp.tbgrupowhatsapp g
+                                  ON g.grupo_id::text ILIKE '%' || tbobje_whatsappgrupos.grupo_id || '%'
+                               WHERE tbobje_intercepta.opra_id = 28
+                                 AND tbobje_intercepta.unid_id = ".$Unidade."
+                                 AND tbobje_whatsappgrupos.grupo_id ILIKE '%{$AccountIdentifier}%'
+                               ORDER BY tboficio.ofic_data DESC
+                               LIMIT 1;";
                 $queryGrupo= selectpadraoumalinha($db,$sqlGrupo);
 
                 $grupo_ulid = !empty($queryGrupo['grupo_ulid']) ? $queryGrupo['grupo_ulid'] : null;

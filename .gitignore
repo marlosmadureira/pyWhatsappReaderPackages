@@ -6,3 +6,5 @@ arquivos/ziplidos/*
 arquivos/zipuploads/*
 log/*
 .env
+/log/
+/arquivos/

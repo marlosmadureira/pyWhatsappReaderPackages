@@ -1733,7 +1733,7 @@ if __name__ == '__main__':
     conn.close()
 
     dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 05/02/2026 - Banco: {DB_HOST}\n")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V8 16/11/2026 - Banco: {DB_HOST}\n")
 
     while True:
         time.sleep(3)

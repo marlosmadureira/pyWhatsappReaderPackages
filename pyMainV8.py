@@ -7,19 +7,12 @@ import re
 import shutil
 import gc
 import traceback
-<<<<<<< HEAD
-
-from dotenv import load_dotenv
-from datetime import datetime
-from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
-=======
 import psycopg2
 import html
 
 from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV71 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
->>>>>>> origin/pyWhatsApp_RoboV7.1
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log,  \
     remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines, openJsonEstruturado, contar_arquivos_zip
 from pyPostgresql import find_unidade_postgres, listaProcessamento, saveResponse
@@ -30,14 +23,11 @@ from pyGetSendApi import sendDataJsonServer
 # Configs
 load_dotenv()
 
-<<<<<<< HEAD
-=======
 DB_HOST = os.getenv("DB_HOST")
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 
->>>>>>> origin/pyWhatsApp_RoboV8
 DIRNOVOS = os.getenv("DIRNOVOS")
 DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
@@ -51,14 +41,6 @@ Executar = True
 FileJsonLog = True
 TypeProcess = 2 # 1 - Python 2 - PHP
 
-<<<<<<< HEAD
-def get_files_in_dir(path):
-    return set(os.listdir(path))
-
-
-def process(source):
-    limpar_arquivos_antigos(DIRLOG, dias=3)
-=======
 conn = psycopg2.connect(
     host=DB_HOST,
     database=DB_NAME,
@@ -99,36 +81,27 @@ def finalizar_arquivo(source, folderZip, destino, fileName, Unidade, roomIds, mo
 def process(source):
     limpar_arquivos_antigos(DIRLOG, dias=3)
     source = os.path.abspath(source)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     gc.collect()
 
     fileProcess = {}
     fileDados = {}
 
-<<<<<<< HEAD
-    source, Unidade = getUnidadeFileName(source)
-=======
     # Apenas extrai informações — NÃO renomeia nada
     fileName, Unidade = getUnidadeFileName(source)
 
     # Garante caminho absoluto e consistente
     source = os.path.abspath(source)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     roomIds = getroomIdElement(Unidade)
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
     if folderZip is None:
-<<<<<<< HEAD
-        print(f"[WARNING] não foi possível extrair o zip: {source}. Pulando este arquivo.")
-=======
         finalizar_arquivo(
             source, None, 'ERRO', fileName, Unidade, roomIds,
             motivo="ZIP inválido ou não foi possível extrair"
         )
->>>>>>> origin/pyWhatsApp_RoboV7.1
         return
 
     FileHtmls, msgElementNewFile = ListaAllHtml(folderZip)
@@ -136,11 +109,7 @@ def process(source):
     if msgElementNewFile != "" and roomIds is not None:
         msgElement = f"NOVO ARQUIVO {fileName} WHATSAPP IDENTIFICADO {msgElementNewFile}"
 
-<<<<<<< HEAD
-        print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
         print_color(f"\nEnvio da Mensagem {msgElement}", 33)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
         for roomId in roomIds:
             elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -156,11 +125,6 @@ def process(source):
 
     listaProcessamento(fileName, Unidade)
 
-<<<<<<< HEAD
-    for FileHtml in FileHtmls:
-        bsHtml += FileHtml
-        bsHtml += parsetHTLMFileString(FileHtml)
-=======
     records_html_raw = ""
     records_html_converted = ""
 
@@ -201,19 +165,10 @@ def process(source):
             preservation_html_raw + preservation_html_converted +
             other_html_raw + other_html_converted
     )
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     bsHtml = remove_duplicate_newlines(bsHtml.replace('![]', ''))
 
     if bsHtml is not None and bsHtml != "" and Unidade is not None:
-<<<<<<< HEAD
-
-        # delete_log(f'{DIRLOG}{os.path.splitext(fileName)[0]}.txt')
-
-        # grava_log(bsHtml, f'{os.path.splitext(fileName)[0]}.txt')
-
-=======
->>>>>>> origin/pyWhatsApp_RoboV7.1
         NomeUnidade = find_unidade_postgres(Unidade)
 
         print_color(f'\nDESCOMPACTADO {fileName} DA UNIDADE {NomeUnidade} CODIGO {Unidade} \n', 34)
@@ -257,11 +212,7 @@ def process(source):
                 if DebugMode:
                     print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
             else:
-<<<<<<< HEAD
-                print_color(f'QUEBRA DE CONTA {AccountIdentifier} {dataType}', 92)
-=======
                 print_color(f'QUEBRA DA CONTA {AccountIdentifier} {dataType}', 92)
->>>>>>> origin/pyWhatsApp_RoboV7.1
                 if flagPrtt:
                     parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
                     if parsed_json_messages is not None:
@@ -370,11 +321,7 @@ def process(source):
             if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-<<<<<<< HEAD
-                print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
                 print_color(f"\nEnvio da Mensagem {msgElement}", 33)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
                 for roomId in roomIds:
                     elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -383,10 +330,7 @@ def process(source):
 
             if not os.path.exists(filePath):
                 shutil.move(source, DIRERROS)
-<<<<<<< HEAD
-=======
                 print_color('MOVIDO2', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
                 # Novo nome do arquivo
                 new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -405,11 +349,7 @@ def process(source):
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-<<<<<<< HEAD
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
             print_color(f"\nEnvio da Mensagem {msgElement}", 33)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -418,10 +358,7 @@ def process(source):
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-<<<<<<< HEAD
-=======
             print_color('MOVIDO3', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -441,14 +378,6 @@ def process(source):
         print("\nMovendo de: ", source)
         print("Para: ", DIRLIDOS)
         print("Arquivo Finalizado!\n")
-<<<<<<< HEAD
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
-    else:
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
-
-def parse_dynamic_sentence_parameters(content):
-    # --- Vetor de ignorados expandido ---
-=======
         print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads - Banco: {DB_HOST}\n")
     else:
         print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads - Banco: {DB_HOST}\n")
@@ -456,7 +385,6 @@ def parse_dynamic_sentence_parameters(content):
 def parse_dynamic_sentence_parameters(content):
     # --- Vetor de ignorados expandido ---
     # print("Content------------>",content)
->>>>>>> origin/pyWhatsApp_RoboV7.1
     ignored_patterns = [
         r"WhatsApp Business Record Page\s*\d+",
         r"\[.*?\]\(.*?\)",  # Links markdown [texto](url)
@@ -503,11 +431,7 @@ def parse_dynamic_sentence_parameters(content):
             re.DOTALL
         ),
         "AccountIdentifier": re.compile(
-<<<<<<< HEAD
-            r"Account Identifier\s*:?\s*([\+\d\s-]+?)(?=" + lookahead + r")",
-=======
             r"Account Identifier\s*:?\s*([\+\d\s\-,]+?)(?=" + lookahead + r")",
->>>>>>> origin/pyWhatsApp_RoboV7.1
             re.DOTALL
         ),
         "AccountType": re.compile(
@@ -554,10 +478,6 @@ def parse_dynamic_sentence_parameters(content):
         if field_name == "RegisteredEmailAddresses":
             # Esta lógica pode precisar de ajuste se o lookahead já estiver funcionando bem
             value = re.split(r'(?=Ip Addresses Definition)', value)[0]
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/pyWhatsApp_RoboV7.1
         # Remove parênteses e colchetes extras no final
         value = re.sub(r'[\]\)]+\s*$', '', value)
         value = re.sub(r'^\s*[\[\(]+', '', value)
@@ -578,13 +498,10 @@ def parse_dynamic_sentence_parameters(content):
         if not value or value.lower() in ['', 'no responsive records']:
             return "No responsive records"
 
-<<<<<<< HEAD
-=======
         if field_name == "AccountIdentifier":
             # tira vírgulas extras no fim
             value = value.rstrip(",")
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
         return value
 
     # Dicionário para armazenar os resultados
@@ -760,19 +677,15 @@ def parse_dynamic_sentence_connection(content):
         "ConnectionState":     re.compile(r"Connection\s*State\s*(.*?)"       + lookahead, re.IGNORECASE),
         "OnlineSince":         re.compile(r"Online\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
         "InactiveSince":       re.compile(r"Inactive\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
-<<<<<<< HEAD
-        "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
-=======
         # "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
         "LastSeen": re.compile(
             r"Last\s*seen\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)",
             re.IGNORECASE
         ),
->>>>>>> origin/pyWhatsApp_RoboV7.1
         "PushName":            re.compile(r"Push\s*Name\s*(.*?)"            + lookahead, re.IGNORECASE),
     }
 
-    # --- 4) Quebra em blocos por “Connection Device Id” ---
+    # --- 4) Quebra em blocos por "Connection Device Id" ---
     blocks = re.split(r"(?=Device\s*Id)", sentence, flags=re.IGNORECASE)
     results = []
 
@@ -894,10 +807,6 @@ def parse_dynamic_sentence_groupNew(content):
     # --- Vetor de ignorados ---
     ignored_patterns = [
         r"WhatsApp Business Record Page\s*\d+",
-<<<<<<< HEAD
-        # r"Groups Info Definition.*?(?=Groups\s*Owned Groups|Participating Groups|Picture\s*\d|$)",
-=======
->>>>>>> origin/pyWhatsApp_RoboV8
         r"Groups Info Definition.*?(?=Groups\s*(?:Owned Groups|Participating Groups)|Address Book Info|$)"
     ]
 
@@ -906,12 +815,6 @@ def parse_dynamic_sentence_groupNew(content):
     for pattern in ignored_patterns:
         sentence = re.sub(pattern, "", sentence)
 
-<<<<<<< HEAD
-    # Captura seções Owned e Participating
-    # owned_section = re.search(r"Groups Owned Groups\s*(.*?)(?=Participating Groups|Address Book Info|$)", sentence, re.DOTALL)
-    # participating_section = re.search(r"Participating Groups\s*(.*?)(?=Address Book Info|$)", sentence, re.DOTALL)
-=======
->>>>>>> origin/pyWhatsApp_RoboV8
     owned_section = re.search(
         r"Groups Owned Groups\s*(.*?)(?=Participating Groups|Address Book Info|$)",
         sentence,
@@ -928,35 +831,20 @@ def parse_dynamic_sentence_groupNew(content):
     regex_fields = {
         "Picture": re.compile(r"Picture\s*\(?(linked_media/[^)\s]+?\.(?:jpg|jpeg|png))\)?",re.IGNORECASE),
         "LinkedMediaFile": re.compile(r"Linked\s*Media\s*File:\s*(linked_media/[^\s)]+?\.(?:jpg|jpeg|png))",re.IGNORECASE),
-<<<<<<< HEAD
-        "Thumbnail": re.compile(r"Thumbnail\s*(.*?)(?=ID|Creation|Size|Description|Subject|Picture|Linked Media File|$)",re.DOTALL),
-        "ID": re.compile(r"ID\s*([^\s]+)(?=\s*Creation|Size|Subject|Picture|Linked Media File|Thumbnail|Description|$)"),"Creation": re.compile(r"Creation\s*([\d-]+\s+[\d:]+\s+UTC)"),
-        "Size": re.compile(r"Size\s*(\d+)"),
-        "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID|Creation|Size|$)",re.DOTALL),
-        "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID|Creation|Size|Description|$)",re.DOTALL)
-=======
         "Thumbnail": re.compile(r"Thumbnail\s*(.*?)(?=ID\s+\d{6,}|Creation|Size|Description|Subject|Picture|Linked Media File|$)",re.DOTALL),
         "ID": re.compile(r"ID\s*([^\s]+)(?=\s*Creation|Size|Subject|Picture|Linked Media File|Thumbnail|Description|$)"),
         "Creation": re.compile(r"Creation\s*([\d-]+\s+[\d:]+\s+UTC)"),
         "Size": re.compile(r"Size\s*(\d+)"),
         "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|$)", re.DOTALL),
         "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|Description|$)",re.DOTALL),
->>>>>>> origin/pyWhatsApp_RoboV7.1
     }
 
     def extract_groups(section_text):
         groups = []
         if section_text:
-<<<<<<< HEAD
-            # Divide a seção em blocos por "Picture" ou "ID"
-            # group_blocks = re.split(r'(?=Picture|No picture|ID\s)', section_text)
-            group_blocks = re.findall(
-                r'(Picture.*?)(?=Picture|$)',
-=======
             group_blocks = re.findall(
                 # r'((?:Picture\b|ID\s+\d{6,})\b.*?)(?=(?:Picture\b|ID\s+\d{6,})\b|$)',
                 r'((?:Picture\b.*?ID\s+\d{6,}.*?|ID\s+\d{6,}.*?))(?=(?:Picture\b|ID\s+\d{6,})\b|$)',
->>>>>>> origin/pyWhatsApp_RoboV7.1
                 section_text,
                 re.DOTALL
             )
@@ -989,12 +877,6 @@ def parse_dynamic_sentence_groupNew(content):
                     group_data["Description"] = ""
 
                 # Validação obrigatória → só salva se tiver os 4 essenciais
-<<<<<<< HEAD
-                if group_data["ID"] and group_data["Creation"] and group_data["Size"] and group_data["Subject"]:
-                    groups.append(group_data)
-
-        # print_color(f"extract_groups ------------> {groups}", 33)
-=======
                 if (
                         group_data["ID"]
                         and group_data["Creation"]
@@ -1003,21 +885,13 @@ def parse_dynamic_sentence_groupNew(content):
                 ):
                     groups.append(group_data)
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
         return groups
 
     dados = {
         "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
         "ParticipatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
     }
-<<<<<<< HEAD
-    # print_color(f"Owned Section:\n{owned_section.group(1) if owned_section else 'None'}", 36)
-    # print_color(f"Participating Section:\n{participating_section.group(1) if participating_section else 'None'}", 36)
-
-    # print_color(f"{dados}", 33)
-=======
     # print('GRUPOS -----------> ',dados)
->>>>>>> origin/pyWhatsApp_RoboV7.1
     return dados
 
 def parse_dynamic_sentence_group(content):
@@ -1180,34 +1054,6 @@ def parse_dynamic_sentence_web(content):
         return None
 
 def parse_dynamic_sentence_small(content):
-<<<<<<< HEAD
-    # Remove as barras invertidas e espaços em branco desnecessários
-    sentence = re.sub(r'\\', '', content).strip()
-    # Remove linhas vazias
-    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
-
-    # Expressões regulares para capturar os campos da informação do dispositivo
-    patterns = {
-        "Small Medium Business": r"Small Medium Business([\w\.]+)",
-        "Address": r"Address([\w\.]+)",
-        "Email": r"Email([\w\.]+)",
-        "Name": r"Name([\w\.]+)",
-    }
-
-    # Dicionário para armazenar os resultados
-    results = {}
-
-    # Iterar sobre os padrões e encontrar as correspondências
-    for key, pattern in patterns.items():
-        match = re.search(pattern, sentence)
-        if match:
-            results[remover_espacos_regex(key)] = match.group(1).strip()
-
-    if len(results) > 0:
-        return results
-    else:
-        return None
-=======
     ignored_patterns = [
         r"Small Medium Business Definition.*?(?=Small Medium Business|Small Medium Business\s|Device Info Definition|$)",
     ]
@@ -1292,7 +1138,6 @@ def parse_dynamic_sentence_small(content):
         # print("Small --------> ", results)
         return results
     return None
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
 def parse_dynamic_sentence_messages(content):
     try:
@@ -1448,37 +1293,6 @@ def parse_dynamic_sentence_calls(content):
 
     return results or None
 
-<<<<<<< HEAD
-def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds):
-
-    EventoGravaBanco = False
-
-    if 'MostraJsonPython' in retornoJson['jsonRetorno']:
-
-        Jsondata = json.loads(retornoJson['jsonRetorno'])
-
-        if Jsondata['MostraJsonPython']:
-            print_color(f"\nJSON PROCESSADO", 92)
-            print_color(f"{fileProcess}", 92)
-
-        if Jsondata['RetornoPHP']:
-            print_color(f"\nRETORNO DO PHP", 34)
-            openJsonEstruturado(Jsondata)
-
-        if Jsondata['ExibirTotalPacotesFila']:
-            contar_arquivos_zip(DIRNOVOS)
-
-        if Jsondata['GravaBanco']:
-            print_color(
-                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                32)
-            EventoGravaBanco = True
-        else:
-            print_color(
-                f"\nERRO GRAVAÇÃO NO BANCO DE DADOS(php)!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                31)
-            EventoGravaBanco = False
-=======
 def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
     lines = []
 
@@ -1618,29 +1432,10 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
     else:
         print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS(php)!!! {fileName} Unidade {Unidade} {NomeUnidade}", 31)
         EventoGravaBanco = False
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     if EventoGravaBanco:
         removeFolderFiles(folderZip)
 
-<<<<<<< HEAD
-        # if flagDados:
-        #     saveResponse(AccountIdentifier, Unidade)
-
-        filePath = DIRLIDOS + fileName
-
-        if not os.path.exists(filePath):
-            shutil.move(source, DIRLIDOS)
-        else:
-            delete_log(source)
-    else:
-        filePath = DIRERROS + fileName
-
-        if roomIds is not None:
-            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
-
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
         destino = os.path.join(DIRLIDOS, fileName)
         # 🔹 NOVO BLOCO — verifica se já existe em LIDOS
         if os.path.exists(destino):
@@ -1697,23 +1492,16 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
 
             # Para ver no terminal a mensagem enviada para o Element
             print_color(f"\nEnvio da Mensagem Element:\n{msgElement}", 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                 print_color(f"{elementLog}", 33)
                 time.sleep(2)
-<<<<<<< HEAD
-
-        if not os.path.exists(filePath):
-            shutil.move(source, DIRERROS)
-=======
             ja_enviou_element = True
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
             print_color('MOVIDO5', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -1731,11 +1519,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-<<<<<<< HEAD
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
             print_color(f"\nEnvio da Mensagem {msgElement}", 33)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -1750,10 +1534,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-<<<<<<< HEAD
-=======
             print_color('MOVIDO6', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             # Novo nome do arquivo
             new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
@@ -1774,18 +1555,13 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRLIDOS)
-<<<<<<< HEAD
-=======
             print_color('MOVIDO7', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
         else:
             delete_log(source)
             print_color(
                 f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                 32)
 
-<<<<<<< HEAD
-=======
 def atualizar_conta_zap(conn):
     """
     Atualiza conta_zap com base em conta_id (varchar),
@@ -1814,7 +1590,6 @@ def atualizar_conta_zap(conn):
         print(f" Detalhes: {e}")
         raise
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)
     checkFolder(DIRLIDOS)
@@ -1824,16 +1599,11 @@ if __name__ == '__main__':
 
     previous_files = get_files_in_dir(DIRNOVOS)
 
-<<<<<<< HEAD
-    dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 16/10/2025\n")
-=======
     atualizar_conta_zap(conn) #atualiza coluna tbaplicativo_linhafone.conta_zap que for ativo e estiver null
     conn.close()
 
     dttmpstatus = ""
     print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 05/02/2026 - Banco: {DB_HOST}\n")
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     while True:
         time.sleep(3)
@@ -1843,21 +1613,6 @@ if __name__ == '__main__':
 
         try:
 
-<<<<<<< HEAD
-            if added_files:
-                for file in added_files:
-                    full_path = os.path.join(DIRNOVOS, file)
-=======
-            # if added_files:
-            #     for file in added_files:
-            #         full_path = os.path.join(DIRNOVOS, file)
-            #         if os.path.isdir(full_path):
-            #             print(f"Ignorando diretório: {file}")
-            #             continue
-            #         if not file.lower().endswith('.zip'):
-            #             print(f"Ignorando não-zip: {file}")
-            #             continue
-            #         process(full_path)
             if added_files:
                 # 1) separar em DADOS_ e não-DADOS_
                 dados_zips = sorted(
@@ -1874,21 +1629,16 @@ if __name__ == '__main__':
                 for file in ordered_files:
                     full_path = os.path.join(DIRNOVOS, file)
                     # mantém sua lógica de ignorar diretórios e não-zip
->>>>>>> origin/pyWhatsApp_RoboV7.1
                     if os.path.isdir(full_path):
                         print(f"Ignorando diretório: {file}")
                         continue
                     if not file.lower().endswith('.zip'):
                         print(f"Ignorando não-zip: {file}")
                         continue
-<<<<<<< HEAD
-                    process(full_path)
-=======
                     # processa na ordem: primeiro DADOS_* depois os outros
                     print(f"Processando: {file}")
                     process(full_path)
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
             if removed_files:
                 print(f'\nArquivos removidos: {removed_files}')
         except Exception as inst:
@@ -1901,8 +1651,4 @@ if __name__ == '__main__':
         if result == True:
             dttmpstatus = datetime.today().strftime('%Y%m%d%H%M%S')
         else:
-<<<<<<< HEAD
             printTimeData()
-=======
-            printTimeData()
->>>>>>> origin/pyWhatsApp_RoboV7.1

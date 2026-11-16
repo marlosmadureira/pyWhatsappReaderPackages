@@ -36,8 +36,8 @@ DIRLOG = os.getenv("DIRLOG")
 
 ACCESSTOKEN = os.getenv("ACCESSTOKEN")
 
-DebugMode = True
-Executar = False
+DebugMode = False
+Executar = True
 FileJsonLog = True
 TypeProcess = 2 # 1 - Python 2 - PHP
 

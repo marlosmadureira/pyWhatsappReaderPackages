@@ -2,6 +2,7 @@
 # APT INSTALL
 # sudo apt install python3-psycopg2 python3-dotenv
 # pip3 freeze > requirements.txt
+# pip3 install -r requirements.txt
 
 # PIP3 INSTALL
 # pip3 install watchdog python-dotenv psycopg2-binary slacker-log-handler beautifulsoup4 lxml memory-profiler

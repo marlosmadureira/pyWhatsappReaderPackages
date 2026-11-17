@@ -1,5 +1,5 @@
+#!/home/pyWhatsappReaderPackages/venv/bin/python3
 # -*- coding: utf-8 -*-
-# !/usr/bin/python3
 import json
 import os
 import time
@@ -555,26 +555,6 @@ def parse_dynamic_sentence_books(content):
     # Expressão regular para capturar números de telefone
     phone_number_pattern = r"\b\d{11,}\b"
 
-    # ✅ REGEX CORRETA: SEM espaço obrigatório entre "contacts" e número
-    symmetric_section = re.search(
-        r"Symmetric\s+contacts\s*(\d+)\s*Total\s*(.*?)(?=Asymmetric|$)",
-        # r"Symmetric\s+contacts(\d+)\s+Total\s+(.*?)(?=Asymmetric|$)",
-        sentence,
-        re.IGNORECASE | re.DOTALL
-    )
-
-    # ✅ REGEX CORRETA: SEM espaço obrigatório entre "contacts" e número
-    # Captura até encontrar texto não-numérico significativo
-    asymmetric_section = re.search(
-        r"Asymmetric\s+contacts\s*(\d+)\s*Total\s*([\d\s]+?)(?=[A-Za-z]{5,}|$)",
-        # r"Asymmetric\s+contacts(\d+)\s+Total([\d\s]+?)(?=[A-Za-z]{5,}|$)",
-        sentence,
-        re.IGNORECASE
-    )
-
-    symmetric_numbers = []
-    asymmetric_numbers = []
-
     # Função robusta para dividir números muito longos
     def split_long_numbers(numbers, label=""):
         """
@@ -638,21 +618,56 @@ def parse_dynamic_sentence_books(content):
 
         return result
 
-    # Extrair números de telefone da seção "Symmetric"
-    if symmetric_section:
-        expected_count = int(symmetric_section.group(1))
-        content_text = symmetric_section.group(2)
+    symmetric_numbers = []
+    asymmetric_numbers = []
 
-        symmetric_numbers = re.findall(phone_number_pattern, content_text)
-        symmetric_numbers = split_long_numbers(symmetric_numbers, "Symmetric Contacts")
+    # Detecta novo padrão: cada contato tem seu próprio prefixo repetido (ex: "Asymmetric Contacts 55...")
+    novo_padrao = bool(re.search(r'Asymmetric\s+Contacts\s+\d{10,}', sentence, re.IGNORECASE))
 
-    # Extrair números de telefone da seção "Asymmetric"
-    if asymmetric_section:
-        expected_count = int(asymmetric_section.group(1))
-        content_text = asymmetric_section.group(2)
+    if novo_padrao:
+        # Novo padrão: cada número aparece em entrada separada "Asymmetric Contacts <num>"
+        asymmetric_numbers = re.findall(r'Asymmetric\s+Contacts\s+(\d{10,15})', sentence, re.IGNORECASE)
+        symmetric_numbers  = re.findall(r'Symmetric\s+Contacts\s+(\d{10,15})', sentence, re.IGNORECASE)
 
-        asymmetric_numbers = re.findall(phone_number_pattern, content_text)
         asymmetric_numbers = split_long_numbers(asymmetric_numbers, "Asymmetric Contacts")
+        symmetric_numbers  = split_long_numbers(symmetric_numbers,  "Symmetric Contacts")
+
+        # Captura os 3 novos campos de metadados
+        m = re.search(r'Last\s+Address\s+Book\s+Change\s+(.+?)(?=Last\s+Client|$)', sentence, re.IGNORECASE)
+        data['LastAddressBookChange'] = m.group(1).strip() if m else None
+
+        m = re.search(r'Last\s+Client\s+Sync\s+(.+?)(?=Last\s+Subscription|$)', sentence, re.IGNORECASE)
+        data['LastClientSync'] = m.group(1).strip() if m else None
+
+        m = re.search(r'Last\s+Subscription\s+Change\s+(.+?)(?=Symmetric|Asymmetric|$)', sentence, re.IGNORECASE)
+        data['LastSubscriptionChange'] = m.group(1).strip() if m else None
+
+    else:
+        # Padrão legado: números agrupados em bloco após "X Total"
+        symmetric_section = re.search(
+            r"Symmetric\s+contacts\s*(\d+)\s*Total\s*(.*?)(?=Asymmetric|$)",
+            sentence,
+            re.IGNORECASE | re.DOTALL
+        )
+        asymmetric_section = re.search(
+            r"Asymmetric\s+contacts\s*(\d+)\s*Total\s*([\d\s]+?)(?=[A-Za-z]{5,}|$)",
+            sentence,
+            re.IGNORECASE
+        )
+
+        if symmetric_section:
+            content_text = symmetric_section.group(2)
+            symmetric_numbers = re.findall(phone_number_pattern, content_text)
+            symmetric_numbers = split_long_numbers(symmetric_numbers, "Symmetric Contacts")
+
+        if asymmetric_section:
+            content_text = asymmetric_section.group(2)
+            asymmetric_numbers = re.findall(phone_number_pattern, content_text)
+            asymmetric_numbers = split_long_numbers(asymmetric_numbers, "Asymmetric Contacts")
+
+        data['LastAddressBookChange'] = None
+        data['LastClientSync']        = None
+        data['LastSubscriptionChange']= None
 
     data['Symmetriccontacts'] = symmetric_numbers
     data['Asymmetriccontacts'] = asymmetric_numbers

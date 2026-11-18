@@ -10,6 +10,7 @@ mb_internal_encoding("UTF-8");
 
 set_time_limit(0);
 ini_set('memory_limit', '-1');
+ini_set('pcre.jit', '0'); // JIT bloqueado pelo SO (LXC/SELinux), desabilita para evitar warning
 
 
 header('Content-Type: application/json; charset=utf-8');
@@ -45,6 +46,8 @@ function api_error($httpCode, $code, $message, $context = array()) {
 }
 
 set_error_handler(function($severity, $message, $file, $line) {
+    // ignora E_DEPRECATED e E_USER_DEPRECATED
+    if ($severity & (E_DEPRECATED | E_USER_DEPRECATED)) { return false; }
     // converte warning/notice em resposta JSON padronizada
     api_error(500, 'PHP_RUNTIME_WARNING', $message, array(
         'file' => $file,
@@ -385,6 +388,7 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                      'leitores.tb_whatszap_agenda',
                                      'leitores.tb_whatszap_smallbusinessinfo',
                                      'leitores.tb_whatszap_deviceinfo',
+                                     'leitores.tb_whatszap_emailsinfo',
                                  ] as $_tbl) {
                             if ($executaSql) {
                                 inserirRegistro($db, "DELETE FROM $_tbl WHERE ar_id = $ar_id_redistribuir");
@@ -547,14 +551,35 @@ function InsertBanco($db, $type, $jsonData, $requestId){
 
                             $ar_id = $queryArId['ar_id'];
 
-                            if (isset($json->Dados->EmailAddresses)) {
-                                $EmailAddresses = trim(pg_escape_string($json->Dados->EmailAddresses));
+                            // emailAddresses é array; suporta 1 ou N emails
+                            $emailArrayKey = null;
+                            if (isset($json->Dados->emailAddresses) && is_array($json->Dados->emailAddresses)) {
+                                $emailArrayKey = $json->Dados->emailAddresses;
+                            } elseif (isset($json->Dados->EmailAddresses) && is_array($json->Dados->EmailAddresses)) {
+                                $emailArrayKey = $json->Dados->EmailAddresses;
+                            }
 
-                                if (!empty($EmailAddresses)) {
-                                    $sqlUpdate = "UPDATE leitores.tb_whatszap_arquivo SET ar_email_addresses = '" . $EmailAddresses . "' WHERE ar_id = " . $ar_id;
+                            if (!empty($emailArrayKey)) {
+                                foreach ($emailArrayKey as $emailItem) {
+                                    $emailEscaped = trim(pg_escape_string((string)$emailItem));
+                                    if (empty($emailEscaped)) { continue; }
 
-                                    $resultEventoBd = null;
-                                    $resultEventoBd = alterarRegistro($db, $sqlUpdate);
+                                    $sqlInsertEmail = "INSERT INTO leitores.tb_whatszap_emailsinfo (eml_email, ar_id, linh_id) VALUES ('$emailEscaped', $ar_id, $linh_id)";
+
+                                    if ($executaSql) {
+                                        $resultEventoBd = inserirRegistro($db, $sqlInsertEmail);
+                                        if ($resultEventoBd) {
+                                            $jsonRetorno['Metrics']['insert_ok']++;
+                                            if ($printLogJson) {
+                                                $jsonRetorno['EmailsInfo'] = isset($jsonRetorno['EmailsInfo'])
+                                                    ? $jsonRetorno['EmailsInfo'] . ', ' . $emailEscaped
+                                                    : 'OK ' . $emailEscaped;
+                                            }
+                                        } else {
+                                            $jsonRetorno['Metrics']['insert_fail']++;
+                                            $addError('DB_INSERT_FAIL', 'Falha emailAddresses', ['sql' => $sqlInsertEmail]);
+                                        }
+                                    }
                                 }
                             }
 
@@ -1010,6 +1035,46 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                         gravalog($FileName, "18");
                                         gravalog($FileName, $sqlInsert);
                                         gravalog($FileName, $resultEventoBd);
+                                    }
+                                }
+                            }
+
+                            if (isset($json->Dados->identifiersInfo)) {
+                                $usrid_identifier = isset($json->Dados->identifiersInfo->Identifiers)
+                                    ? trim(pg_escape_string($json->Dados->identifiersInfo->Identifiers))
+                                    : null;
+
+                                $usrid_username = isset($json->Dados->identifiersInfo->Vanity)
+                                    ? trim(pg_escape_string($json->Dados->identifiersInfo->Vanity))
+                                    : null;
+
+                                $usrid_profile_url = isset($json->Dados->identifiersInfo->ProfileURI)
+                                    ? trim(pg_escape_string($json->Dados->identifiersInfo->ProfileURI))
+                                    : null;
+
+                                if ($usrid_identifier || $usrid_username || $usrid_profile_url) {
+                                    $sqlInsert = "INSERT INTO leitores.tb_whatszap_useridentifiers (usrid_identifier, usrid_username, usrid_profile_url, ar_id, linh_id) VALUES ("
+                                        . ($usrid_identifier ? "'$usrid_identifier'" : 'NULL') . ", "
+                                        . ($usrid_username   ? "'$usrid_username'"   : 'NULL') . ", "
+                                        . ($usrid_profile_url ? "'$usrid_profile_url'" : 'NULL') . ", "
+                                        . (int)$ar_id . ", "
+                                        . (int)$linh_id . ")";
+
+                                    if ($executaSql) {
+                                        $resultEventoBd = inserirRegistro($db, $sqlInsert);
+                                        if ($resultEventoBd) {
+                                            $jsonRetorno['Metrics']['insert_ok']++;
+                                            if ($printLogJson) {
+                                                $jsonRetorno['21'] = 'OK IdentifiersInfo';
+                                            }
+                                        } else {
+                                            $jsonRetorno['Metrics']['insert_fail']++;
+                                            $addError('DB_INSERT_FAIL', 'Falha identifiersInfo', ['sql' => $sqlInsert]);
+                                        }
+                                    }
+                                    if ($logGrava) {
+                                        gravalog($FileName, "21");
+                                        gravalog($FileName, $sqlInsert);
                                     }
                                 }
                             }

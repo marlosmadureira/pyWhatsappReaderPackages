@@ -444,6 +444,23 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 if Out:
                                     print(f"{EmailAddresses}")
 
+                            if Dados['Dados'].get('emailAddresses'):
+                                emailAddresses = Dados['Dados']['emailAddresses']
+                                for email in emailAddresses:
+                                    sqlInsertEmail = "INSERT INTO leitores.tb_whatszap_emailsinfo (eml_email, ar_id, linh_id) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM leitores.tb_whatszap_emailsinfo WHERE eml_email = %s AND ar_id = %s);"
+                                    if executaSql:
+                                        try:
+                                            db.execute(sqlInsertEmail, (email, ar_id, linh_id, email, ar_id))
+                                            con.commit()
+                                        except:
+                                            db.execute("rollback")
+                                            pass
+                                        if logSql:
+                                            print("Log emailsinfo ", db.query)
+                                            grava_log(db.query, 'log_emailsinfo.txt')
+                                if Out:
+                                    print(f"emailAddresses: {emailAddresses}")
+
                             if Dados['Dados'].get('ipAddresses'):
                                 ipAddresses = Dados['Dados']['ipAddresses']
                                 if len(ipAddresses) > 0:
@@ -846,6 +863,42 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                 if Out:
                                     print(f"{Dados['Dados'].get('deviceinfo')}")
+
+                            if Dados['Dados'].get('identifiersInfo'):
+                                identifiersInfo = Dados['Dados']['identifiersInfo']
+
+                                usrid_identifier_val = identifiersInfo.get('Identifiers') or None
+                                usrid_username   = identifiersInfo.get('Vanity')
+                                usrid_profile_url = identifiersInfo.get('ProfileURI')
+
+                                sqlInsert = (
+                                    "INSERT INTO leitores.tb_whatszap_useridentifiers "
+                                    "(usrid_identifier, usrid_username, usrid_profile_url, ar_id, linh_id) "
+                                    "SELECT %s, %s, %s, %s, %s "
+                                    "WHERE NOT EXISTS ("
+                                    "  SELECT 1 FROM leitores.tb_whatszap_useridentifiers "
+                                    "  WHERE usrid_identifier = %s AND ar_id = %s"
+                                    ");"
+                                )
+
+                                if executaSql:
+                                    try:
+                                        db.execute(sqlInsert, (
+                                            usrid_identifier_val, usrid_username, usrid_profile_url,
+                                            ar_id, linh_id,
+                                            usrid_identifier_val, ar_id,
+                                        ))
+                                        con.commit()
+                                    except:
+                                        db.execute("rollback")
+                                        pass
+
+                                    if logSql:
+                                        print(f"Log identifiers ", db.query)
+                                        grava_log(db.query, f'log_identifiers.txt')
+
+                                if Out:
+                                    print(f"{identifiersInfo}")
 
                         if 'PRTT' in type:
                             if Dados['Prtt'].get('msgLogs'):

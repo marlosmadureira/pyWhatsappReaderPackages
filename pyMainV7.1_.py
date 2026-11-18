@@ -255,6 +255,10 @@ def process(source):
                         fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
 
                 if flagDados:
+                    parsed_json_emails = parse_dynamic_sentence_emails(bsHtml)
+                    if parsed_json_emails is not None:
+                        fileDados['emailAddresses'] = parsed_json_emails
+
                     parsed_json_books = parse_dynamic_sentence_books(bsHtml)
                     if parsed_json_books is not None:
                         fileDados['addressBookInfo'] = parsed_json_books
@@ -284,6 +288,10 @@ def process(source):
                     parsed_json_small = parse_dynamic_sentence_small(bsHtml)
                     if parsed_json_small is not None:
                         fileDados['smallmediumbusinessinfo'] = parsed_json_small
+
+                    parsed_json_identifiers = parse_dynamic_sentence_identifiers(bsHtml)
+                    if parsed_json_identifiers is not None:
+                        fileDados['identifiersInfo'] = parsed_json_identifiers
 
                     dataType = "DADOS"
                     fileProcess['dataType'] = dataType
@@ -679,6 +687,28 @@ def parse_dynamic_sentence_books(content):
     else:
         return None
 
+def parse_dynamic_sentence_emails(content):
+    sentence = re.sub(r'\\', '', content).strip()
+    sentence = re.sub(r'\s+', ' ', sentence)
+
+    # Isola o bloco entre "Registered Email Addresses" e o próximo campo
+    block_match = re.search(
+        r'Registered Email Addresses\s*(.*?)(?=Ip Addresses Definition|Connection Info Definition|Message Log|$)',
+        sentence, re.DOTALL | re.IGNORECASE
+    )
+    if not block_match:
+        return None
+
+    block = block_match.group(1)
+
+    # Extrai todos os emails do bloco
+    emails = re.findall(r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}', block)
+
+    if emails:
+        return emails
+    return None
+
+
 def parse_dynamic_sentence_ip_addresses(content):
     # Remove as barras invertidas e espaços em branco desnecessários
     sentence = re.sub(r'\\', '', content).strip()
@@ -711,12 +741,15 @@ def parse_dynamic_sentence_connection(content):
         "Device Id",
         "Service start",
         "Device Type",
+        "Model",
         "App Version",
         "Device OS Build Number",
         "Connection State",
         "Online Since",
         "Inactive Since",
         "Last seen",
+        "Last Connected IP",
+        "Connected from",
         "Push Name",
     ]
     # lookahead: para cada padrão, parar antes de qualquer um desses campos ou do fim da string
@@ -725,18 +758,19 @@ def parse_dynamic_sentence_connection(content):
     # --- 3) Regex não-gulosa com lookahead para cada campo ---
     patterns = {
         "DeviceId":            re.compile(r"Device\s*Id\s*(\d+)"    + lookahead, re.IGNORECASE),
-        "ServiceStart":        re.compile(r"Service\s*start\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
+        "ServiceStart":        re.compile(r"Service\s*start\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)", re.IGNORECASE),
         "DeviceType":          re.compile(r"Device\s*Type\s*(.*?)"            + lookahead, re.IGNORECASE),
         "AppVersion":          re.compile(r"App\s*Version\s*(.*?)"            + lookahead, re.IGNORECASE),
         "DeviceOSBuildNumber": re.compile(r"Device\s*OS\s*Build\s*Number\s*(.*?)" + lookahead, re.IGNORECASE),
         "ConnectionState":     re.compile(r"Connection\s*State\s*(.*?)"       + lookahead, re.IGNORECASE),
-        "OnlineSince":         re.compile(r"Online\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
-        "InactiveSince":       re.compile(r"Inactive\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
-        # "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
+        "OnlineSince":         re.compile(r"Online\s*Since\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)", re.IGNORECASE),
+        "InactiveSince":       re.compile(r"Inactive\s*Since\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)", re.IGNORECASE),
         "LastSeen": re.compile(
             r"Last\s*seen\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)",
             re.IGNORECASE
         ),
+        "LastConnectedIP":     re.compile(r"Last\s*Connected\s*IP\s*([\d\.:a-fA-F]+(?::\d+)?)" + lookahead, re.IGNORECASE),
+        "ConnectedFrom":       re.compile(r"Connected\s*from\s*([\d\.:a-fA-F]+(?::\d+)?)" + lookahead, re.IGNORECASE),
         "PushName":            re.compile(r"Push\s*Name\s*(.*?)"            + lookahead, re.IGNORECASE),
     }
 
@@ -774,7 +808,11 @@ def parse_dynamic_sentence_device(content):
     # --- Lista de campos para lookahead ---
     fields = [
         "Device Id", "App Version", "OS Version", "OS Build Number",
-        "Device Manufacturer", "Device Model"
+        "Device Manufacturer", "Device Model",
+        "Connection Information Definition", "Connection Info", "Web Info Definition",
+        "Small Medium Business", "Groups Info",
+        "Identifiers Definition", "Identifiers:", "Contacts Definition",
+        "Device Info Definition", "Device Info Device Id",
     ]
 
     lookahead = r"(?=\s*(?:%s)|$)" % "|".join(re.escape(c) for c in fields)
@@ -828,6 +866,8 @@ def parse_dynamic_sentence_device(content):
                     value = match.group(1).strip()
                     if field == "DeviceModel" and value:
                         value = value.split('\n')[0].split('/')[0].strip()
+                        # remove qualquer texto de definição que tenha vazado
+                        value = re.split(r'\s+(?:Connection\s+Information\s+Definition|Connection\s+Info\b|Identifiers\s+Definition|Contacts\s+Definition|Web\s+Info\s+Definition|Small\s+Medium\s+Business|Groups\s+Info)', value, flags=re.IGNORECASE)[0].strip()
                     device_data[field] = value if value else None
                 else:
                     device_data[field] = None
@@ -1061,11 +1101,13 @@ def parse_dynamic_sentence_web(content):
     # --- Lista de campos para lookahead ---
     fields = [
         "Version", "Platform", "Device Manufacturer",
-        "Online Since", "Inactive Since"
+        "Online Since", "Inactive Since", "Connected from", "Last Connected IP"
     ]
 
     # Lookahead para parar no próximo campo
     lookahead = "|".join(re.escape(f) for f in fields) + r"|$"
+
+    _ts_pattern = r"[0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC"
 
     # --- Regex individuais com lookahead robusto ---
     regex_fields = {
@@ -1082,13 +1124,21 @@ def parse_dynamic_sentence_web(content):
             re.DOTALL
         ),
         "OnlineSince": re.compile(
-            r"Online Since(.*?)(?=" + lookahead + r")",
+            r"Online Since\s*(" + _ts_pattern + r")",
             re.DOTALL
         ),
         "InactiveSince": re.compile(
-            r"Inactive Since(.*?)(?=" + lookahead + r")",
+            r"Inactive Since\s*(" + _ts_pattern + r")",
             re.DOTALL
-        )
+        ),
+        "ConnectedFrom": re.compile(
+            r"Connected\s*from\s*([\d\.:a-fA-F]+(?::\d+)?)(?=" + lookahead + r")",
+            re.DOTALL
+        ),
+        "LastConnectedIP": re.compile(
+            r"Last\s*Connected\s*IP\s*([\d\.:a-fA-F]+(?::\d+)?)(?=" + lookahead + r")",
+            re.DOTALL
+        ),
     }
 
     # Dicionário para armazenar os resultados
@@ -1123,7 +1173,12 @@ def parse_dynamic_sentence_small(content):
     fields = ["Name", "Email", "Address", "Websites"]
 
     # tokens adicionais de parada que aparecem no seu documento e que devem interromper a captura
-    extra_stop_tokens = ["Device Info Definition","Connection Info","Web Info","Groups Info","Address Book Info","Print Options By Category","All Request Parameters","Ncmec Reports","Device Info",]
+    extra_stop_tokens = [
+        "Device Info Definition","Connection Info","Web Info","Groups Info",
+        "Address Book Info","Print Options By Category","All Request Parameters",
+        "Ncmec Reports","Device Info",
+        "Last address","Last Address","Backup setting","Symmetric Contacts","Contacts Definition",
+    ]
     stop_list = fields + extra_stop_tokens
     lookahead = "|".join(re.escape(f) for f in stop_list) + r"|$"
 
@@ -1153,6 +1208,12 @@ def parse_dynamic_sentence_small(content):
             return None
         return cand
 
+    _definition_noise = re.compile(
+        r"after the colon|last seen|port number|account holder|date and timestamp|source port"
+        r"|book change|symmetric contacts|backup setting|last client sync|last subscription",
+        re.IGNORECASE
+    )
+
     # Para cada campo, pega todos os matches e escolhe o último não-vazio (valor real)
     for key, pattern in regex_fields.items():
         matches = pattern.findall(sentence)
@@ -1180,6 +1241,11 @@ def parse_dynamic_sentence_small(content):
                 results[key] = web_ok
             else:
                 results[key] = None
+        elif key == "Address":
+            if value and _definition_noise.search(value):
+                results[key] = None
+            else:
+                results[key] = value if value else None
         else:
             results[key] = value if value else None
 
@@ -1191,6 +1257,42 @@ def parse_dynamic_sentence_small(content):
             if results.get(k) is None:
                 results[k] = None
         # print("Small --------> ", results)
+        return results
+    return None
+
+def parse_dynamic_sentence_identifiers(content):
+    sentence = re.sub(r'\\', '', content).strip()
+    # isola o bloco Identifiers, descartando a seção de definição
+    sentence = re.sub(r'Identifiers\s+Definition.*?(?=Identifiers\b)', '', sentence, flags=re.DOTALL | re.IGNORECASE)
+    # remove tudo após o bloco Identifiers (ex: Contacts Definition)
+    sentence = re.sub(r'(?<=Identifiers).*?(Contacts\s+Definition|Address\s+Book|Device\s+Info|$)', '', sentence, flags=re.DOTALL | re.IGNORECASE)
+    sentence = re.sub(r'\s+', ' ', sentence).strip()
+
+    # Se não há registros, retorna None
+    if re.search(r'No\s+responsive\s+records', sentence, re.IGNORECASE):
+        return None
+
+    stop_tokens = ["Identifiers", "Vanity", "Profile URI", "Contacts Definition", "Address Book", "Device Info"]
+    lookahead = "|".join(re.escape(t) for t in stop_tokens) + r"|$"
+
+    patterns = {
+        # Valor do campo Identifiers (ex: número ou username listado)
+        "Identifiers": re.compile(r"Identifiers\s*:?\s*(.*?)(?=" + lookahead + r")", re.IGNORECASE | re.DOTALL),
+        "Vanity":      re.compile(r"Vanity\s*:?\s*(.*?)(?=" + lookahead + r")", re.IGNORECASE | re.DOTALL),
+        "ProfileURI":  re.compile(r"Profile\s*URI\s*:?\s*(.*?)(?=" + lookahead + r")", re.IGNORECASE | re.DOTALL),
+    }
+
+    results = {}
+    for key, rx in patterns.items():
+        m = rx.search(sentence)
+        if m:
+            val = m.group(1).strip()
+            val = re.sub(r'\s+', ' ', val).strip()
+            results[key] = val if val else None
+        else:
+            results[key] = None
+
+    if any(v is not None for v in results.values()):
         return results
     return None
 

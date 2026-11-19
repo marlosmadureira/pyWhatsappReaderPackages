@@ -1,5 +1,5 @@
+#!/home/pyWhatsappReaderPackages/venv/bin/python3
 # -*- coding: utf-8 -*-
-# !/usr/bin/python3
 import json
 import os
 import time
@@ -7,19 +7,12 @@ import re
 import shutil
 import gc
 import traceback
-<<<<<<< HEAD
-
-from dotenv import load_dotenv
-from datetime import datetime
-from pyBibliotecaV6 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
-=======
 import psycopg2
 import html
 
 from dotenv import load_dotenv
 from datetime import datetime
 from pyBibliotecaV71 import checkFolder, StatusServidor, printTimeData, unzipBase, print_color, \
->>>>>>> origin/pyWhatsApp_RoboV7.1
     parsetHTLMFileString, grava_log, getUnidadeFileName, removeFolderFiles, delete_log,  \
     remover_espacos_regex, somentenumero,  limpar_arquivos_antigos, remove_duplicates_msg_logs, remove_duplicates_call_logs, ListaAllHtml, remove_duplicate_newlines, openJsonEstruturado, contar_arquivos_zip
 from pyPostgresql import find_unidade_postgres, listaProcessamento, saveResponse
@@ -30,14 +23,11 @@ from pyGetSendApi import sendDataJsonServer
 # Configs
 load_dotenv()
 
-<<<<<<< HEAD
-=======
 DB_HOST = os.getenv("DB_HOST")
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
 DIRNOVOS = os.getenv("DIRNOVOS")
 DIRLIDOS = os.getenv("DIRLIDOS")
 DIRERROS = os.getenv("DIRERROS")
@@ -51,14 +41,6 @@ Executar = True
 FileJsonLog = True
 TypeProcess = 2 # 1 - Python 2 - PHP
 
-<<<<<<< HEAD
-def get_files_in_dir(path):
-    return set(os.listdir(path))
-
-
-def process(source):
-    limpar_arquivos_antigos(DIRLOG, dias=3)
-=======
 conn = psycopg2.connect(
     host=DB_HOST,
     database=DB_NAME,
@@ -99,36 +81,36 @@ def finalizar_arquivo(source, folderZip, destino, fileName, Unidade, roomIds, mo
 def process(source):
     limpar_arquivos_antigos(DIRLOG, dias=3)
     source = os.path.abspath(source)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     gc.collect()
 
     fileProcess = {}
     fileDados = {}
 
-<<<<<<< HEAD
-    source, Unidade = getUnidadeFileName(source)
-=======
-    # Apenas extrai informações — NÃO renomeia nada
+    # Extrai Unidade do _N no nome original (antes de normalizar)
     fileName, Unidade = getUnidadeFileName(source)
+
+    # Normaliza nome em disco após extrair Unidade: remove sufixo _N
+    _base_original = os.path.basename(source)
+    _base_limpo = normalizar_nome_lidos(_base_original)
+    if _base_limpo != _base_original:
+        _clean_source = os.path.join(os.path.dirname(source), _base_limpo)
+        if not os.path.exists(_clean_source):
+            os.rename(source, _clean_source)
+        source = _clean_source
 
     # Garante caminho absoluto e consistente
     source = os.path.abspath(source)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     roomIds = getroomIdElement(Unidade)
 
     fileName = source.replace(DIRNOVOS, "")
     folderZip = unzipBase(source, DIRNOVOS, DIREXTRACAO)
     if folderZip is None:
-<<<<<<< HEAD
-        print(f"[WARNING] não foi possível extrair o zip: {source}. Pulando este arquivo.")
-=======
         finalizar_arquivo(
             source, None, 'ERRO', fileName, Unidade, roomIds,
             motivo="ZIP inválido ou não foi possível extrair"
         )
->>>>>>> origin/pyWhatsApp_RoboV7.1
         return
 
     FileHtmls, msgElementNewFile = ListaAllHtml(folderZip)
@@ -136,11 +118,7 @@ def process(source):
     if msgElementNewFile != "" and roomIds is not None:
         msgElement = f"NOVO ARQUIVO {fileName} WHATSAPP IDENTIFICADO {msgElementNewFile}"
 
-<<<<<<< HEAD
-        print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
         print_color(f"\nEnvio da Mensagem {msgElement}", 33)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
         for roomId in roomIds:
             elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -156,11 +134,6 @@ def process(source):
 
     listaProcessamento(fileName, Unidade)
 
-<<<<<<< HEAD
-    for FileHtml in FileHtmls:
-        bsHtml += FileHtml
-        bsHtml += parsetHTLMFileString(FileHtml)
-=======
     records_html_raw = ""
     records_html_converted = ""
 
@@ -201,19 +174,10 @@ def process(source):
             preservation_html_raw + preservation_html_converted +
             other_html_raw + other_html_converted
     )
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     bsHtml = remove_duplicate_newlines(bsHtml.replace('![]', ''))
 
     if bsHtml is not None and bsHtml != "" and Unidade is not None:
-<<<<<<< HEAD
-
-        # delete_log(f'{DIRLOG}{os.path.splitext(fileName)[0]}.txt')
-
-        # grava_log(bsHtml, f'{os.path.splitext(fileName)[0]}.txt')
-
-=======
->>>>>>> origin/pyWhatsApp_RoboV7.1
         NomeUnidade = find_unidade_postgres(Unidade)
 
         print_color(f'\nDESCOMPACTADO {fileName} DA UNIDADE {NomeUnidade} CODIGO {Unidade} \n', 34)
@@ -225,7 +189,7 @@ def process(source):
             parsed_json_parameters['AccountIdentifier'] = AccountIdentifier
             # print("bsHTML -------> ", bsHtml)
             fileProcess.update(parsed_json_parameters)
-            fileProcess['FileName'] = fileName
+            fileProcess['FileName'] = normalizar_nome_lidos(fileName)
             fileProcess['Unidade'] = Unidade
             fileProcess['NomeUnidade'] = NomeUnidade
             # fileProcess['rawProcessedMarkdown'] = bsHtml
@@ -238,7 +202,7 @@ def process(source):
                 flagPrtt = True
                 dataType = "PRTT"
 
-            if 'Ncmec Reports' in bsHtml or 'Emails' in bsHtml or 'Connection Info' in bsHtml or 'Web Info' in bsHtml or 'Groups Info' in bsHtml or 'Address Book Info' in bsHtml or 'Small Medium Business' in bsHtml or 'Device Info' in bsHtml:
+            if 'Emails' in bsHtml or 'Connection Info' in bsHtml or 'Web Info' in bsHtml or 'Groups Info' in bsHtml or 'Address Book Info' in bsHtml or 'Small Medium Business' in bsHtml or 'Device Info' in bsHtml:
                 flagDados = True
                 dataType = "DADOS"
 
@@ -257,15 +221,15 @@ def process(source):
                 if DebugMode:
                     print_color(f"{json.dumps(fileProcess, indent=4)}", 34)
             else:
-<<<<<<< HEAD
-                print_color(f'QUEBRA DE CONTA {AccountIdentifier} {dataType}', 92)
-=======
                 print_color(f'QUEBRA DA CONTA {AccountIdentifier} {dataType}', 92)
->>>>>>> origin/pyWhatsApp_RoboV7.1
                 if flagPrtt:
                     parsed_json_messages = parse_dynamic_sentence_messages(bsHtml)
                     if parsed_json_messages is not None:
                         fileDados['msgLogs'] = parsed_json_messages
+
+                    parsed_json_login_ips = parse_prospective_login_ips(bsHtml)
+                    if parsed_json_login_ips is not None:
+                        fileDados['prospectiveloginips'] = parsed_json_login_ips
 
                     parsed_json_calls = parse_dynamic_sentence_calls(bsHtml)
                     if parsed_json_calls is not None:
@@ -291,6 +255,10 @@ def process(source):
                         fileProcess['Prtt']['msgLogs'] = remove_duplicates_msg_logs(fileProcess['Prtt']['msgLogs'])
 
                 if flagDados:
+                    parsed_json_emails = parse_dynamic_sentence_emails(bsHtml)
+                    if parsed_json_emails is not None:
+                        fileDados['emailAddresses'] = parsed_json_emails
+
                     parsed_json_books = parse_dynamic_sentence_books(bsHtml)
                     if parsed_json_books is not None:
                         fileDados['addressBookInfo'] = parsed_json_books
@@ -320,6 +288,10 @@ def process(source):
                     parsed_json_small = parse_dynamic_sentence_small(bsHtml)
                     if parsed_json_small is not None:
                         fileDados['smallmediumbusinessinfo'] = parsed_json_small
+
+                    parsed_json_identifiers = parse_dynamic_sentence_identifiers(bsHtml)
+                    if parsed_json_identifiers is not None:
+                        fileDados['identifiersInfo'] = parsed_json_identifiers
 
                     dataType = "DADOS"
                     fileProcess['dataType'] = dataType
@@ -370,11 +342,7 @@ def process(source):
             if roomIds is not None:
                 msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-<<<<<<< HEAD
-                print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
                 print_color(f"\nEnvio da Mensagem {msgElement}", 33)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
                 for roomId in roomIds:
                     elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -383,16 +351,12 @@ def process(source):
 
             if not os.path.exists(filePath):
                 shutil.move(source, DIRERROS)
-<<<<<<< HEAD
-=======
                 print_color('MOVIDO2', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
-                # Novo nome do arquivo
-                new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+                nome_erro = normalizar_nome_erros(fileName, Unidade)
+                final_erro = os.path.join(DIRERROS, nome_erro)
 
-                # Renomeia o arquivo
-                os.rename(filePath, new_filename)
+                os.rename(filePath, final_erro)
             else:
                 os.remove(source)
 
@@ -405,11 +369,7 @@ def process(source):
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-<<<<<<< HEAD
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
             print_color(f"\nEnvio da Mensagem {msgElement}", 33)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -418,16 +378,12 @@ def process(source):
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-<<<<<<< HEAD
-=======
             print_color('MOVIDO3', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
-            # Novo nome do arquivo
-            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+            nome_erro = normalizar_nome_erros(fileName, Unidade)
+            final_erro = os.path.join(DIRERROS, nome_erro)
 
-            # Renomeia o arquivo
-            os.rename(filePath, new_filename)
+            os.rename(filePath, final_erro)
         else:
             os.remove(source)
 
@@ -441,14 +397,6 @@ def process(source):
         print("\nMovendo de: ", source)
         print("Para: ", DIRLIDOS)
         print("Arquivo Finalizado!\n")
-<<<<<<< HEAD
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
-    else:
-        print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads\n")
-
-def parse_dynamic_sentence_parameters(content):
-    # --- Vetor de ignorados expandido ---
-=======
         print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads - Banco: {DB_HOST}\n")
     else:
         print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads - Banco: {DB_HOST}\n")
@@ -456,7 +404,6 @@ def parse_dynamic_sentence_parameters(content):
 def parse_dynamic_sentence_parameters(content):
     # --- Vetor de ignorados expandido ---
     # print("Content------------>",content)
->>>>>>> origin/pyWhatsApp_RoboV7.1
     ignored_patterns = [
         r"WhatsApp Business Record Page\s*\d+",
         r"\[.*?\]\(.*?\)",  # Links markdown [texto](url)
@@ -480,9 +427,10 @@ def parse_dynamic_sentence_parameters(content):
 
     # --- Lista de campos para lookahead ---
     fields = [
-        "Service", "Internal Ticket Number", "Account Identifier",
+        "Service", "Internal Ticket Number", "Target",
+        "Logical ID","Account Identifier",
         "Account Type", "Generated", "Date Range",
-        "Ncmec Reports Definition", "NCMEC CyberTip Numbers",
+        "Ncmec Reports Definition", "NCMEC CyberTips",
         "Emails Definition", "Registered Email Addresses",
         "Connection Info Definition", "Message Log", "Ip Addresses Definition",
         "Ip Addresses", "Profile Picture Definition", "Profile Picture"
@@ -503,11 +451,7 @@ def parse_dynamic_sentence_parameters(content):
             re.DOTALL
         ),
         "AccountIdentifier": re.compile(
-<<<<<<< HEAD
-            r"Account Identifier\s*:?\s*([\+\d\s-]+?)(?=" + lookahead + r")",
-=======
             r"Account Identifier\s*:?\s*([\+\d\s\-,]+?)(?=" + lookahead + r")",
->>>>>>> origin/pyWhatsApp_RoboV7.1
             re.DOTALL
         ),
         "AccountType": re.compile(
@@ -554,10 +498,6 @@ def parse_dynamic_sentence_parameters(content):
         if field_name == "RegisteredEmailAddresses":
             # Esta lógica pode precisar de ajuste se o lookahead já estiver funcionando bem
             value = re.split(r'(?=Ip Addresses Definition)', value)[0]
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/pyWhatsApp_RoboV7.1
         # Remove parênteses e colchetes extras no final
         value = re.sub(r'[\]\)]+\s*$', '', value)
         value = re.sub(r'^\s*[\[\(]+', '', value)
@@ -578,13 +518,10 @@ def parse_dynamic_sentence_parameters(content):
         if not value or value.lower() in ['', 'no responsive records']:
             return "No responsive records"
 
-<<<<<<< HEAD
-=======
         if field_name == "AccountIdentifier":
             # tira vírgulas extras no fim
             value = value.rstrip(",")
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
         return value
 
     # Dicionário para armazenar os resultados
@@ -625,26 +562,6 @@ def parse_dynamic_sentence_books(content):
 
     # Expressão regular para capturar números de telefone
     phone_number_pattern = r"\b\d{11,}\b"
-
-    # ✅ REGEX CORRETA: SEM espaço obrigatório entre "contacts" e número
-    symmetric_section = re.search(
-        r"Symmetric\s+contacts\s*(\d+)\s*Total\s*(.*?)(?=Asymmetric|$)",
-        # r"Symmetric\s+contacts(\d+)\s+Total\s+(.*?)(?=Asymmetric|$)",
-        sentence,
-        re.IGNORECASE | re.DOTALL
-    )
-
-    # ✅ REGEX CORRETA: SEM espaço obrigatório entre "contacts" e número
-    # Captura até encontrar texto não-numérico significativo
-    asymmetric_section = re.search(
-        r"Asymmetric\s+contacts\s*(\d+)\s*Total\s*([\d\s]+?)(?=[A-Za-z]{5,}|$)",
-        # r"Asymmetric\s+contacts(\d+)\s+Total([\d\s]+?)(?=[A-Za-z]{5,}|$)",
-        sentence,
-        re.IGNORECASE
-    )
-
-    symmetric_numbers = []
-    asymmetric_numbers = []
 
     # Função robusta para dividir números muito longos
     def split_long_numbers(numbers, label=""):
@@ -709,21 +626,56 @@ def parse_dynamic_sentence_books(content):
 
         return result
 
-    # Extrair números de telefone da seção "Symmetric"
-    if symmetric_section:
-        expected_count = int(symmetric_section.group(1))
-        content_text = symmetric_section.group(2)
+    symmetric_numbers = []
+    asymmetric_numbers = []
 
-        symmetric_numbers = re.findall(phone_number_pattern, content_text)
-        symmetric_numbers = split_long_numbers(symmetric_numbers, "Symmetric Contacts")
+    # Detecta novo padrão: cada contato tem seu próprio prefixo repetido (ex: "Asymmetric Contacts 55...")
+    novo_padrao = bool(re.search(r'Asymmetric\s+Contacts\s+\d{10,}', sentence, re.IGNORECASE))
 
-    # Extrair números de telefone da seção "Asymmetric"
-    if asymmetric_section:
-        expected_count = int(asymmetric_section.group(1))
-        content_text = asymmetric_section.group(2)
+    if novo_padrao:
+        # Novo padrão: cada número aparece em entrada separada "Asymmetric Contacts <num>"
+        asymmetric_numbers = re.findall(r'Asymmetric\s+Contacts\s+(\d{10,15})', sentence, re.IGNORECASE)
+        symmetric_numbers  = re.findall(r'Symmetric\s+Contacts\s+(\d{10,15})', sentence, re.IGNORECASE)
 
-        asymmetric_numbers = re.findall(phone_number_pattern, content_text)
         asymmetric_numbers = split_long_numbers(asymmetric_numbers, "Asymmetric Contacts")
+        symmetric_numbers  = split_long_numbers(symmetric_numbers,  "Symmetric Contacts")
+
+        # Captura os 3 novos campos de metadados
+        m = re.search(r'Last\s+Address\s+Book\s+Change\s+(.+?)(?=Last\s+Client|$)', sentence, re.IGNORECASE)
+        data['LastAddressBookChange'] = m.group(1).strip() if m else None
+
+        m = re.search(r'Last\s+Client\s+Sync\s+(.+?)(?=Last\s+Subscription|$)', sentence, re.IGNORECASE)
+        data['LastClientSync'] = m.group(1).strip() if m else None
+
+        m = re.search(r'Last\s+Subscription\s+Change\s+(.+?)(?=Symmetric|Asymmetric|$)', sentence, re.IGNORECASE)
+        data['LastSubscriptionChange'] = m.group(1).strip() if m else None
+
+    else:
+        # Padrão legado: números agrupados em bloco após "X Total"
+        symmetric_section = re.search(
+            r"Symmetric\s+contacts\s*(\d+)\s*Total\s*(.*?)(?=Asymmetric|$)",
+            sentence,
+            re.IGNORECASE | re.DOTALL
+        )
+        asymmetric_section = re.search(
+            r"Asymmetric\s+contacts\s*(\d+)\s*Total\s*([\d\s]+?)(?=[A-Za-z]{5,}|$)",
+            sentence,
+            re.IGNORECASE
+        )
+
+        if symmetric_section:
+            content_text = symmetric_section.group(2)
+            symmetric_numbers = re.findall(phone_number_pattern, content_text)
+            symmetric_numbers = split_long_numbers(symmetric_numbers, "Symmetric Contacts")
+
+        if asymmetric_section:
+            content_text = asymmetric_section.group(2)
+            asymmetric_numbers = re.findall(phone_number_pattern, content_text)
+            asymmetric_numbers = split_long_numbers(asymmetric_numbers, "Asymmetric Contacts")
+
+        data['LastAddressBookChange'] = None
+        data['LastClientSync']        = None
+        data['LastSubscriptionChange']= None
 
     data['Symmetriccontacts'] = symmetric_numbers
     data['Asymmetriccontacts'] = asymmetric_numbers
@@ -734,6 +686,28 @@ def parse_dynamic_sentence_books(content):
         return results
     else:
         return None
+
+def parse_dynamic_sentence_emails(content):
+    sentence = re.sub(r'\\', '', content).strip()
+    sentence = re.sub(r'\s+', ' ', sentence)
+
+    # Isola o bloco entre "Registered Email Addresses" e o próximo campo
+    block_match = re.search(
+        r'Registered Email Addresses\s*(.*?)(?=Ip Addresses Definition|Connection Info Definition|Message Log|$)',
+        sentence, re.DOTALL | re.IGNORECASE
+    )
+    if not block_match:
+        return None
+
+    block = block_match.group(1)
+
+    # Extrai todos os emails do bloco
+    emails = re.findall(r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}', block)
+
+    if emails:
+        return emails
+    return None
+
 
 def parse_dynamic_sentence_ip_addresses(content):
     # Remove as barras invertidas e espaços em branco desnecessários
@@ -758,8 +732,6 @@ def parse_dynamic_sentence_ip_addresses(content):
 def parse_dynamic_sentence_connection(content):
     # --- 1) Limpeza inicial e isolamento do bloco Connection Info ---
     sentence = re.sub(r'\\', '', content).strip()
-    sentence = re.sub(r'^.*?Connection\s*Info\s*Definition', '', sentence, flags=re.DOTALL|re.IGNORECASE)
-    sentence = re.sub(r'Web\s*Info\s*Definition.*$', '', sentence, flags=re.DOTALL|re.IGNORECASE)
     sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # --- 2) Definir os campos e montar a lookahead ---
@@ -767,13 +739,18 @@ def parse_dynamic_sentence_connection(content):
         "Device Id",
         "Service start",
         "Device Type",
+        "Model",
         "App Version",
         "Device OS Build Number",
         "Connection State",
         "Online Since",
         "Inactive Since",
         "Last seen",
+        "Last Connected IP",
+        "Last IP",
+        "Connected from",
         "Push Name",
+        "Web Info",
     ]
     # lookahead: para cada padrão, parar antes de qualquer um desses campos ou do fim da string
     lookahead = r"(?=\s*(?:%s)|$)" % "|".join(re.escape(c) for c in fields)
@@ -781,28 +758,53 @@ def parse_dynamic_sentence_connection(content):
     # --- 3) Regex não-gulosa com lookahead para cada campo ---
     patterns = {
         "DeviceId":            re.compile(r"Device\s*Id\s*(\d+)"    + lookahead, re.IGNORECASE),
-        "ServiceStart":        re.compile(r"Service\s*start\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
+        "ServiceStart":        re.compile(r"Service\s*start\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)", re.IGNORECASE),
         "DeviceType":          re.compile(r"Device\s*Type\s*(.*?)"            + lookahead, re.IGNORECASE),
         "AppVersion":          re.compile(r"App\s*Version\s*(.*?)"            + lookahead, re.IGNORECASE),
         "DeviceOSBuildNumber": re.compile(r"Device\s*OS\s*Build\s*Number\s*(.*?)" + lookahead, re.IGNORECASE),
         "ConnectionState":     re.compile(r"Connection\s*State\s*(.*?)"       + lookahead, re.IGNORECASE),
-        "OnlineSince":         re.compile(r"Online\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
-        "InactiveSince":       re.compile(r"Inactive\s*Since\s*([^\s].*?)"      + lookahead, re.IGNORECASE),
-<<<<<<< HEAD
-        "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
-=======
-        # "LastSeen":            re.compile(r"Last\s*seen\s*([\d\-]{10}\s+[\d:]{8}\s+UTC)" + lookahead, re.IGNORECASE),
+        "OnlineSince":         re.compile(r"Online\s*Since\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)", re.IGNORECASE),
+        "InactiveSince":       re.compile(r"Inactive\s*Since\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)", re.IGNORECASE),
         "LastSeen": re.compile(
             r"Last\s*seen\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)",
             re.IGNORECASE
         ),
->>>>>>> origin/pyWhatsApp_RoboV7.1
+        # IPv4, IPv6 puro ou IPv6 entre colchetes com porta: [2803:...]:38312
+        "LastConnectedIP":     re.compile(r"Last\s*Connected\s*IP\s*(\[?[\da-fA-F:\.]+\]?(?::\d+)?)" + lookahead, re.IGNORECASE),
+        "LastIP":              re.compile(r"Last\s*IP\s*(\[?[\da-fA-F:\.]+\]?(?::\d+)?)" + lookahead, re.IGNORECASE),
+        "ConnectedFrom":       re.compile(r"Connected\s*from\s*(\[?[\da-fA-F:\.]+\]?(?::\d+)?)" + lookahead, re.IGNORECASE),
         "PushName":            re.compile(r"Push\s*Name\s*(.*?)"            + lookahead, re.IGNORECASE),
     }
 
-    # --- 4) Quebra em blocos por “Connection Device Id” ---
-    blocks = re.split(r"(?=Device\s*Id)", sentence, flags=re.IGNORECASE)
+    def split_ip_port(raw):
+        if not raw:
+            return None, None
+        raw = raw.strip()
+        # IPv6 entre colchetes: [2803:9810:...]:38312
+        m = re.match(r'^\[([^\]]+)\]:(\d+)$', raw)
+        if m:
+            return m.group(1), m.group(2)
+        # IPv4 com porta: 191.26.156.124:4166
+        m = re.match(r'^([\d\.]+):(\d+)$', raw)
+        if m:
+            return m.group(1), m.group(2)
+        # IPv6 puro sem porta — deve ter pelo menos 2 dois-pontos e algum dígito hex
+        if re.match(r'^[\da-fA-F:\.]{7,}$', raw, re.IGNORECASE) and raw.count(':') >= 2:
+            return raw, None
+        # Valor inválido (ex: ":", "Add", lixo de texto de definição)
+        return None, None
+
+    # --- 4) Quebra em blocos por "Connection State <valor>" ou "Device Id <número>" ---
+    # "Connection State OFFLINE/ONLINE/Inactive" precede "Device Id" na seção de dados reais;
+    # dividir antes dele garante que fique no mesmo bloco que o Device Id e Last IP seguintes.
+    blocks = re.split(
+        r"(?=Connection\s*State\s*(?:ONLINE|OFFLINE|Inactive)|Device\s*Id\s+\d)",
+        sentence, flags=re.IGNORECASE
+    )
+    _VALID_STATES = {'online', 'offline', 'inactive'}
     results = []
+    pending_state = None  # ConnectionState sem DeviceId — aplicar ao próximo bloco válido
+
 
     for blk in blocks:
         if not blk.strip():
@@ -811,11 +813,61 @@ def parse_dynamic_sentence_connection(content):
         for k, rx in patterns.items():
             m = rx.search(blk)
             entry[k] = m.group(1).strip() if m else None
-        # adiciona só se DeviceId existir
-        if entry.get("DeviceId") is not None:
-            results.append(entry)
 
-    return results if results else None
+        # Descartar ConnectionState que não seja um valor válido (captura lixo da definição)
+        cs = entry.get('ConnectionState')
+        if cs and cs.lower() not in _VALID_STATES:
+            entry['ConnectionState'] = None
+
+        # split LastIP em LastIPAddress + LastIPPort
+        ip, port = split_ip_port(entry.pop('LastIP', None))
+        entry['LastIPAddress'] = ip
+        entry['LastIPPort'] = port
+
+        # split ConnectedFrom em ConnectedFromAddress + ConnectedFromPort
+        ip2, port2 = split_ip_port(entry.pop('ConnectedFrom', None))
+        entry['ConnectedFromAddress'] = ip2
+        entry['ConnectedFromPort'] = port2
+
+        # LastConnectedIP (export antigo) é o mesmo dado que LastIP — consolida em LastIPAddress
+        ip3, port3 = split_ip_port(entry.pop('LastConnectedIP', None))
+        if entry.get('LastIPAddress') is None and ip3:
+            entry['LastIPAddress'] = ip3
+        if entry.get('LastIPPort') is None and port3:
+            entry['LastIPPort'] = port3
+
+        if entry.get("DeviceId") is not None:
+            # Aplicar ConnectionState pendente (veio antes do Device Id no texto)
+            if pending_state and entry.get('ConnectionState') is None:
+                entry['ConnectionState'] = pending_state
+            pending_state = None
+            results.append(entry)
+        elif entry.get('ConnectionState'):
+            # Bloco só com ConnectionState — guardar para o próximo bloco com DeviceId
+            pending_state = entry['ConnectionState']
+
+    # IPs com valor inválido (ex: ":" capturado de texto de definição) tratados como ausentes
+    _IP_FIELDS = {'LastIPAddress', 'LastIPPort', 'ConnectedFromAddress', 'ConnectedFromPort'}
+
+    def _is_blank(k, v):
+        if v is None:
+            return True
+        if k in _IP_FIELDS and str(v).strip() in ('', ':'):
+            return True
+        return False
+
+    # Mesclar entradas com mesmo DeviceId (Device Info + Connection Info chegam em blocos separados)
+    merged = {}
+    for entry in results:
+        did = entry["DeviceId"]
+        if did not in merged:
+            merged[did] = entry
+        else:
+            for k, v in entry.items():
+                if _is_blank(k, merged[did].get(k)) and not _is_blank(k, v):
+                    merged[did][k] = v
+
+    return list(merged.values()) if merged else None
 
 def parse_dynamic_sentence_device(content):
     ignored_patterns = [
@@ -834,7 +886,11 @@ def parse_dynamic_sentence_device(content):
     # --- Lista de campos para lookahead ---
     fields = [
         "Device Id", "App Version", "OS Version", "OS Build Number",
-        "Device Manufacturer", "Device Model"
+        "Device Manufacturer", "Device Model",
+        "Connection Information Definition", "Connection Info", "Web Info Definition",
+        "Small Medium Business", "Groups Info",
+        "Identifiers Definition", "Identifiers:", "Contacts Definition",
+        "Device Info Definition", "Device Info Device Id",
     ]
 
     lookahead = r"(?=\s*(?:%s)|$)" % "|".join(re.escape(c) for c in fields)
@@ -888,6 +944,8 @@ def parse_dynamic_sentence_device(content):
                     value = match.group(1).strip()
                     if field == "DeviceModel" and value:
                         value = value.split('\n')[0].split('/')[0].strip()
+                        # remove qualquer texto de definição que tenha vazado
+                        value = re.split(r'\s+(?:Connection\s+Information\s+Definition|Connection\s+Info\b|Identifiers\s+Definition|Contacts\s+Definition|Web\s+Info\s+Definition|Small\s+Medium\s+Business|Groups\s+Info)', value, flags=re.IGNORECASE)[0].strip()
                     device_data[field] = value if value else None
                 else:
                     device_data[field] = None
@@ -922,10 +980,6 @@ def parse_dynamic_sentence_groupNew(content):
     # --- Vetor de ignorados ---
     ignored_patterns = [
         r"WhatsApp Business Record Page\s*\d+",
-<<<<<<< HEAD
-        # r"Groups Info Definition.*?(?=Groups\s*Owned Groups|Participating Groups|Picture\s*\d|$)",
-=======
->>>>>>> origin/pyWhatsApp_RoboV7.1
         r"Groups Info Definition.*?(?=Groups\s*(?:Owned Groups|Participating Groups)|Address Book Info|$)"
     ]
 
@@ -934,20 +988,19 @@ def parse_dynamic_sentence_groupNew(content):
     for pattern in ignored_patterns:
         sentence = re.sub(pattern, "", sentence)
 
-<<<<<<< HEAD
-    # Captura seções Owned e Participating
-    # owned_section = re.search(r"Groups Owned Groups\s*(.*?)(?=Participating Groups|Address Book Info|$)", sentence, re.DOTALL)
-    # participating_section = re.search(r"Participating Groups\s*(.*?)(?=Address Book Info|$)", sentence, re.DOTALL)
-=======
->>>>>>> origin/pyWhatsApp_RoboV7.1
+    _SECTION_STOPS = (
+        r"Address Book Info|Small Medium Business|Device Info Definition|"
+        r"Contacts Definition|Connection Info|Web Info|IP Addresses"
+    )
+
     owned_section = re.search(
-        r"Groups Owned Groups\s*(.*?)(?=Participating Groups|Address Book Info|$)",
+        r"Groups Owned Groups\s*(.*?)(?=Participating Groups|" + _SECTION_STOPS + r"|$)",
         sentence,
         re.DOTALL
     )
 
     participating_section = re.search(
-        r"Participating Groups\s*(.*?)(?=Groups Owned Groups|Address Book Info|$)",
+        r"Participating Groups\s*(.*?)(?=Groups Owned Groups|" + _SECTION_STOPS + r"|$)",
         sentence,
         re.DOTALL
     )
@@ -956,35 +1009,20 @@ def parse_dynamic_sentence_groupNew(content):
     regex_fields = {
         "Picture": re.compile(r"Picture\s*\(?(linked_media/[^)\s]+?\.(?:jpg|jpeg|png))\)?",re.IGNORECASE),
         "LinkedMediaFile": re.compile(r"Linked\s*Media\s*File:\s*(linked_media/[^\s)]+?\.(?:jpg|jpeg|png))",re.IGNORECASE),
-<<<<<<< HEAD
-        "Thumbnail": re.compile(r"Thumbnail\s*(.*?)(?=ID|Creation|Size|Description|Subject|Picture|Linked Media File|$)",re.DOTALL),
-        "ID": re.compile(r"ID\s*([^\s]+)(?=\s*Creation|Size|Subject|Picture|Linked Media File|Thumbnail|Description|$)"),"Creation": re.compile(r"Creation\s*([\d-]+\s+[\d:]+\s+UTC)"),
-        "Size": re.compile(r"Size\s*(\d+)"),
-        "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID|Creation|Size|$)",re.DOTALL),
-        "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID|Creation|Size|Description|$)",re.DOTALL)
-=======
         "Thumbnail": re.compile(r"Thumbnail\s*(.*?)(?=ID\s+\d{6,}|Creation|Size|Description|Subject|Picture|Linked Media File|$)",re.DOTALL),
         "ID": re.compile(r"ID\s*([^\s]+)(?=\s*Creation|Size|Subject|Picture|Linked Media File|Thumbnail|Description|$)"),
         "Creation": re.compile(r"Creation\s*([\d-]+\s+[\d:]+\s+UTC)"),
         "Size": re.compile(r"Size\s*(\d+)"),
         "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|$)", re.DOTALL),
-        "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|Description|$)",re.DOTALL),
->>>>>>> origin/pyWhatsApp_RoboV7.1
+        "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|Description|Small Medium Business|Device Info|Contacts Definition|Connection Info|Web Info|$)",re.DOTALL),
     }
 
     def extract_groups(section_text):
         groups = []
         if section_text:
-<<<<<<< HEAD
-            # Divide a seção em blocos por "Picture" ou "ID"
-            # group_blocks = re.split(r'(?=Picture|No picture|ID\s)', section_text)
-            group_blocks = re.findall(
-                r'(Picture.*?)(?=Picture|$)',
-=======
             group_blocks = re.findall(
                 # r'((?:Picture\b|ID\s+\d{6,})\b.*?)(?=(?:Picture\b|ID\s+\d{6,})\b|$)',
                 r'((?:Picture\b.*?ID\s+\d{6,}.*?|ID\s+\d{6,}.*?))(?=(?:Picture\b|ID\s+\d{6,})\b|$)',
->>>>>>> origin/pyWhatsApp_RoboV7.1
                 section_text,
                 re.DOTALL
             )
@@ -1017,12 +1055,6 @@ def parse_dynamic_sentence_groupNew(content):
                     group_data["Description"] = ""
 
                 # Validação obrigatória → só salva se tiver os 4 essenciais
-<<<<<<< HEAD
-                if group_data["ID"] and group_data["Creation"] and group_data["Size"] and group_data["Subject"]:
-                    groups.append(group_data)
-
-        # print_color(f"extract_groups ------------> {groups}", 33)
-=======
                 if (
                         group_data["ID"]
                         and group_data["Creation"]
@@ -1031,21 +1063,13 @@ def parse_dynamic_sentence_groupNew(content):
                 ):
                     groups.append(group_data)
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
         return groups
 
     dados = {
         "ownedGroups": extract_groups(owned_section.group(1) if owned_section else ""),
         "ParticipatingGroups": extract_groups(participating_section.group(1) if participating_section else "")
     }
-<<<<<<< HEAD
-    # print_color(f"Owned Section:\n{owned_section.group(1) if owned_section else 'None'}", 36)
-    # print_color(f"Participating Section:\n{participating_section.group(1) if participating_section else 'None'}", 36)
-
-    # print_color(f"{dados}", 33)
-=======
     # print('GRUPOS -----------> ',dados)
->>>>>>> origin/pyWhatsApp_RoboV7.1
     return dados
 
 def parse_dynamic_sentence_group(content):
@@ -1160,11 +1184,13 @@ def parse_dynamic_sentence_web(content):
     # --- Lista de campos para lookahead ---
     fields = [
         "Version", "Platform", "Device Manufacturer",
-        "Online Since", "Inactive Since"
+        "Online Since", "Inactive Since", "Connected from", "Last Connected IP"
     ]
 
     # Lookahead para parar no próximo campo
     lookahead = "|".join(re.escape(f) for f in fields) + r"|$"
+
+    _ts_pattern = r"[0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC"
 
     # --- Regex individuais com lookahead robusto ---
     regex_fields = {
@@ -1181,13 +1207,21 @@ def parse_dynamic_sentence_web(content):
             re.DOTALL
         ),
         "OnlineSince": re.compile(
-            r"Online Since(.*?)(?=" + lookahead + r")",
+            r"Online Since\s*(" + _ts_pattern + r")",
             re.DOTALL
         ),
         "InactiveSince": re.compile(
-            r"Inactive Since(.*?)(?=" + lookahead + r")",
+            r"Inactive Since\s*(" + _ts_pattern + r")",
             re.DOTALL
-        )
+        ),
+        "ConnectedFrom": re.compile(
+            r"Connected\s*from\s*([\d\.:a-fA-F]+(?::\d+)?)(?=" + lookahead + r")",
+            re.DOTALL
+        ),
+        "LastConnectedIP": re.compile(
+            r"Last\s*Connected\s*IP\s*([\d\.:a-fA-F]+(?::\d+)?)(?=" + lookahead + r")",
+            re.DOTALL
+        ),
     }
 
     # Dicionário para armazenar os resultados
@@ -1208,34 +1242,6 @@ def parse_dynamic_sentence_web(content):
         return None
 
 def parse_dynamic_sentence_small(content):
-<<<<<<< HEAD
-    # Remove as barras invertidas e espaços em branco desnecessários
-    sentence = re.sub(r'\\', '', content).strip()
-    # Remove linhas vazias
-    sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
-
-    # Expressões regulares para capturar os campos da informação do dispositivo
-    patterns = {
-        "Small Medium Business": r"Small Medium Business([\w\.]+)",
-        "Address": r"Address([\w\.]+)",
-        "Email": r"Email([\w\.]+)",
-        "Name": r"Name([\w\.]+)",
-    }
-
-    # Dicionário para armazenar os resultados
-    results = {}
-
-    # Iterar sobre os padrões e encontrar as correspondências
-    for key, pattern in patterns.items():
-        match = re.search(pattern, sentence)
-        if match:
-            results[remover_espacos_regex(key)] = match.group(1).strip()
-
-    if len(results) > 0:
-        return results
-    else:
-        return None
-=======
     ignored_patterns = [
         r"Small Medium Business Definition.*?(?=Small Medium Business|Small Medium Business\s|Device Info Definition|$)",
     ]
@@ -1250,7 +1256,12 @@ def parse_dynamic_sentence_small(content):
     fields = ["Name", "Email", "Address", "Websites"]
 
     # tokens adicionais de parada que aparecem no seu documento e que devem interromper a captura
-    extra_stop_tokens = ["Device Info Definition","Connection Info","Web Info","Groups Info","Address Book Info","Print Options By Category","All Request Parameters","Ncmec Reports","Device Info",]
+    extra_stop_tokens = [
+        "Device Info Definition","Connection Info","Web Info","Groups Info",
+        "Address Book Info","Print Options By Category","All Request Parameters",
+        "Ncmec Reports","Device Info",
+        "Last address","Last Address","Backup setting","Symmetric Contacts","Contacts Definition",
+    ]
     stop_list = fields + extra_stop_tokens
     lookahead = "|".join(re.escape(f) for f in stop_list) + r"|$"
 
@@ -1280,6 +1291,12 @@ def parse_dynamic_sentence_small(content):
             return None
         return cand
 
+    _definition_noise = re.compile(
+        r"after the colon|last seen|port number|account holder|date and timestamp|source port"
+        r"|book change|symmetric contacts|backup setting|last client sync|last subscription",
+        re.IGNORECASE
+    )
+
     # Para cada campo, pega todos os matches e escolhe o último não-vazio (valor real)
     for key, pattern in regex_fields.items():
         matches = pattern.findall(sentence)
@@ -1307,6 +1324,11 @@ def parse_dynamic_sentence_small(content):
                 results[key] = web_ok
             else:
                 results[key] = None
+        elif key == "Address":
+            if value and _definition_noise.search(value):
+                results[key] = None
+            else:
+                results[key] = value if value else None
         else:
             results[key] = value if value else None
 
@@ -1320,7 +1342,90 @@ def parse_dynamic_sentence_small(content):
         # print("Small --------> ", results)
         return results
     return None
->>>>>>> origin/pyWhatsApp_RoboV7.1
+
+def parse_dynamic_sentence_identifiers(content):
+    sentence = re.sub(r'\\', '', content).strip()
+    # isola o bloco Identifiers, descartando a seção de definição
+    sentence = re.sub(r'Identifiers\s+Definition.*?(?=Identifiers\b)', '', sentence, flags=re.DOTALL | re.IGNORECASE)
+    # remove tudo após o bloco Identifiers (ex: Contacts Definition)
+    sentence = re.sub(r'(?<=Identifiers).*?(Contacts\s+Definition|Address\s+Book|Device\s+Info|$)', '', sentence, flags=re.DOTALL | re.IGNORECASE)
+    sentence = re.sub(r'\s+', ' ', sentence).strip()
+
+    # Se não há registros, retorna None
+    if re.search(r'No\s+responsive\s+records', sentence, re.IGNORECASE):
+        return None
+
+    stop_tokens = ["Identifiers", "Vanity", "Profile URI", "Contacts Definition", "Address Book", "Device Info"]
+    lookahead = "|".join(re.escape(t) for t in stop_tokens) + r"|$"
+
+    patterns = {
+        # Valor do campo Identifiers (ex: número ou username listado)
+        "Identifiers": re.compile(r"Identifiers\s*:?\s*(.*?)(?=" + lookahead + r")", re.IGNORECASE | re.DOTALL),
+        "Vanity":      re.compile(r"Vanity\s*:?\s*(.*?)(?=" + lookahead + r")", re.IGNORECASE | re.DOTALL),
+        "ProfileURI":  re.compile(r"Profile\s*URI\s*:?\s*(.*?)(?=" + lookahead + r")", re.IGNORECASE | re.DOTALL),
+    }
+
+    results = {}
+    for key, rx in patterns.items():
+        m = rx.search(sentence)
+        if m:
+            val = m.group(1).strip()
+            val = re.sub(r'\s+', ' ', val).strip()
+            results[key] = val if val else None
+        else:
+            results[key] = None
+
+    if any(v is not None for v in results.values()):
+        return results
+    return None
+
+def parse_prospective_login_ips(content):
+    try:
+        # 1) Limpeza básica (igual padrão do seu parser)
+        sentence = re.sub(r'\\', '', content).strip()
+        sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
+
+        # 2) Isola apenas a seção relevante
+        match_section = re.search(
+            r"Prospective Login IPs\s*(.*?)($|Call Logs|Message Log|Ncmec Reports)",
+            sentence,
+            re.DOTALL
+        )
+
+        if not match_section:
+            print_color("DEBUG: Prospective Login IPs section not found", 31)
+            return None
+
+        section = match_section.group(1)
+
+        # 3) Regex para capturar os blocos sequenciais
+        pattern = re.compile(
+            r"Timestamp\s*([\d\-:\sUTC]+)\s*"
+            r"IP Address\s*([\d\.]+)\s*"
+            r"Port\s*(\d+)",
+            re.DOTALL
+        )
+
+        matches = pattern.findall(section)
+
+        results = []
+        for ts, ip, port in matches:
+            results.append({
+                "Timestamp": ts.strip(),
+                "IpAddress": ip.strip(),
+                "Port": port.strip()
+            })
+
+        # 4) Validação
+        if results:
+            return results
+        else:
+            print_color("DEBUG: No Prospective Login IPs extracted", 31)
+            return None
+
+    except Exception as e:
+        print("Erro ao parsear Prospective Login IPs:", e)
+        raise
 
 def parse_dynamic_sentence_messages(content):
     try:
@@ -1476,37 +1581,6 @@ def parse_dynamic_sentence_calls(content):
 
     return results or None
 
-<<<<<<< HEAD
-def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, folderZip, source, AccountIdentifier, flagDados, roomIds):
-
-    EventoGravaBanco = False
-
-    if 'MostraJsonPython' in retornoJson['jsonRetorno']:
-
-        Jsondata = json.loads(retornoJson['jsonRetorno'])
-
-        if Jsondata['MostraJsonPython']:
-            print_color(f"\nJSON PROCESSADO", 92)
-            print_color(f"{fileProcess}", 92)
-
-        if Jsondata['RetornoPHP']:
-            print_color(f"\nRETORNO DO PHP", 34)
-            openJsonEstruturado(Jsondata)
-
-        if Jsondata['ExibirTotalPacotesFila']:
-            contar_arquivos_zip(DIRNOVOS)
-
-        if Jsondata['GravaBanco']:
-            print_color(
-                f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                32)
-            EventoGravaBanco = True
-        else:
-            print_color(
-                f"\nERRO GRAVAÇÃO NO BANCO DE DADOS(php)!!! {fileName} Unidade {Unidade} {NomeUnidade}",
-                31)
-            EventoGravaBanco = False
-=======
 def build_element_message(fileName, Unidade, NomeUnidade, AccountIdentifier, type, retorno):
     lines = []
 
@@ -1646,29 +1720,10 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
     else:
         print_color(f"\nERRO GRAVAÇÃO NO BANCO DE DADOS(php)!!! {fileName} Unidade {Unidade} {NomeUnidade}", 31)
         EventoGravaBanco = False
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
     if EventoGravaBanco:
         removeFolderFiles(folderZip)
 
-<<<<<<< HEAD
-        # if flagDados:
-        #     saveResponse(AccountIdentifier, Unidade)
-
-        filePath = DIRLIDOS + fileName
-
-        if not os.path.exists(filePath):
-            shutil.move(source, DIRLIDOS)
-        else:
-            delete_log(source)
-    else:
-        filePath = DIRERROS + fileName
-
-        if roomIds is not None:
-            msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
-
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
         destino = os.path.join(DIRLIDOS, fileName)
         # 🔹 NOVO BLOCO — verifica se já existe em LIDOS
         if os.path.exists(destino):
@@ -1684,10 +1739,7 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
                 # shutil.move(source, DIRLIDOS)
                 # print_color('MOVIDO4', 32)
 
-            base, ext = os.path.splitext(fileName)
-            if "_" in base:
-                base = base.rsplit("_", 1)[0]
-            nome_final = base + ext
+            nome_final = normalizar_nome_lidos(fileName)
             final_path = os.path.join(DIRLIDOS, nome_final)
 
             if not os.path.exists(final_path):
@@ -1725,29 +1777,21 @@ def exibirRetornoPHP(retornoJson, fileProcess , fileName, Unidade, NomeUnidade, 
 
             # Para ver no terminal a mensagem enviada para o Element
             print_color(f"\nEnvio da Mensagem Element:\n{msgElement}", 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
                 print_color(f"{elementLog}", 33)
                 time.sleep(2)
-<<<<<<< HEAD
-
-        if not os.path.exists(filePath):
-            shutil.move(source, DIRERROS)
-=======
             ja_enviou_element = True
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-            print_color('MOVIDO5', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
+            # print_color('MOVIDO5', 32)
 
-            # Novo nome do arquivo
-            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+            nome_erro = normalizar_nome_erros(fileName, Unidade)
+            final_erro = os.path.join(DIRERROS, nome_erro)
 
-            # Renomeia o arquivo
-            os.rename(filePath, new_filename)
+            os.rename(filePath, final_erro)
         else:
             os.remove(source)
 
@@ -1759,11 +1803,7 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
         if roomIds is not None:
             msgElement = f"ERRO DE PROCESSAMENTO ARQUIVO WHATSAPP {fileName}"
 
-<<<<<<< HEAD
-            print(f"\nEnvio da Mensagem {msgElement}", 33)
-=======
             print_color(f"\nEnvio da Mensagem {msgElement}", 33)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
             for roomId in roomIds:
                 elementLog = sendMessageElement(ACCESSTOKEN, roomId[0], msgElement)
@@ -1778,16 +1818,12 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRERROS)
-<<<<<<< HEAD
-=======
             print_color('MOVIDO6', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
 
-            # Novo nome do arquivo
-            new_filename = filePath.replace('.zip', f'_{Unidade}.zip')
+            nome_erro = normalizar_nome_erros(fileName, Unidade)
+            final_erro = os.path.join(DIRERROS, nome_erro)
 
-            # Renomeia o arquivo
-            os.rename(filePath, new_filename)
+            os.rename(filePath, final_erro)
         else:
             os.remove(source)
 
@@ -1802,18 +1838,39 @@ def exibirRetonoPython(returno, Unidade, fileName, AccountIdentifier, folderZip,
 
         if not os.path.exists(filePath):
             shutil.move(source, DIRLIDOS)
-<<<<<<< HEAD
-=======
             print_color('MOVIDO7', 32)
->>>>>>> origin/pyWhatsApp_RoboV7.1
         else:
             delete_log(source)
             print_color(
                 f"\nGRAVOU COM SUCESSO NO BANCO DE DADOS!!! {fileName} Unidade {Unidade} {NomeUnidade}",
                 32)
 
-<<<<<<< HEAD
-=======
+def normalizar_nome_lidos(filename):
+    """
+    Remove qualquer sufixo _xx antes do .zip
+    """
+    base, ext = os.path.splitext(filename)
+    base = re.sub(r'(_\d+)+$', '', base)
+    return base + ext
+
+def arquivo_processado_no_banco(cur, clean_name):
+    cur.execute(
+        "SELECT 1 FROM leitores.tb_whatszap_arquivo WHERE ar_arquivo = %s LIMIT 1",
+        (clean_name,)
+    )
+    return cur.fetchone() is not None
+
+def normalizar_nome_erros(filename, unidade=None):
+    """
+    Garante apenas um sufixo _xx antes do .zip
+    """
+    base, ext = os.path.splitext(filename)
+    base = re.sub(r'(_\d+)+$', '', base)
+    if unidade is not None:
+        return f"{base}_{unidade}{ext}"
+    else:
+        return f"{base}_1{ext}"
+
 def atualizar_conta_zap(conn):
     """
     Atualiza conta_zap com base em conta_id (varchar),
@@ -1842,7 +1899,6 @@ def atualizar_conta_zap(conn):
         print(f" Detalhes: {e}")
         raise
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
 if __name__ == '__main__':
     checkFolder(DIRNOVOS)
     checkFolder(DIRLIDOS)
@@ -1852,30 +1908,24 @@ if __name__ == '__main__':
 
     previous_files = get_files_in_dir(DIRNOVOS)
 
-<<<<<<< HEAD
-    dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 16/10/2025\n")
-=======
     atualizar_conta_zap(conn) #atualiza coluna tbaplicativo_linhafone.conta_zap que for ativo e estiver null
     conn.close()
 
     dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 05/02/2026 - Banco: {DB_HOST}\n")
->>>>>>> origin/pyWhatsApp_RoboV7.1
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 18/11/2026 - Banco: {DB_HOST}\n")
+
+    conn_dedup = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+    cur_dedup = conn_dedup.cursor()
 
     while True:
         time.sleep(3)
         current_files = get_files_in_dir(DIRNOVOS)
+        # print(current_files)
         added_files = current_files - previous_files
         removed_files = previous_files - current_files
 
         try:
 
-<<<<<<< HEAD
-            if added_files:
-                for file in added_files:
-                    full_path = os.path.join(DIRNOVOS, file)
-=======
             # if added_files:
             #     for file in added_files:
             #         full_path = os.path.join(DIRNOVOS, file)
@@ -1902,21 +1952,38 @@ if __name__ == '__main__':
                 for file in ordered_files:
                     full_path = os.path.join(DIRNOVOS, file)
                     # mantém sua lógica de ignorar diretórios e não-zip
->>>>>>> origin/pyWhatsApp_RoboV7.1
                     if os.path.isdir(full_path):
                         print(f"Ignorando diretório: {file}")
                         continue
                     if not file.lower().endswith('.zip'):
                         print(f"Ignorando não-zip: {file}")
                         continue
-<<<<<<< HEAD
-                    process(full_path)
-=======
-                    # processa na ordem: primeiro DADOS_* depois os outros
+
+                    # Deduplicação: verifica se versão limpa já foi processada
+                    clean_name = normalizar_nome_lidos(file)
+                    if clean_name != file:
+                        clean_path = os.path.join(DIRNOVOS, clean_name)
+
+                        try:
+                            banco_processado = arquivo_processado_no_banco(cur_dedup, clean_name)
+                        except Exception:
+                            conn_dedup = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+                            cur_dedup = conn_dedup.cursor()
+                            banco_processado = arquivo_processado_no_banco(cur_dedup, clean_name)
+
+                        if banco_processado:
+                            print_color(f"[SKIP] {file} já processado como {clean_name} — removendo duplicata", 33)
+                            os.remove(full_path)
+                            continue
+                        elif os.path.exists(clean_path):
+                            print_color(f"[SKIP] {file} — {clean_name} já está na fila — removendo duplicata", 33)
+                            os.remove(full_path)
+                            continue
+
+                    # passa nome original para process() extrair Unidade do _N
                     print(f"Processando: {file}")
                     process(full_path)
 
->>>>>>> origin/pyWhatsApp_RoboV7.1
             if removed_files:
                 print(f'\nArquivos removidos: {removed_files}')
         except Exception as inst:
@@ -1929,8 +1996,4 @@ if __name__ == '__main__':
         if result == True:
             dttmpstatus = datetime.today().strftime('%Y%m%d%H%M%S')
         else:
-<<<<<<< HEAD
             printTimeData()
-=======
-            printTimeData()
->>>>>>> origin/pyWhatsApp_RoboV7.1

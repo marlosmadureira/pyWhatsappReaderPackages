@@ -444,6 +444,23 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                 if Out:
                                     print(f"{EmailAddresses}")
 
+                            if Dados['Dados'].get('emailAddresses'):
+                                emailAddresses = Dados['Dados']['emailAddresses']
+                                for email in emailAddresses:
+                                    sqlInsertEmail = "INSERT INTO leitores.tb_whatszap_emailsinfo (eml_email, ar_id, linh_id) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM leitores.tb_whatszap_emailsinfo WHERE eml_email = %s AND ar_id = %s);"
+                                    if executaSql:
+                                        try:
+                                            db.execute(sqlInsertEmail, (email, ar_id, linh_id, email, ar_id))
+                                            con.commit()
+                                        except:
+                                            db.execute("rollback")
+                                            pass
+                                        if logSql:
+                                            print("Log emailsinfo ", db.query)
+                                            grava_log(db.query, 'log_emailsinfo.txt')
+                                if Out:
+                                    print(f"emailAddresses: {emailAddresses}")
+
                             if Dados['Dados'].get('ipAddresses'):
                                 ipAddresses = Dados['Dados']['ipAddresses']
                                 if len(ipAddresses) > 0:
@@ -477,77 +494,57 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
                                     print(f"{ipAddresses}")
 
                             if Dados['Dados'].get('connectionInfo'):
-                                connectionInfo = Dados['Dados']['connectionInfo']
+                                connectionInfoList = Dados['Dados']['connectionInfo']
+                                # parser retorna lista (um item por Device Id)
+                                if isinstance(connectionInfoList, dict):
+                                    connectionInfoList = [connectionInfoList]
 
-                                if connectionInfo.get('Servicestart'):
-                                    dadoServiceStart = connectionInfo['Servicestart']
-                                else:
-                                    dadoServiceStart = None
+                                for connectionInfo in connectionInfoList:
+                                    dadoDeviceId          = connectionInfo.get('DeviceId')
+                                    dadoServiceStart      = connectionInfo.get('ServiceStart')
+                                    dadoDeviceType        = connectionInfo.get('DeviceType')
+                                    dadoAppVersion        = connectionInfo.get('AppVersion')
+                                    dadoDeviceOSBuildNumber = connectionInfo.get('DeviceOSBuildNumber')
+                                    dadoConnectionState   = connectionInfo.get('ConnectionState')
+                                    dadoOnlineSince       = connectionInfo.get('OnlineSince')
+                                    dadoPushName          = connectionInfo.get('PushName')
+                                    dadoLastSeen          = connectionInfo.get('LastSeen')
+                                    dadoLastIP            = connectionInfo.get('LastIPAddress')
+                                    dadoLastPort          = connectionInfo.get('LastIPPort')
 
-                                if connectionInfo.get('DeviceType'):
-                                    dadoDeviceType = connectionInfo['DeviceType']
-                                else:
-                                    dadoDeviceType = None
+                                    sqlInsert = (
+                                        "INSERT INTO leitores.tb_whatszap_conexaoinfo "
+                                        "(deviceid, servicestart, devicetype, appversion, deviceosbuildnumber, "
+                                        "connectionstate, onlinesince, pushname, lastseen, lastip, lastport, "
+                                        "telefone, ar_id, linh_id) "
+                                        "SELECT %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s "
+                                        "WHERE NOT EXISTS ("
+                                        "  SELECT 1 FROM leitores.tb_whatszap_conexaoinfo "
+                                        "  WHERE telefone = %s AND ar_id = %s AND deviceid = %s"
+                                        ");"
+                                    )
 
-                                if connectionInfo.get('AppVersion'):
-                                    dadoAppVersion = connectionInfo['AppVersion']
-                                else:
-                                    dadoAppVersion = None
+                                    if executaSql:
+                                        try:
+                                            db.execute(sqlInsert, (
+                                                dadoDeviceId, dadoServiceStart, dadoDeviceType,
+                                                dadoAppVersion, dadoDeviceOSBuildNumber,
+                                                dadoConnectionState, dadoOnlineSince, dadoPushName,
+                                                dadoLastSeen, dadoLastIP, dadoLastPort,
+                                                AccountIdentifier, ar_id, linh_id,
+                                                AccountIdentifier, ar_id, dadoDeviceId,
+                                            ))
+                                            con.commit()
+                                        except:
+                                            db.execute("rollback")
+                                            pass
 
-                                if connectionInfo.get('DeviceOSBuildNumber'):
-                                    dadoDeviceOSBuildNumber = connectionInfo['DeviceOSBuildNumber']
-                                else:
-                                    dadoDeviceOSBuildNumber = None
-
-                                if connectionInfo.get('ConnectionState'):
-                                    dadoConnectionState = connectionInfo['ConnectionState']
-                                else:
-                                    dadoConnectionState = None
-
-                                if connectionInfo.get('OnlineSince'):
-                                    dadoOnlineSince = connectionInfo['OnlineSince']
-                                else:
-                                    dadoOnlineSince = None
-
-                                if connectionInfo.get('PushName'):
-                                    dadoPushName = connectionInfo['PushName']
-                                else:
-                                    dadoPushName = None
-
-                                if connectionInfo.get('Lastseen'):
-                                    dadoLastSeen = connectionInfo['Lastseen']
-                                else:
-                                    dadoLastSeen = None
-
-                                if connectionInfo.get('LastIP'):
-                                    dadoLastIP = connectionInfo['LastIP']
-                                else:
-                                    dadoLastIP = None
-
-                                sqlInsert = f"INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) SELECT '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, %s WHERE NOT EXISTS (SELECT ar_id FROM leitores.tb_whatszap_conexaoinfo WHERE servicestart = '%s' AND devicetype = '%s' AND appversion = '%s' AND deviceosbuildnumber = '%s' AND telefone = '%s');"
-
-                                if executaSql:
-                                    try:
-                                        db.execute(sqlInsert,
-                                                   (dadoServiceStart, dadoDeviceType, dadoAppVersion,
-                                                    dadoDeviceOSBuildNumber, dadoConnectionState, dadoOnlineSince,
-                                                    dadoPushName, dadoLastSeen, AccountIdentifier, ar_id, linh_id,
-                                                    dadoServiceStart, dadoDeviceType, dadoAppVersion,
-                                                    dadoDeviceOSBuildNumber, AccountIdentifier))
-                                        con.commit()
-                                    except:
-                                        db.execute("rollback")
-                                        pass
-
-                                    if logSql:
-                                        print(f"Log 8 ", db.query)
-                                        grava_log(db.query, f'log_8.txt')
-
-                                if logSql:
-                                    print("Log Conexao ", sqlInsert)
+                                        if logSql:
+                                            print(f"Log 8 ", db.query)
+                                            grava_log(db.query, f'log_8.txt')
 
                                 if Out:
-                                    print(f"{connectionInfo}")
+                                    print(f"{connectionInfoList}")
 
                             if Dados['Dados'].get('webInfo'):
                                 webInfo = Dados['Dados']['webInfo']
@@ -846,6 +843,42 @@ def sendDataPostgres(Dados, type, DebugMode, Out, fileName):
 
                                 if Out:
                                     print(f"{Dados['Dados'].get('deviceinfo')}")
+
+                            if Dados['Dados'].get('identifiersInfo'):
+                                identifiersInfo = Dados['Dados']['identifiersInfo']
+
+                                usrid_identifier_val = identifiersInfo.get('Identifiers') or None
+                                usrid_username   = identifiersInfo.get('Vanity')
+                                usrid_profile_url = identifiersInfo.get('ProfileURI')
+
+                                sqlInsert = (
+                                    "INSERT INTO leitores.tb_whatszap_useridentifiers "
+                                    "(usrid_identifier, usrid_username, usrid_profile_url, ar_id, linh_id) "
+                                    "SELECT %s, %s, %s, %s, %s "
+                                    "WHERE NOT EXISTS ("
+                                    "  SELECT 1 FROM leitores.tb_whatszap_useridentifiers "
+                                    "  WHERE usrid_identifier = %s AND ar_id = %s"
+                                    ");"
+                                )
+
+                                if executaSql:
+                                    try:
+                                        db.execute(sqlInsert, (
+                                            usrid_identifier_val, usrid_username, usrid_profile_url,
+                                            ar_id, linh_id,
+                                            usrid_identifier_val, ar_id,
+                                        ))
+                                        con.commit()
+                                    except:
+                                        db.execute("rollback")
+                                        pass
+
+                                    if logSql:
+                                        print(f"Log identifiers ", db.query)
+                                        grava_log(db.query, f'log_identifiers.txt')
+
+                                if Out:
+                                    print(f"{identifiersInfo}")
 
                         if 'PRTT' in type:
                             if Dados['Prtt'].get('msgLogs'):

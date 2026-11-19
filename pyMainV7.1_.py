@@ -732,8 +732,6 @@ def parse_dynamic_sentence_ip_addresses(content):
 def parse_dynamic_sentence_connection(content):
     # --- 1) Limpeza inicial e isolamento do bloco Connection Info ---
     sentence = re.sub(r'\\', '', content).strip()
-    sentence = re.sub(r'^.*?Connection\s*Info\s*Definition', '', sentence, flags=re.DOTALL|re.IGNORECASE)
-    sentence = re.sub(r'Web\s*Info\s*Definition.*$', '', sentence, flags=re.DOTALL|re.IGNORECASE)
     sentence = '\n'.join(line for line in sentence.splitlines() if line.strip())
 
     # --- 2) Definir os campos e montar a lookahead ---
@@ -749,8 +747,10 @@ def parse_dynamic_sentence_connection(content):
         "Inactive Since",
         "Last seen",
         "Last Connected IP",
+        "Last IP",
         "Connected from",
         "Push Name",
+        "Web Info",
     ]
     # lookahead: para cada padrão, parar antes de qualquer um desses campos ou do fim da string
     lookahead = r"(?=\s*(?:%s)|$)" % "|".join(re.escape(c) for c in fields)
@@ -769,14 +769,42 @@ def parse_dynamic_sentence_connection(content):
             r"Last\s*seen\s*([0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2}\s+UTC)",
             re.IGNORECASE
         ),
-        "LastConnectedIP":     re.compile(r"Last\s*Connected\s*IP\s*([\d\.:a-fA-F]+(?::\d+)?)" + lookahead, re.IGNORECASE),
-        "ConnectedFrom":       re.compile(r"Connected\s*from\s*([\d\.:a-fA-F]+(?::\d+)?)" + lookahead, re.IGNORECASE),
+        # IPv4, IPv6 puro ou IPv6 entre colchetes com porta: [2803:...]:38312
+        "LastConnectedIP":     re.compile(r"Last\s*Connected\s*IP\s*(\[?[\da-fA-F:\.]+\]?(?::\d+)?)" + lookahead, re.IGNORECASE),
+        "LastIP":              re.compile(r"Last\s*IP\s*(\[?[\da-fA-F:\.]+\]?(?::\d+)?)" + lookahead, re.IGNORECASE),
+        "ConnectedFrom":       re.compile(r"Connected\s*from\s*(\[?[\da-fA-F:\.]+\]?(?::\d+)?)" + lookahead, re.IGNORECASE),
         "PushName":            re.compile(r"Push\s*Name\s*(.*?)"            + lookahead, re.IGNORECASE),
     }
 
-    # --- 4) Quebra em blocos por “Connection Device Id” ---
-    blocks = re.split(r"(?=Device\s*Id)", sentence, flags=re.IGNORECASE)
+    def split_ip_port(raw):
+        if not raw:
+            return None, None
+        raw = raw.strip()
+        # IPv6 entre colchetes: [2803:9810:...]:38312
+        m = re.match(r'^\[([^\]]+)\]:(\d+)$', raw)
+        if m:
+            return m.group(1), m.group(2)
+        # IPv4 com porta: 191.26.156.124:4166
+        m = re.match(r'^([\d\.]+):(\d+)$', raw)
+        if m:
+            return m.group(1), m.group(2)
+        # IPv6 puro sem porta — deve ter pelo menos 2 dois-pontos e algum dígito hex
+        if re.match(r'^[\da-fA-F:\.]{7,}$', raw, re.IGNORECASE) and raw.count(':') >= 2:
+            return raw, None
+        # Valor inválido (ex: ":", "Add", lixo de texto de definição)
+        return None, None
+
+    # --- 4) Quebra em blocos por "Connection State <valor>" ou "Device Id <número>" ---
+    # "Connection State OFFLINE/ONLINE/Inactive" precede "Device Id" na seção de dados reais;
+    # dividir antes dele garante que fique no mesmo bloco que o Device Id e Last IP seguintes.
+    blocks = re.split(
+        r"(?=Connection\s*State\s*(?:ONLINE|OFFLINE|Inactive)|Device\s*Id\s+\d)",
+        sentence, flags=re.IGNORECASE
+    )
+    _VALID_STATES = {'online', 'offline', 'inactive'}
     results = []
+    pending_state = None  # ConnectionState sem DeviceId — aplicar ao próximo bloco válido
+
 
     for blk in blocks:
         if not blk.strip():
@@ -785,11 +813,61 @@ def parse_dynamic_sentence_connection(content):
         for k, rx in patterns.items():
             m = rx.search(blk)
             entry[k] = m.group(1).strip() if m else None
-        # adiciona só se DeviceId existir
-        if entry.get("DeviceId") is not None:
-            results.append(entry)
 
-    return results if results else None
+        # Descartar ConnectionState que não seja um valor válido (captura lixo da definição)
+        cs = entry.get('ConnectionState')
+        if cs and cs.lower() not in _VALID_STATES:
+            entry['ConnectionState'] = None
+
+        # split LastIP em LastIPAddress + LastIPPort
+        ip, port = split_ip_port(entry.pop('LastIP', None))
+        entry['LastIPAddress'] = ip
+        entry['LastIPPort'] = port
+
+        # split ConnectedFrom em ConnectedFromAddress + ConnectedFromPort
+        ip2, port2 = split_ip_port(entry.pop('ConnectedFrom', None))
+        entry['ConnectedFromAddress'] = ip2
+        entry['ConnectedFromPort'] = port2
+
+        # LastConnectedIP (export antigo) é o mesmo dado que LastIP — consolida em LastIPAddress
+        ip3, port3 = split_ip_port(entry.pop('LastConnectedIP', None))
+        if entry.get('LastIPAddress') is None and ip3:
+            entry['LastIPAddress'] = ip3
+        if entry.get('LastIPPort') is None and port3:
+            entry['LastIPPort'] = port3
+
+        if entry.get("DeviceId") is not None:
+            # Aplicar ConnectionState pendente (veio antes do Device Id no texto)
+            if pending_state and entry.get('ConnectionState') is None:
+                entry['ConnectionState'] = pending_state
+            pending_state = None
+            results.append(entry)
+        elif entry.get('ConnectionState'):
+            # Bloco só com ConnectionState — guardar para o próximo bloco com DeviceId
+            pending_state = entry['ConnectionState']
+
+    # IPs com valor inválido (ex: ":" capturado de texto de definição) tratados como ausentes
+    _IP_FIELDS = {'LastIPAddress', 'LastIPPort', 'ConnectedFromAddress', 'ConnectedFromPort'}
+
+    def _is_blank(k, v):
+        if v is None:
+            return True
+        if k in _IP_FIELDS and str(v).strip() in ('', ':'):
+            return True
+        return False
+
+    # Mesclar entradas com mesmo DeviceId (Device Info + Connection Info chegam em blocos separados)
+    merged = {}
+    for entry in results:
+        did = entry["DeviceId"]
+        if did not in merged:
+            merged[did] = entry
+        else:
+            for k, v in entry.items():
+                if _is_blank(k, merged[did].get(k)) and not _is_blank(k, v):
+                    merged[did][k] = v
+
+    return list(merged.values()) if merged else None
 
 def parse_dynamic_sentence_device(content):
     ignored_patterns = [
@@ -910,14 +988,19 @@ def parse_dynamic_sentence_groupNew(content):
     for pattern in ignored_patterns:
         sentence = re.sub(pattern, "", sentence)
 
+    _SECTION_STOPS = (
+        r"Address Book Info|Small Medium Business|Device Info Definition|"
+        r"Contacts Definition|Connection Info|Web Info|IP Addresses"
+    )
+
     owned_section = re.search(
-        r"Groups Owned Groups\s*(.*?)(?=Participating Groups|Address Book Info|$)",
+        r"Groups Owned Groups\s*(.*?)(?=Participating Groups|" + _SECTION_STOPS + r"|$)",
         sentence,
         re.DOTALL
     )
 
     participating_section = re.search(
-        r"Participating Groups\s*(.*?)(?=Groups Owned Groups|Address Book Info|$)",
+        r"Participating Groups\s*(.*?)(?=Groups Owned Groups|" + _SECTION_STOPS + r"|$)",
         sentence,
         re.DOTALL
     )
@@ -931,7 +1014,7 @@ def parse_dynamic_sentence_groupNew(content):
         "Creation": re.compile(r"Creation\s*([\d-]+\s+[\d:]+\s+UTC)"),
         "Size": re.compile(r"Size\s*(\d+)"),
         "Description": re.compile(r"Description\s*(.*?)(?=Subject|Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|$)", re.DOTALL),
-        "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|Description|$)",re.DOTALL),
+        "Subject": re.compile(r"Subject\s*(.*?)(?=Picture|Linked Media File|Thumbnail|ID\s+\d{6,}|Creation|Size|Description|Small Medium Business|Device Info|Contacts Definition|Connection Info|Web Info|$)",re.DOTALL),
     }
 
     def extract_groups(section_text):
@@ -1822,7 +1905,7 @@ if __name__ == '__main__':
     conn.close()
 
     dttmpstatus = ""
-    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 05/02/2026 - Banco: {DB_HOST}\n")
+    print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 18/11/2026 - Banco: {DB_HOST}\n")
 
     while True:
         time.sleep(3)

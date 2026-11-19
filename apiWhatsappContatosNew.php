@@ -672,10 +672,26 @@ function InsertBanco($db, $type, $jsonData, $requestId){
                                     } else {
                                         $dadoLastSeen = null;
                                     }
+                                    if (isset($connectionInfo->DeviceId)) {
+                                        $dadoDeviceId = trim(pg_escape_string($connectionInfo->DeviceId));
+                                    } else {
+                                        $dadoDeviceId = null;
+                                    }
+                                    if (isset($connectionInfo->LastIPAddress)) {
+                                        $dadoLastIP = pg_escape_string(trim($connectionInfo->LastIPAddress));
+                                    } else {
+                                        $dadoLastIP = null;
+                                    }
 
-                                    if (!empty($dadoServiceStart)) {
+                                    if (isset($connectionInfo->LastIPPort)) {
+                                        $dadoLastPort = pg_escape_string(trim($connectionInfo->LastIPPort));
+                                    } else {
+                                        $dadoLastPort = null;
+                                    }
+
+                                    if (!empty($dadoServiceStart) || $dadoDeviceId !== null) {
                                         //GRAVANDO CONEXÃO CONEXÃO INFO
-                                        $sqlInsert = "INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, telefone, ar_id, linh_id) VALUES ( '" . $dadoServiceStart . "', '" . $dadoDeviceType . "', '" . $dadoAppVersion . "', '" . $dadoDeviceOSBuildNumber . "', '" . $dadoConnectionState . "', '" . $dadoOnlineSince . "', '" . $dadoPushName . "', '" . $dadoLastSeen . "', '" . $AccountIdentifier . "', " . $ar_id . ", " . $linh_id . ");";
+                                        $sqlInsert = "INSERT INTO leitores.tb_whatszap_conexaoinfo (servicestart, devicetype, appversion, deviceosbuildnumber, connectionstate, onlinesince, pushname, lastseen, deviceid, lastip, lastport, telefone, ar_id, linh_id) VALUES ( '" . $dadoServiceStart . "', '" . $dadoDeviceType . "', '" . $dadoAppVersion . "', '" . $dadoDeviceOSBuildNumber . "', '" . $dadoConnectionState . "', '" . $dadoOnlineSince . "', '" . $dadoPushName . "', '" . $dadoLastSeen . "', '" . $dadoDeviceId . "', " . ($dadoLastIP !== null ? "'$dadoLastIP'" : 'NULL') . ", " . ($dadoLastPort !== null ? "'$dadoLastPort'" : 'NULL') . ", '" . $AccountIdentifier . "', " . $ar_id . ", " . $linh_id . ");";
 
                                         if ($executaSql) {
                                             $existente = selectpadraoumalinha($db, $sqlexistente);

@@ -1853,6 +1853,13 @@ def normalizar_nome_lidos(filename):
     base = re.sub(r'(_\d+)+$', '', base)
     return base + ext
 
+def arquivo_processado_no_banco(cur, clean_name):
+    cur.execute(
+        "SELECT 1 FROM leitores.tb_whatszap_arquivo WHERE ar_arquivo = %s LIMIT 1",
+        (clean_name,)
+    )
+    return cur.fetchone() is not None
+
 def normalizar_nome_erros(filename, unidade=None):
     """
     Garante apenas um sufixo _xx antes do .zip
@@ -1907,6 +1914,9 @@ if __name__ == '__main__':
     dttmpstatus = ""
     print(f"\nMicroServiço = Escuta Pasta Whatsapp ZipUploads V7.1_ 18/11/2026 - Banco: {DB_HOST}\n")
 
+    conn_dedup = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+    cur_dedup = conn_dedup.cursor()
+
     while True:
         time.sleep(3)
         current_files = get_files_in_dir(DIRNOVOS)
@@ -1952,10 +1962,16 @@ if __name__ == '__main__':
                     # Deduplicação: verifica se versão limpa já foi processada
                     clean_name = normalizar_nome_lidos(file)
                     if clean_name != file:
-                        lidos_path = os.path.join(DIRLIDOS, clean_name)
                         clean_path = os.path.join(DIRNOVOS, clean_name)
 
-                        if os.path.exists(lidos_path):
+                        try:
+                            banco_processado = arquivo_processado_no_banco(cur_dedup, clean_name)
+                        except Exception:
+                            conn_dedup = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+                            cur_dedup = conn_dedup.cursor()
+                            banco_processado = arquivo_processado_no_banco(cur_dedup, clean_name)
+
+                        if banco_processado:
                             print_color(f"[SKIP] {file} já processado como {clean_name} — removendo duplicata", 33)
                             os.remove(full_path)
                             continue
